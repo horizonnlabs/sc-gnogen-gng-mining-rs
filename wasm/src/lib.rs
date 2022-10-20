@@ -14,6 +14,9 @@ elrond_wasm_node::wasm_endpoints! {
         getScoresForAddress
         getScoresForNft
         getStakedForAddress
+        getState
+        pause
+        resume
         setBattleToken
         setPowerAndHeartScores
         stake

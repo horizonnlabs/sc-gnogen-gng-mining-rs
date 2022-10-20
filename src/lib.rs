@@ -3,18 +3,13 @@
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
-#[derive(TopEncode, TopDecode, TypeAbi)]
-pub struct BattleStats {
-    win: u64,
-    loss: u64
-}
+mod config;
+mod model;
 
-// add battle status enum
-
-pub type Nonce = u64;
+use model::{Nonce, BattleStats};
 
 #[elrond_wasm::contract]
-pub trait GngMinting {
+pub trait GngMinting: config::ConfigModule {
     #[init]
     fn init(&self) {}
 
@@ -48,28 +43,6 @@ pub trait GngMinting {
         }
     }
 
-    // token that can participate in the battle
-    #[only_owner]
-    #[endpoint(setBattleToken)]
-    fn set_battle_token(&self, tokens: MultiValueEncoded<TokenIdentifier>) {
-        for token in tokens.into_iter() {
-            self.battle_tokens().insert(token);
-        }
-    }
-
-    #[only_owner]
-    #[endpoint(setPowerAndHeartScores)]
-    fn set_power_and_heart_scores(
-        &self,
-        args: MultiValueEncoded<MultiValue4<TokenIdentifier, Nonce, u64, u64>>,
-    ) {
-        for arg in args.into_iter() {
-            let (token, nonce, power, heart) = arg.into_tuple();
-
-            todo!()
-        }
-    }
-
     #[view(getCurrentBattle)]
     #[storage_mapper("currentBattle")]
     fn current_battle(&self) -> SingleValueMapper<u64>;
@@ -78,7 +51,6 @@ pub trait GngMinting {
     #[storage_mapper("getScoresForAddress")]
     fn get_scores_for_address(&self, address: &ManagedAddress) -> SingleValueMapper<BattleStats>;
 
-    // I recommend to do a struct rather than a tuple
     #[view(getScoresForNft)]
     #[storage_mapper("getScoresForNft")]
     fn get_scores_for_nft(
@@ -98,7 +70,4 @@ pub trait GngMinting {
         address: &ManagedAddress,
         token_id: &TokenIdentifier,
     ) -> UnorderedSetMapper<Nonce>;
-
-    #[storage_mapper("BattleTokens")]
-    fn battle_tokens(&self) -> UnorderedSetMapper<TokenIdentifier>;
 }
