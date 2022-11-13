@@ -7,7 +7,7 @@ pub enum State {
     Active,
 }
 
-use super::model::Nonce;
+use super::model::{Attributes, Nonce};
 
 #[elrond_wasm::module]
 pub trait ConfigModule {
@@ -24,12 +24,13 @@ pub trait ConfigModule {
     #[endpoint(setPowerAndHeartScores)]
     fn set_power_and_heart_scores(
         &self,
-        args: MultiValueEncoded<MultiValue4<TokenIdentifier, Nonce, u64, u64>>,
+        args: MultiValueEncoded<MultiValue4<TokenIdentifier, Nonce, u16, u16>>,
     ) {
         for arg in args.into_iter() {
             let (token, nonce, power, heart) = arg.into_tuple();
 
-            todo!()
+            self.token_attributes(token, nonce)
+                .set(Attributes { power, heart });
         }
     }
 
@@ -56,4 +57,12 @@ pub trait ConfigModule {
     #[view(getState)]
     #[storage_mapper("state")]
     fn state(&self) -> SingleValueMapper<State>;
+
+    #[view(getTokenAttributes)]
+    #[storage_mapper("tokenAttributes")]
+    fn token_attributes(
+        &self,
+        token_id: TokenIdentifier,
+        nonce: u64,
+    ) -> SingleValueMapper<Attributes>;
 }

@@ -9,12 +9,16 @@ elrond_wasm_node::wasm_endpoints! {
     (
         battle
         claimRewards
+        getBattleStatus
         getCurrentBattle
         getCurrentRewardsForAddress
+        getFirstStack
         getScoresForAddress
         getScoresForNft
+        getSecondStack
         getStakedForAddress
         getState
+        getTokenAttributes
         pause
         resume
         setBattleToken
