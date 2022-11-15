@@ -5,14 +5,23 @@ elrond_wasm::derive_imports!();
 
 mod config;
 mod model;
+mod operations;
 
 use config::State;
-use model::{BattleStats, BattleStatus, Nonce, Token};
+use model::{BattleStatus, Nonce, Token, TokenStats, UserStats};
+use operations::LoopOp;
+
+const NFT_AMOUNT: u64 = 1;
+const ONE_DAY_TIMESTAMP: u64 = 86400;
 
 #[elrond_wasm::contract]
-pub trait GngMinting: config::ConfigModule {
+pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule {
     #[init]
-    fn init(&self) {
+    fn init(&self, first_battle_timestamp: u64) {
+        self.current_battle().set_if_empty(1);
+        self.first_battle_timestamp()
+            .set_if_empty(first_battle_timestamp);
+
         self.state().set(State::Active);
     }
 
@@ -33,11 +42,24 @@ pub trait GngMinting: config::ConfigModule {
         for payment in payments.iter() {
             let (token_id, nonce, amount) = payment.into_tuple();
             require!(self.battle_tokens().contains(&token_id), "Wrong token");
-            require!(amount == 1, "Invalid token amount");
+            require!(amount == NFT_AMOUNT, "Invalid token amount");
 
             let current_battle = self.current_battle().get();
 
             self.staked_for_address(&caller, &token_id).insert(nonce);
+
+            if self.stats_for_nft(&token_id, nonce).is_empty() {
+                self.stats_for_nft(&token_id, nonce).set(TokenStats {
+                    win: 0,
+                    loss: 0,
+                    owner: caller.clone(),
+                    rewards: BigUint::zero(),
+                })
+            } else {
+                self.stats_for_nft(&token_id, nonce)
+                    .update(|prev| (*prev).owner = caller.clone())
+            }
+
             if self.first_stack(current_battle).len() > self.second_stack(current_battle).len() {
                 self.second_stack(current_battle)
                     .push(&Token { token_id, nonce });
@@ -49,8 +71,104 @@ pub trait GngMinting: config::ConfigModule {
     }
 
     #[endpoint]
-    fn battle(&self) {
-        todo!()
+    fn battle(&self) -> OperationCompletionStatus {
+        require!(
+            self.get_battle_status() == BattleStatus::Battle,
+            "Battle in preparation"
+        );
+
+        self.rebalance_stacks();
+
+        let current_battle = self.current_battle().get();
+
+        let result = self.run_while_it_has_gas(|| {
+            if self.first_stack(current_battle).len() == 0 {
+                self.drain_stack_and_fill_next_battle(self.second_stack(current_battle));
+                return LoopOp::Break;
+            } else if self.second_stack(current_battle).len() == 0 {
+                self.drain_stack_and_fill_next_battle(self.first_stack(current_battle));
+                return LoopOp::Break;
+            }
+
+            self.single_battle();
+
+            LoopOp::Continue
+        });
+
+        match result {
+            OperationCompletionStatus::InterruptedBeforeOutOfGas => {}
+            OperationCompletionStatus::Completed => {
+                self.current_battle().update(|current| *current += 1);
+            }
+        }
+        result
+    }
+
+    fn single_battle(&self) {
+        let current_battle = self.current_battle().get();
+
+        let first_stack_len = self.first_stack(current_battle).len();
+        let second_stack_len = self.second_stack(current_battle).len();
+
+        let first_random_index = self.get_random_index(1, first_stack_len + 1);
+        let second_random_index = self.get_random_index(1, second_stack_len + 1);
+
+        let first_token = self.first_stack(current_battle).get(first_random_index);
+        let second_token = self.second_stack(current_battle).get(second_random_index);
+
+        let first_token_attributes = self
+            .token_attributes(&first_token.token_id, first_token.nonce)
+            .get();
+        let second_token_attributes = self
+            .token_attributes(&second_token.token_id, second_token.nonce)
+            .get();
+
+        let first_token_stats = self
+            .stats_for_nft(&first_token.token_id, first_token.nonce)
+            .get();
+        let second_token_stats = self
+            .stats_for_nft(&second_token.token_id, second_token.nonce)
+            .get();
+
+        if first_token_attributes.power > second_token_attributes.power {
+            // update winner
+            self.stats_for_nft(&first_token.token_id, first_token.nonce)
+                .update(|prev| {
+                    (*prev).win += 1;
+                    (*prev).rewards += BigUint::from(1_000_000_000u64); // default value to change
+                });
+            self.stats_for_address(&first_token_stats.owner)
+                .update(|prev| (*prev).win += 1);
+
+            // update loser
+            self.stats_for_nft(&second_token.token_id, second_token.nonce)
+                .update(|prev| (*prev).loss += 1);
+            self.stats_for_address(&second_token_stats.owner)
+                .update(|prev| (*prev).loss += 1);
+        } else {
+            // update winner
+            self.stats_for_nft(&second_token.token_id, second_token.nonce)
+                .update(|prev| {
+                    (*prev).win += 1;
+                    (*prev).rewards += BigUint::from(1_000_000_000u64); // default value to change
+                });
+            self.stats_for_address(&second_token_stats.owner)
+                .update(|prev| (*prev).win += 1);
+
+            // update loser
+            self.stats_for_nft(&first_token.token_id, first_token.nonce)
+                .update(|prev| (*prev).loss += 1);
+            self.stats_for_address(&first_token_stats.owner)
+                .update(|prev| (*prev).loss += 1);
+        }
+
+        self.first_stack(current_battle + 1).push(&second_token);
+        self.second_stack(current_battle + 1).push(&first_token);
+
+        self.first_stack(current_battle)
+            .swap_remove(first_random_index);
+        self.second_stack(current_battle)
+            .swap_remove(second_random_index);
     }
 
     // perhaps we can "customize" this endpoint and call it something like "claimGng" or "claimGngRewards"
@@ -71,9 +189,74 @@ pub trait GngMinting: config::ConfigModule {
         }
     }
 
+    fn rebalance_stacks(&self) {
+        let current_battle = self.current_battle().get();
+        let len_first_stack = self.first_stack(current_battle).len();
+        let len_second_stack = self.second_stack(current_battle).len();
+
+        if len_first_stack > len_second_stack + 1 {
+            let mut diff = len_first_stack - len_second_stack;
+
+            while diff > 1 {
+                // indexes start at 1
+                let last_item_index = self.first_stack(current_battle).len();
+                let item_to_switch = self.first_stack(current_battle).get(last_item_index);
+
+                self.second_stack(current_battle).push(&item_to_switch);
+                self.first_stack(current_battle)
+                    .swap_remove(last_item_index);
+
+                diff -= 2;
+            }
+        } else if len_second_stack > len_first_stack + 1 {
+            let mut diff = len_second_stack - len_first_stack;
+
+            while diff > 1 {
+                let last_item_index = self.second_stack(current_battle).len();
+                let item_to_switch = self.second_stack(current_battle).get(last_item_index);
+
+                self.first_stack(current_battle).push(&item_to_switch);
+                self.second_stack(current_battle)
+                    .swap_remove(last_item_index);
+
+                diff -= 2;
+            }
+        } else {
+            return;
+        }
+    }
+
+    fn drain_stack_and_fill_next_battle(&self, mut stack_to_drain: VecMapper<Token<Self::Api>>) {
+        let current_battle = self.current_battle().get();
+        let len = stack_to_drain.len();
+        for i in 1..len {
+            let token = stack_to_drain.get(i);
+            if self.first_stack(current_battle + 1).len()
+                > self.second_stack(current_battle + 1).len()
+            {
+                self.second_stack(current_battle + 1).push(&token);
+            } else {
+                self.first_stack(current_battle + 1).push(&token);
+            }
+        }
+        stack_to_drain.clear();
+    }
+
+    fn get_random_index(&self, min: usize, max: usize) -> usize {
+        let mut rand = RandomnessSource::<Self::Api>::new();
+        rand.next_usize_in_range(min, max)
+    }
+
     #[view(getBattleStatus)]
     fn get_battle_status(&self) -> BattleStatus {
-        //TODO
+        let current_timestamp = self.blockchain().get_block_timestamp();
+        let first_battle_timestamp = self.first_battle_timestamp().get();
+        let current_battle = self.current_battle().get();
+
+        if current_timestamp >= first_battle_timestamp + (ONE_DAY_TIMESTAMP * (current_battle - 1))
+        {
+            return BattleStatus::Battle;
+        }
         BattleStatus::Preparation
     }
 
@@ -81,17 +264,17 @@ pub trait GngMinting: config::ConfigModule {
     #[storage_mapper("currentBattle")]
     fn current_battle(&self) -> SingleValueMapper<u64>;
 
-    #[view(getScoresForAddress)]
-    #[storage_mapper("getScoresForAddress")]
-    fn get_scores_for_address(&self, address: &ManagedAddress) -> SingleValueMapper<BattleStats>;
+    #[view(getStatsForAddress)]
+    #[storage_mapper("statsForAddress")]
+    fn stats_for_address(&self, address: &ManagedAddress) -> SingleValueMapper<UserStats>;
 
-    #[view(getScoresForNft)]
-    #[storage_mapper("getScoresForNft")]
-    fn get_scores_for_nft(
+    #[view(getStatsForNft)]
+    #[storage_mapper("statsForNft")]
+    fn stats_for_nft(
         &self,
         token_id: &TokenIdentifier,
         nonce: Nonce,
-    ) -> SingleValueMapper<BattleStats>;
+    ) -> SingleValueMapper<TokenStats<Self::Api>>;
 
     #[view(getCurrentRewardsForAddress)]
     #[storage_mapper("currentRewardsForAddress")]
@@ -112,4 +295,8 @@ pub trait GngMinting: config::ConfigModule {
     #[view(getSecondStack)]
     #[storage_mapper("secondStack")]
     fn second_stack(&self, battle: u64) -> VecMapper<Token<Self::Api>>;
+
+    #[view(getFirstBattleTimestamp)]
+    #[storage_mapper("firstBattleTimestamp")]
+    fn first_battle_timestamp(&self) -> SingleValueMapper<u64>;
 }

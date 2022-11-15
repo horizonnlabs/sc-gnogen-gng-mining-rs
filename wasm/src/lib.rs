@@ -12,12 +12,13 @@ elrond_wasm_node::wasm_endpoints! {
         getBattleStatus
         getCurrentBattle
         getCurrentRewardsForAddress
+        getFirstBattleTimestamp
         getFirstStack
-        getScoresForAddress
-        getScoresForNft
         getSecondStack
         getStakedForAddress
         getState
+        getStatsForAddress
+        getStatsForNft
         getTokenAttributes
         pause
         resume

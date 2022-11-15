@@ -29,7 +29,7 @@ pub trait ConfigModule {
         for arg in args.into_iter() {
             let (token, nonce, power, heart) = arg.into_tuple();
 
-            self.token_attributes(token, nonce)
+            self.token_attributes(&token, nonce)
                 .set(Attributes { power, heart });
         }
     }
@@ -62,7 +62,7 @@ pub trait ConfigModule {
     #[storage_mapper("tokenAttributes")]
     fn token_attributes(
         &self,
-        token_id: TokenIdentifier,
+        token_id: &TokenIdentifier,
         nonce: u64,
     ) -> SingleValueMapper<Attributes>;
 }
