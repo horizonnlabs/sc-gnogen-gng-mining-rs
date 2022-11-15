@@ -12,7 +12,7 @@ pub enum LoopOp {
 
 impl LoopOp {
     fn is_break(&self) -> bool {
-        return matches!(self, LoopOp::Break);
+        matches!(self, LoopOp::Break)
     }
 }
 

@@ -58,7 +58,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 })
             } else {
                 self.stats_for_nft(&token_id, nonce)
-                    .update(|prev| (*prev).owner = caller.clone())
+                    .update(|prev| prev.owner = caller.clone())
             }
 
             if self.first_stack(current_battle).len() > self.second_stack(current_battle).len() {
@@ -83,10 +83,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let current_battle = self.current_battle().get();
 
         let result = self.run_while_it_has_gas(|| {
-            if self.first_stack(current_battle).len() == 0 {
+            if self.first_stack(current_battle).is_empty() {
                 self.drain_stack_and_fill_next_battle(self.second_stack(current_battle));
                 return LoopOp::Break;
-            } else if self.second_stack(current_battle).len() == 0 {
+            } else if self.second_stack(current_battle).is_empty() {
                 self.drain_stack_and_fill_next_battle(self.first_stack(current_battle));
                 return LoopOp::Break;
             }
@@ -126,7 +126,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             total_rewards += token_stats.rewards;
 
             self.stats_for_nft(&token_id, nonce)
-                .update(|prev| (*prev).rewards = BigUint::zero());
+                .update(|prev| prev.rewards = BigUint::zero());
         }
 
         self.send()
@@ -154,8 +154,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             total_rewards += token_stats.rewards;
 
             self.stats_for_nft(&token_id, nonce).update(|prev| {
-                (*prev).rewards = BigUint::zero();
-                (*prev).owner = ManagedAddress::zero();
+                prev.rewards = BigUint::zero();
+                prev.owner = ManagedAddress::zero();
             });
 
             output_payments.push(EsdtTokenPayment::new(
@@ -205,32 +205,32 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             // update winner
             self.stats_for_nft(&first_token.token_id, first_token.nonce)
                 .update(|prev| {
-                    (*prev).win += 1;
-                    (*prev).rewards += BigUint::from(1_000_000_000u64); // default value to change
+                    prev.win += 1;
+                    prev.rewards += BigUint::from(1_000_000_000u64); // default value to change
                 });
             self.stats_for_address(&first_token_stats.owner)
-                .update(|prev| (*prev).win += 1);
+                .update(|prev| prev.win += 1);
 
             // update loser
             self.stats_for_nft(&second_token.token_id, second_token.nonce)
-                .update(|prev| (*prev).loss += 1);
+                .update(|prev| prev.loss += 1);
             self.stats_for_address(&second_token_stats.owner)
-                .update(|prev| (*prev).loss += 1);
+                .update(|prev| prev.loss += 1);
         } else {
             // update winner
             self.stats_for_nft(&second_token.token_id, second_token.nonce)
                 .update(|prev| {
-                    (*prev).win += 1;
-                    (*prev).rewards += BigUint::from(1_000_000_000u64); // default value to change
+                    prev.win += 1;
+                    prev.rewards += BigUint::from(1_000_000_000u64); // default value to change
                 });
             self.stats_for_address(&second_token_stats.owner)
-                .update(|prev| (*prev).win += 1);
+                .update(|prev| prev.win += 1);
 
             // update loser
             self.stats_for_nft(&first_token.token_id, first_token.nonce)
-                .update(|prev| (*prev).loss += 1);
+                .update(|prev| prev.loss += 1);
             self.stats_for_address(&first_token_stats.owner)
-                .update(|prev| (*prev).loss += 1);
+                .update(|prev| prev.loss += 1);
         }
 
         self.first_stack(current_battle + 1).push(&second_token);
