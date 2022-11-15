@@ -158,15 +158,17 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
     fn single_battle(&self) {
         let current_battle = self.current_battle().get();
+        let mut first_stack_mapper = self.first_stack(current_battle);
+        let mut second_stack_mapper = self.second_stack(current_battle);
 
-        let first_stack_len = self.first_stack(current_battle).len();
-        let second_stack_len = self.second_stack(current_battle).len();
+        let first_stack_len = first_stack_mapper.len();
+        let second_stack_len = second_stack_mapper.len();
 
         let first_random_index = self.get_random_index(1, first_stack_len + 1);
         let second_random_index = self.get_random_index(1, second_stack_len + 1);
 
-        let first_token = self.first_stack(current_battle).get(first_random_index);
-        let second_token = self.second_stack(current_battle).get(second_random_index);
+        let first_token = first_stack_mapper.get(first_random_index);
+        let second_token = second_stack_mapper.get(second_random_index);
 
         let first_token_attributes = self
             .token_attributes(&first_token.token_id, first_token.nonce)
@@ -175,89 +177,71 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .token_attributes(&second_token.token_id, second_token.nonce)
             .get();
 
-        let first_token_stats = self
-            .stats_for_nft(&first_token.token_id, first_token.nonce)
-            .get();
-        let second_token_stats = self
-            .stats_for_nft(&second_token.token_id, second_token.nonce)
-            .get();
-
         // TODO: update winning conditions (for now its only based on power)
         if first_token_attributes.power > second_token_attributes.power {
-            // update winner
-            self.stats_for_nft(&first_token.token_id, first_token.nonce)
-                .update(|prev| prev.win += 1);
-            self.stats_for_address(&first_token_stats.owner)
-                .update(|prev| {
-                    prev.win += 1;
-                    prev.rewards += BigUint::from(1_000_000_000u64)
-                });
-
-            // update loser
-            self.stats_for_nft(&second_token.token_id, second_token.nonce)
-                .update(|prev| prev.loss += 1);
-            self.stats_for_address(&second_token_stats.owner)
-                .update(|prev| prev.loss += 1);
+            self.update_stats(&first_token, &second_token);
         } else {
-            // update winner
-            self.stats_for_nft(&second_token.token_id, second_token.nonce)
-                .update(|prev| prev.win += 1);
-            self.stats_for_address(&second_token_stats.owner)
-                .update(|prev| {
-                    prev.win += 1;
-                    prev.rewards += BigUint::from(1_000_000_000u64);
-                });
-
-            // update loser
-            self.stats_for_nft(&first_token.token_id, first_token.nonce)
-                .update(|prev| prev.loss += 1);
-            self.stats_for_address(&first_token_stats.owner)
-                .update(|prev| prev.loss += 1);
+            self.update_stats(&second_token, &first_token)
         }
 
         self.first_stack(current_battle + 1).push(&second_token);
         self.second_stack(current_battle + 1).push(&first_token);
 
-        self.first_stack(current_battle)
-            .swap_remove(first_random_index);
-        self.second_stack(current_battle)
-            .swap_remove(second_random_index);
+        first_stack_mapper.swap_remove(first_random_index);
+        second_stack_mapper.swap_remove(second_random_index);
+    }
+
+    fn update_stats(&self, winner: &Token<Self::Api>, loser: &Token<Self::Api>) {
+        let winner_token_stats = self.stats_for_nft(&winner.token_id, winner.nonce);
+        let loser_token_stats = self.stats_for_nft(&loser.token_id, loser.nonce);
+
+        // update winner
+        winner_token_stats.update(|prev| prev.win += 1);
+        self.stats_for_address(&winner_token_stats.get().owner)
+            .update(|prev| {
+                prev.win += 1;
+                prev.rewards += BigUint::from(1_000_000_000u64)
+            });
+
+        // update loser
+        loser_token_stats.update(|prev| prev.loss += 1);
+        self.stats_for_address(&loser_token_stats.get().owner)
+            .update(|prev| prev.loss += 1);
     }
 
     fn rebalance_stacks(&self) {
         let current_battle = self.current_battle().get();
-        let len_first_stack = self.first_stack(current_battle).len();
-        let len_second_stack = self.second_stack(current_battle).len();
+        let mut first_stack_mapper = self.first_stack(current_battle);
+        let mut second_stack_mapper = self.second_stack(current_battle);
 
-        if len_first_stack > len_second_stack + 1 {
-            let mut diff = len_first_stack - len_second_stack;
+        let initial_len_first_stack = first_stack_mapper.len();
+        let initial_len_second_stack = second_stack_mapper.len();
+
+        if initial_len_first_stack > initial_len_second_stack + 1 {
+            let mut diff = initial_len_first_stack - initial_len_second_stack;
 
             while diff > 1 {
                 // indexes start at 1
-                let last_item_index = self.first_stack(current_battle).len();
-                let item_to_switch = self.first_stack(current_battle).get(last_item_index);
+                let last_item_index = first_stack_mapper.len();
+                let item_to_switch = first_stack_mapper.get(last_item_index);
 
-                self.second_stack(current_battle).push(&item_to_switch);
-                self.first_stack(current_battle)
-                    .swap_remove(last_item_index);
+                second_stack_mapper.push(&item_to_switch);
+                first_stack_mapper.swap_remove(last_item_index);
 
                 diff -= 2;
             }
-        } else if len_second_stack > len_first_stack + 1 {
-            let mut diff = len_second_stack - len_first_stack;
+        } else if initial_len_second_stack > initial_len_first_stack + 1 {
+            let mut diff = initial_len_second_stack - initial_len_first_stack;
 
             while diff > 1 {
-                let last_item_index = self.second_stack(current_battle).len();
-                let item_to_switch = self.second_stack(current_battle).get(last_item_index);
+                let last_item_index = second_stack_mapper.len();
+                let item_to_switch = second_stack_mapper.get(last_item_index);
 
-                self.first_stack(current_battle).push(&item_to_switch);
-                self.second_stack(current_battle)
-                    .swap_remove(last_item_index);
+                first_stack_mapper.push(&item_to_switch);
+                second_stack_mapper.swap_remove(last_item_index);
 
                 diff -= 2;
             }
-        } else {
-            return;
         }
     }
 
