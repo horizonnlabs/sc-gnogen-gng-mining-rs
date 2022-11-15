@@ -32,16 +32,18 @@ pub trait GngMinting: config::ConfigModule {
 
         for payment in payments.iter() {
             let (token_id, nonce, amount) = payment.into_tuple();
-            require!(
-                self.battle_tokens().contains(&token_id) && amount == 1,
-                "Wrong token"
-            );
+            require!(self.battle_tokens().contains(&token_id), "Wrong token");
+            require!(amount == 1, "Invalid token amount");
+
+            let current_battle = self.current_battle().get();
 
             self.staked_for_address(&caller, &token_id).insert(nonce);
-            if self.first_stack().len() > self.second_stack().len() {
-                self.second_stack().push(&Token { token_id, nonce });
+            if self.first_stack(current_battle).len() > self.second_stack(current_battle).len() {
+                self.second_stack(current_battle)
+                    .push(&Token { token_id, nonce });
             } else {
-                self.first_stack().push(&Token { token_id, nonce });
+                self.first_stack(current_battle)
+                    .push(&Token { token_id, nonce });
             }
         }
     }
@@ -105,9 +107,9 @@ pub trait GngMinting: config::ConfigModule {
 
     #[view(getFirstStack)]
     #[storage_mapper("firstStack")]
-    fn first_stack(&self) -> VecMapper<Token<Self::Api>>;
+    fn first_stack(&self, battle: u64) -> VecMapper<Token<Self::Api>>;
 
     #[view(getSecondStack)]
     #[storage_mapper("secondStack")]
-    fn second_stack(&self) -> VecMapper<Token<Self::Api>>;
+    fn second_stack(&self, battle: u64) -> VecMapper<Token<Self::Api>>;
 }
