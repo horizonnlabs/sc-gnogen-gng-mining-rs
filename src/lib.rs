@@ -200,6 +200,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .stats_for_nft(&second_token.token_id, second_token.nonce)
             .get();
 
+        // TODO: update winning conditions (for now its only based on power)
         if first_token_attributes.power > second_token_attributes.power {
             // update winner
             self.stats_for_nft(&first_token.token_id, first_token.nonce)
