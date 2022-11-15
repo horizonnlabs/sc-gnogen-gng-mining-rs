@@ -54,7 +54,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                     win: 0,
                     loss: 0,
                     owner: caller.clone(),
-                    rewards: BigUint::zero(),
                 })
             } else {
                 self.stats_for_nft(&token_id, nonce)
@@ -107,7 +106,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
     // perhaps we can "customize" this endpoint and call it something like "claimGng" or "claimGngRewards"
     #[endpoint(claimRewards)]
-    fn claim_rewards(&self, tokens: MultiValueEncoded<MultiValue2<TokenIdentifier, Nonce>>) {
+    fn claim_rewards(&self) {
         require!(
             self.get_battle_status() == BattleStatus::Preparation,
             "Battle in progress"
@@ -115,22 +114,13 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let caller = self.blockchain().get_caller();
 
-        let mut total_rewards = BigUint::zero();
-
-        for token in tokens.into_iter() {
-            let (token_id, nonce) = token.into_tuple();
-            let token_stats = self.stats_for_nft(&token_id, nonce).get();
-
-            require!(token_stats.owner == caller, "Wrong token");
-
-            total_rewards += token_stats.rewards;
-
-            self.stats_for_nft(&token_id, nonce)
-                .update(|prev| prev.rewards = BigUint::zero());
-        }
+        let total_rewards = self.stats_for_address(&caller).get().rewards;
 
         self.send()
             .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
+
+        self.stats_for_address(&caller)
+            .update(|prev| prev.rewards = BigUint::zero());
     }
 
     #[endpoint]
@@ -140,10 +130,11 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             "Battle in progress"
         );
 
+        self.claim_rewards();
+
         let caller = self.blockchain().get_caller();
 
         let mut output_payments: ManagedVec<EsdtTokenPayment> = ManagedVec::new();
-        let mut total_rewards = BigUint::zero();
 
         for token in tokens.into_iter() {
             let (token_id, nonce) = token.into_tuple();
@@ -151,10 +142,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
             require!(token_stats.owner == caller, "Wrong token");
 
-            total_rewards += token_stats.rewards;
-
             self.stats_for_nft(&token_id, nonce).update(|prev| {
-                prev.rewards = BigUint::zero();
                 prev.owner = ManagedAddress::zero();
             });
 
@@ -164,12 +152,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 BigUint::from(NFT_AMOUNT),
             ));
         }
-
-        output_payments.push(EsdtTokenPayment::new(
-            self.gng_token_id().get(),
-            0,
-            total_rewards,
-        ));
 
         self.send().direct_multi(&caller, &output_payments);
     }
@@ -204,12 +186,12 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         if first_token_attributes.power > second_token_attributes.power {
             // update winner
             self.stats_for_nft(&first_token.token_id, first_token.nonce)
+                .update(|prev| prev.win += 1);
+            self.stats_for_address(&first_token_stats.owner)
                 .update(|prev| {
                     prev.win += 1;
-                    prev.rewards += BigUint::from(1_000_000_000u64); // default value to change
+                    prev.rewards += BigUint::from(1_000_000_000u64)
                 });
-            self.stats_for_address(&first_token_stats.owner)
-                .update(|prev| prev.win += 1);
 
             // update loser
             self.stats_for_nft(&second_token.token_id, second_token.nonce)
@@ -219,12 +201,12 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         } else {
             // update winner
             self.stats_for_nft(&second_token.token_id, second_token.nonce)
+                .update(|prev| prev.win += 1);
+            self.stats_for_address(&second_token_stats.owner)
                 .update(|prev| {
                     prev.win += 1;
-                    prev.rewards += BigUint::from(1_000_000_000u64); // default value to change
+                    prev.rewards += BigUint::from(1_000_000_000u64);
                 });
-            self.stats_for_address(&second_token_stats.owner)
-                .update(|prev| prev.win += 1);
 
             // update loser
             self.stats_for_nft(&first_token.token_id, first_token.nonce)
@@ -319,7 +301,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
     #[view(getStatsForAddress)]
     #[storage_mapper("statsForAddress")]
-    fn stats_for_address(&self, address: &ManagedAddress) -> SingleValueMapper<UserStats>;
+    fn stats_for_address(
+        &self,
+        address: &ManagedAddress,
+    ) -> SingleValueMapper<UserStats<Self::Api>>;
 
     #[view(getStatsForNft)]
     #[storage_mapper("statsForNft")]

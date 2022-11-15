@@ -4,9 +4,10 @@ elrond_wasm::derive_imports!();
 pub type Nonce = u64;
 
 #[derive(TopEncode, TopDecode, TypeAbi)]
-pub struct UserStats {
+pub struct UserStats<M: ManagedTypeApi> {
     pub win: u64,
     pub loss: u64,
+    pub rewards: BigUint<M>,
 }
 
 #[derive(TopEncode, TopDecode, TypeAbi)]
@@ -14,7 +15,6 @@ pub struct TokenStats<M: ManagedTypeApi> {
     pub win: u64,
     pub loss: u64,
     pub owner: ManagedAddress<M>,
-    pub rewards: BigUint<M>,
 }
 
 #[derive(TopEncode, TopDecode, TypeAbi)]
