@@ -17,10 +17,11 @@ const ONE_DAY_TIMESTAMP: u64 = 86400;
 #[elrond_wasm::contract]
 pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule {
     #[init]
-    fn init(&self, first_battle_timestamp: u64) {
+    fn init(&self, first_battle_timestamp: u64, gng_token_id: TokenIdentifier) {
         self.current_battle().set_if_empty(1);
         self.first_battle_timestamp()
             .set_if_empty(first_battle_timestamp);
+        self.gng_token_id().set_if_empty(gng_token_id);
 
         self.state().set(State::Active);
     }
@@ -104,6 +105,75 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         result
     }
 
+    // perhaps we can "customize" this endpoint and call it something like "claimGng" or "claimGngRewards"
+    #[endpoint(claimRewards)]
+    fn claim_rewards(&self, tokens: MultiValueEncoded<MultiValue2<TokenIdentifier, Nonce>>) {
+        require!(
+            self.get_battle_status() == BattleStatus::Preparation,
+            "Battle in progress"
+        );
+
+        let caller = self.blockchain().get_caller();
+
+        let mut total_rewards = BigUint::zero();
+
+        for token in tokens.into_iter() {
+            let (token_id, nonce) = token.into_tuple();
+            let token_stats = self.stats_for_nft(&token_id, nonce).get();
+
+            require!(token_stats.owner == caller, "Wrong token");
+
+            total_rewards += token_stats.rewards;
+
+            self.stats_for_nft(&token_id, nonce)
+                .update(|prev| (*prev).rewards = BigUint::zero());
+        }
+
+        self.send()
+            .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
+    }
+
+    #[endpoint]
+    fn withdraw(&self, tokens: MultiValueEncoded<MultiValue2<TokenIdentifier, Nonce>>) {
+        require!(
+            self.get_battle_status() == BattleStatus::Preparation,
+            "Battle in progress"
+        );
+
+        let caller = self.blockchain().get_caller();
+
+        let mut output_payments: ManagedVec<EsdtTokenPayment> = ManagedVec::new();
+        let mut total_rewards = BigUint::zero();
+
+        for token in tokens.into_iter() {
+            let (token_id, nonce) = token.into_tuple();
+            let token_stats = self.stats_for_nft(&token_id, nonce).get();
+
+            require!(token_stats.owner == caller, "Wrong token");
+
+            total_rewards += token_stats.rewards;
+
+            self.stats_for_nft(&token_id, nonce).update(|prev| {
+                (*prev).rewards = BigUint::zero();
+                (*prev).owner = ManagedAddress::zero();
+            });
+
+            output_payments.push(EsdtTokenPayment::new(
+                token_id,
+                nonce,
+                BigUint::from(NFT_AMOUNT),
+            ));
+        }
+
+        output_payments.push(EsdtTokenPayment::new(
+            self.gng_token_id().get(),
+            0,
+            total_rewards,
+        ));
+
+        self.send().direct_multi(&caller, &output_payments);
+    }
+
     fn single_battle(&self) {
         let current_battle = self.current_battle().get();
 
@@ -169,24 +239,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .swap_remove(first_random_index);
         self.second_stack(current_battle)
             .swap_remove(second_random_index);
-    }
-
-    // perhaps we can "customize" this endpoint and call it something like "claimGng" or "claimGngRewards"
-    #[endpoint(claimRewards)]
-    fn claim_rewards(&self) {
-        todo!()
-    }
-
-    fn calculate_rewards(&self) {
-        todo!()
-    }
-
-    #[endpoint]
-    fn withdraw(&self, tokens: MultiValueEncoded<MultiValue2<TokenIdentifier, Nonce>>) {
-        for token in tokens.into_iter() {
-            let (_token_id, _nonce) = token.into_tuple();
-            todo!()
-        }
     }
 
     fn rebalance_stacks(&self) {

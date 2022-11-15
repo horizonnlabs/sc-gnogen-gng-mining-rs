@@ -14,6 +14,7 @@ elrond_wasm_node::wasm_endpoints! {
         getCurrentRewardsForAddress
         getFirstBattleTimestamp
         getFirstStack
+        getGngTokenId
         getSecondStack
         getStakedForAddress
         getState

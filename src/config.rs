@@ -65,4 +65,8 @@ pub trait ConfigModule {
         token_id: &TokenIdentifier,
         nonce: u64,
     ) -> SingleValueMapper<Attributes>;
+
+    #[view(getGngTokenId)]
+    #[storage_mapper("gngTokenId")]
+    fn gng_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 }
