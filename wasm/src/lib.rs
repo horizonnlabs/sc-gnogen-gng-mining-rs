@@ -10,6 +10,7 @@ elrond_wasm_node::wasm_endpoints! {
         battle
         claimRewards
         getBattleStatus
+        getBattleTokens
         getCurrentBattle
         getCurrentRewardsForAddress
         getFirstBattleTimestamp

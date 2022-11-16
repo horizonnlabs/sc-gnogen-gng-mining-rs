@@ -51,6 +51,7 @@ pub trait ConfigModule {
         self.state().get() == State::Active
     }
 
+    #[view(getBattleTokens)]
     #[storage_mapper("battleTokens")]
     fn battle_tokens(&self) -> UnorderedSetMapper<TokenIdentifier>;
 
