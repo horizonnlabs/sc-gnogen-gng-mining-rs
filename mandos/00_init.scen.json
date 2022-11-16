@@ -1,0 +1,191 @@
+{
+  "name": "init",
+  "steps": [
+    {
+      "step": "setState",
+      "accounts": {
+        "address:owner": {
+          "nonce": "0",
+          "balance": "100,000",
+          "storage": {}
+        },
+        "address:user1": {
+          "nonce": "0",
+          "balance": "1,000,000",
+          "esdt": {
+            "str:EMIDAS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "1",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "2",
+                  "balance": "1"
+                }
+              ]
+            },
+            "str:GNOGONS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "1,",
+                  "balance": "1"
+                }
+              ]
+            }
+          },
+          "storage": {}
+        },
+        "address:user2": {
+          "nonce": "0",
+          "balance": "1,000,000",
+          "esdt": {
+            "str:VALIDATORS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "1",
+                  "balance": "1"
+                }
+              ]
+            }
+          },
+          "storage": {}
+        },
+        "address:user3": {
+          "nonce": "0",
+          "balance": "1,000,000",
+          "esdt": {
+            "str:GNOGONS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "2",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "3",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "4",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "5",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "6",
+                  "balance": "1"
+                }
+              ]
+            }
+          },
+          "storage": {}
+        },
+        "address:user4": {
+          "nonce": "0",
+          "balance": "1,000,000",
+          "esdt": {
+            "str:EMIDAS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "3",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "4",
+                  "balance": "1"
+                }
+              ]
+            },
+            "str:VALIDATORS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "2",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "3",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "4",
+                  "balance": "1"
+                }
+              ]
+            }
+          },
+          "storage": {}
+        },
+        "address:hacker1": {
+          "nonce": "0",
+          "balance": "1,000,000",
+          "esdt": {
+            "str:FAKEGNOGONS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "1",
+                  "balance": "1"
+                }
+              ]
+            }
+          },
+          "storage": {}
+        }
+      },
+      "newAddresses": [
+        {
+          "creatorAddress": "address:owner",
+          "creatorNonce": "0",
+          "newAddress": "sc:gng-minting"
+        }
+      ]
+    },
+    {
+      "step": "scDeploy",
+      "txId": "deploy contract",
+      "tx": {
+        "from": "address:owner",
+        "contractCode": "file:../output/gng-minting.wasm",
+        "arguments": ["5000", "str:GNG-abcdef"],
+        "gasLimit": "500,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "checkState",
+      "accounts": {
+        "sc:gng-minting": {
+          "nonce": "0",
+          "balance": "0",
+          "storage": {
+            "str:currentBattle": "1",
+            "str:firstBattleTimestamp": "5000",
+            "str:gngTokenId": "str:GNG-abcdef",
+            "str:state": "1"
+          },
+          "code": "file:../output/gng-minting.wasm"
+        },
+        "+": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status (preparation expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    }
+  ]
+}
