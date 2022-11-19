@@ -46,10 +46,43 @@ pub trait ConfigModule {
         self.state().set(&State::Active);
     }
 
+    #[payable("*")]
+    #[endpoint(depositGng)]
+    fn deposit_gng(&self) {
+        let caller = self.blockchain().get_caller();
+        require!(
+            self.admin().contains(&caller),
+            "Only admin can call this endpoint"
+        );
+
+        let (token, amount) = self.call_value().single_fungible_esdt();
+        let gng_token_id = self.gng_token_id().get();
+        require!(token == gng_token_id, "Invalid token sent");
+
+        self.reward_vault().update(|reward| *reward += amount);
+    }
+
     #[inline]
     fn is_active(&self) -> bool {
         self.state().get() == State::Active
     }
+
+    #[only_owner]
+    #[endpoint(addAdmin)]
+    fn add_admin(&self, admin: ManagedAddress) {
+        let is_new = self.admin().insert(admin);
+        require!(is_new, "Address is already an admin");
+    }
+
+    #[only_owner]
+    #[endpoint(removeAdmin)]
+    fn remove_admin(&self, admin: ManagedAddress) {
+        let is_removed = self.admin().swap_remove(&admin);
+        require!(is_removed, "Address is not an admin");
+    }
+
+    #[storage_mapper("admin")]
+    fn admin(&self) -> UnorderedSetMapper<ManagedAddress>;
 
     #[view(getBattleTokens)]
     #[storage_mapper("battleTokens")]
@@ -70,4 +103,7 @@ pub trait ConfigModule {
     #[view(getGngTokenId)]
     #[storage_mapper("gngTokenId")]
     fn gng_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[storage_mapper("rewardCapacity")]
+    fn reward_vault(&self) -> SingleValueMapper<BigUint>;
 }

@@ -7,8 +7,10 @@
 elrond_wasm_node::wasm_endpoints! {
     gng_minting
     (
+        addAdmin
         battle
         claimRewards
+        depositGng
         getBattleStatus
         getBattleTokens
         getCurrentBattle
@@ -23,6 +25,7 @@ elrond_wasm_node::wasm_endpoints! {
         getStatsForNft
         getTokenAttributes
         pause
+        removeAdmin
         resume
         setBattleToken
         setPowerAndHeartScores
