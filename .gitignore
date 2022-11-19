@@ -11,6 +11,7 @@ Cargo.lock
 
 # VSCode config
 .vscode
+.idea
 
 # Tutorial book output
 tutorial/book
