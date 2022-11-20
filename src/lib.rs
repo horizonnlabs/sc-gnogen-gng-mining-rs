@@ -279,6 +279,17 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         BattleStatus::Preparation
     }
 
+    #[view(isTodayASunday)]
+    fn is_today_a_sunday(&self) -> bool {
+        let current_timestamp = self.blockchain().get_block_timestamp();
+
+        let days = current_timestamp / 60 / 60 / 24;
+        let weekday = (days + 4) % 7;
+
+        // Sunday is index 0 [sunday, monday, ... , saturday]
+        weekday == 0
+    }
+
     #[view(getCurrentBattle)]
     #[storage_mapper("currentBattle")]
     fn current_battle(&self) -> SingleValueMapper<u64>;

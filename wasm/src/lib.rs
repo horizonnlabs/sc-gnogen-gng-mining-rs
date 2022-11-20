@@ -24,6 +24,7 @@ elrond_wasm_node::wasm_endpoints! {
         getStatsForAddress
         getStatsForNft
         getTokenAttributes
+        isTodayASunday
         pause
         removeAdmin
         resume
