@@ -27,6 +27,7 @@ pub struct Token<M: ManagedTypeApi> {
 pub struct Attributes {
     pub power: u16,
     pub heart: u16,
+    pub ram: u16,
 }
 
 #[derive(PartialEq, TopEncode, TopDecode, TypeAbi)]

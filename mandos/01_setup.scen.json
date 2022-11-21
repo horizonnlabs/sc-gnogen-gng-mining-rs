@@ -14,8 +14,10 @@
         "function": "setBattleToken",
         "arguments": [
           "str:EMIDAS-abcdef",
+          "str:SUPREME-abcdef",
           "str:GNOGONS-abcdef",
-          "str:VALIDATORS-abcdef"
+          "str:VALIDATORS-abcdef",
+          "str:DOGA-abcdef"
         ],
         "gasLimit": "599,000,000",
         "gasPrice": "0"
@@ -39,8 +41,10 @@
       "expect": {
         "out": [
           "str:EMIDAS-abcdef",
+          "str:SUPREME-abcdef",
           "str:GNOGONS-abcdef",
-          "str:VALIDATORS-abcdef"
+          "str:VALIDATORS-abcdef",
+          "str:DOGA-abcdef"
         ]
       }
     },
@@ -50,22 +54,22 @@
       "tx": {
         "from": "address:owner",
         "to": "sc:gng-minting",
-        "function": "setPowerAndHeartScores",
+        "function": "setAttributes",
         "arguments": [
-          "str:EMIDAS-abcdef", "1", "200", "100",
-          "str:EMIDAS-abcdef", "2", "150", "100",
-          "str:EMIDAS-abcdef", "3", "100", "100",
-          "str:EMIDAS-abcdef", "4", "50", "100",
-          "str:GNOGONS-abcdef", "1", "100", "100",
-          "str:GNOGONS-abcdef", "2", "80", "100",
-          "str:GNOGONS-abcdef", "3", "70", "100",
-          "str:GNOGONS-abcdef", "4", "60", "100",
-          "str:GNOGONS-abcdef", "5", "60", "100",
-          "str:GNOGONS-abcdef", "6", "90", "100",
-          "str:VALIDATORS-abcdef", "1", "75", "100",
-          "str:VALIDATORS-abcdef", "2", "70", "100",
-          "str:VALIDATORS-abcdef", "3", "80", "100",
-          "str:VALIDATORS-abcdef", "4", "80", "100"
+          "str:EMIDAS-abcdef", "1", "200", "100", "0",
+          "str:EMIDAS-abcdef", "2", "150", "100", "0",
+          "str:EMIDAS-abcdef", "3", "100", "100", "0",
+          "str:EMIDAS-abcdef", "4", "50", "100", "0",
+          "str:GNOGONS-abcdef", "1", "100", "100", "0",
+          "str:GNOGONS-abcdef", "2", "80", "100", "0",
+          "str:GNOGONS-abcdef", "3", "70", "100", "0",
+          "str:GNOGONS-abcdef", "4", "60", "100", "0",
+          "str:GNOGONS-abcdef", "5", "60", "100", "0",
+          "str:GNOGONS-abcdef", "6", "90", "100", "0",
+          "str:VALIDATORS-abcdef", "1", "75", "100", "40",
+          "str:VALIDATORS-abcdef", "2", "70", "100", "50",
+          "str:VALIDATORS-abcdef", "3", "80", "100", "70",
+          "str:VALIDATORS-abcdef", "4", "80", "100", "110"
         ],
         "gasLimit": "599,000,000",
         "gasPrice": "0"
@@ -87,7 +91,7 @@
         "arguments": ["str:GNOGONS-abcdef", "3"]
       },
       "expect": {
-        "out": ["u16:70|u16:100"]
+        "out": ["u16:70|u16:100|u16:0"]
       }
     }
   ]

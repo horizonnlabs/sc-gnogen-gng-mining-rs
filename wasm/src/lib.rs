@@ -15,21 +15,26 @@ elrond_wasm_node::wasm_endpoints! {
         getBattleTokens
         getCurrentBattle
         getCurrentRewardsForAddress
+        getDogaTokenId
+        getEmidasTokenId
         getFirstBattleTimestamp
         getFirstStack
         getGngTokenId
+        getGnogonTokenId
         getSecondStack
         getStakedForAddress
         getState
         getStatsForAddress
         getStatsForNft
+        getSupremeTokenId
         getTokenAttributes
+        getValidatorV2TokenId
         isTodayASunday
         pause
         removeAdmin
         resume
+        setAttributes
         setBattleToken
-        setPowerAndHeartScores
         stake
         withdraw
     )

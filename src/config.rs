@@ -14,23 +14,41 @@ pub trait ConfigModule {
     // token that can participate in the battle
     #[only_owner]
     #[endpoint(setBattleToken)]
-    fn set_battle_token(&self, tokens: MultiValueEncoded<TokenIdentifier>) {
-        for token in tokens.into_iter() {
-            self.battle_tokens().insert(token);
-        }
+    fn set_battle_token(
+        &self,
+        tokens: MultiValue5<
+            TokenIdentifier,
+            TokenIdentifier,
+            TokenIdentifier,
+            TokenIdentifier,
+            TokenIdentifier,
+        >,
+    ) {
+        let (emidas, supreme, gnogon, validator, doga) = tokens.into_tuple();
+
+        self.emidas_token_id().set(emidas.clone());
+        self.battle_tokens().insert(emidas);
+        self.supreme_token_id().set(supreme.clone());
+        self.battle_tokens().insert(supreme);
+        self.gnogon_token_id().set(gnogon.clone());
+        self.battle_tokens().insert(gnogon);
+        self.validator_v2_token_id().set(validator.clone());
+        self.battle_tokens().insert(validator);
+        self.doga_token_id().set(doga.clone());
+        self.battle_tokens().insert(doga);
     }
 
     #[only_owner]
-    #[endpoint(setPowerAndHeartScores)]
-    fn set_power_and_heart_scores(
+    #[endpoint(setAttributes)]
+    fn set_attributes(
         &self,
-        args: MultiValueEncoded<MultiValue4<TokenIdentifier, Nonce, u16, u16>>,
+        args: MultiValueEncoded<MultiValue5<TokenIdentifier, Nonce, u16, u16, u16>>,
     ) {
         for arg in args.into_iter() {
-            let (token, nonce, power, heart) = arg.into_tuple();
+            let (token, nonce, power, heart, ram) = arg.into_tuple();
 
             self.token_attributes(&token, nonce)
-                .set(Attributes { power, heart });
+                .set(Attributes { power, heart, ram });
         }
     }
 
@@ -103,6 +121,26 @@ pub trait ConfigModule {
     #[view(getGngTokenId)]
     #[storage_mapper("gngTokenId")]
     fn gng_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[view(getEmidasTokenId)]
+    #[storage_mapper("emidasTokenId")]
+    fn emidas_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[view(getSupremeTokenId)]
+    #[storage_mapper("supremeTokenId")]
+    fn supreme_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[view(getGnogonTokenId)]
+    #[storage_mapper("gnogonTokenId")]
+    fn gnogon_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[view(getValidatorV2TokenId)]
+    #[storage_mapper("validatorV2TokenId")]
+    fn validator_v2_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[view(getDogaTokenId)]
+    #[storage_mapper("dogaTokenId")]
+    fn doga_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
     #[storage_mapper("rewardCapacity")]
     fn reward_vault(&self) -> SingleValueMapper<BigUint>;
