@@ -7,8 +7,10 @@ mod config;
 mod model;
 mod operations;
 
+use core::cmp::Ordering;
+
 use config::State;
-use model::{BattleStatus, Nonce, Token, TokenStats, UserStats};
+use model::{Attributes, BattleStatus, Nonce, Token, TokenStats, UserStats};
 use operations::LoopOp;
 
 const NFT_AMOUNT: u64 = 1;
@@ -177,11 +179,18 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .token_attributes(&second_token.token_id, second_token.nonce)
             .get();
 
-        // TODO: update winning conditions (for now its only based on power)
-        if first_token_attributes.power > second_token_attributes.power {
-            self.update_stats(&first_token, &second_token);
-        } else {
-            self.update_stats(&second_token, &first_token)
+        match first_token_attributes
+            .power
+            .cmp(&second_token_attributes.power)
+        {
+            Ordering::Greater => self.update_stats(&first_token, &second_token),
+            Ordering::Less => self.update_stats(&second_token, &first_token),
+            Ordering::Equal => self.handle_tiebreak(
+                &first_token,
+                &first_token_attributes,
+                &second_token,
+                &second_token_attributes,
+            ),
         }
 
         self.first_stack(current_battle + 1).push(&second_token);
@@ -189,6 +198,50 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         first_stack_mapper.swap_remove(first_random_index);
         second_stack_mapper.swap_remove(second_random_index);
+    }
+
+    fn handle_tiebreak(
+        &self,
+        first_token: &Token<Self::Api>,
+        first_token_attr: &Attributes,
+        second_token: &Token<Self::Api>,
+        second_token_attr: &Attributes,
+    ) {
+        let emidas_token_id = self.emidas_token_id().get();
+        let gnogon_token_id = self.gnogon_token_id().get();
+        let validator_token_id = self.validator_v2_token_id().get();
+
+        if first_token.token_id == emidas_token_id && second_token.token_id != emidas_token_id {
+            self.update_stats(first_token, second_token);
+        } else if first_token.token_id != emidas_token_id
+            && second_token.token_id == emidas_token_id
+        {
+            self.update_stats(second_token, first_token);
+        } else if first_token.token_id == gnogon_token_id
+            && second_token.token_id == validator_token_id
+        {
+            self.update_stats(first_token, second_token);
+        } else if first_token.token_id == validator_token_id
+            && second_token.token_id == gnogon_token_id
+        {
+            self.update_stats(second_token, first_token);
+        } else if first_token.token_id == gnogon_token_id
+            && second_token.token_id == gnogon_token_id
+        {
+            match first_token_attr.heart.cmp(&second_token_attr.heart) {
+                Ordering::Greater => self.update_stats(first_token, second_token),
+                Ordering::Less => self.update_stats(second_token, first_token),
+                Ordering::Equal => self.update_stats_both_losers(first_token, second_token),
+            }
+        } else if first_token.token_id == validator_token_id
+            && second_token.token_id == validator_token_id
+        {
+            match first_token_attr.ram.cmp(&second_token_attr.ram) {
+                Ordering::Greater => self.update_stats(first_token, second_token),
+                Ordering::Less => self.update_stats(second_token, first_token),
+                Ordering::Equal => self.update_stats_both_losers(first_token, second_token),
+            }
+        }
     }
 
     fn update_stats(&self, winner: &Token<Self::Api>, loser: &Token<Self::Api>) {
@@ -206,6 +259,21 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         // update loser
         loser_token_stats.update(|prev| prev.loss += 1);
         self.stats_for_address(&loser_token_stats.get().owner)
+            .update(|prev| prev.loss += 1);
+    }
+
+    fn update_stats_both_losers(&self, loser1: &Token<Self::Api>, loser2: &Token<Self::Api>) {
+        let loser1_token_stats = self.stats_for_nft(&loser1.token_id, loser1.nonce);
+        let loser2_token_stats = self.stats_for_nft(&loser2.token_id, loser2.nonce);
+
+        // update loser1
+        loser1_token_stats.update(|prev| prev.loss += 1);
+        self.stats_for_address(&loser1_token_stats.get().owner)
+            .update(|prev| prev.loss += 1);
+
+        // update loser2
+        loser2_token_stats.update(|prev| prev.loss += 1);
+        self.stats_for_address(&loser2_token_stats.get().owner)
             .update(|prev| prev.loss += 1);
     }
 
