@@ -131,6 +131,14 @@
             }
           },
           "storage": {}
+        },
+        "address:admin1": {
+          "nonce": "0",
+          "balance": "1,000,000",
+          "esdt": {
+            "str:GNG-abcdef": "1,000,000"
+          },
+          "storage": {}
         }
       },
       "newAddresses": [

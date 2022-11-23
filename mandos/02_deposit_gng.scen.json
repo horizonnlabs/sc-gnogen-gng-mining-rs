@@ -1,0 +1,90 @@
+{
+  "name": "Deposit gng",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "01_setup.scen.json"
+    },
+    {
+      "step": "scCall",
+      "txId": "try to deposit energy token but is not an admin",
+      "tx": {
+          "from": "address:hacker1",
+          "to": "sc:gng-minting",
+          "function": "depositGng",
+          "arguments": [],
+          "gasLimit": "20,000,000",
+          "gasPrice": "0"
+      },
+      "expect": {
+          "status": "4",
+          "message": "str:Only admin can call this endpoint",
+          "out": [],
+          "gas": "*",
+          "refund": "*"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "add admin",
+      "tx": {
+          "from": "address:owner",
+          "to": "sc:gng-minting",
+          "function": "addAdmin",
+          "arguments": [
+              "address:admin1"
+          ],
+          "gasLimit": "20,000,000",
+          "gasPrice": "0"
+      },
+      "expect": {
+          "status": "0",
+          "message": "",
+          "out": [],
+          "gas": "*",
+          "refund": "*"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "deposit 1M gng token",
+      "tx": {
+          "from": "address:admin1",
+          "esdtValue": {
+              "tokenIdentifier": "str:GNG-abcdef",
+              "value": "1,000,000"
+          },
+          "to": "sc:gng-minting",
+          "function": "depositGng",
+          "arguments": [],
+          "gasLimit": "20,000,000",
+          "gasPrice": "0"
+      },
+      "expect": {
+          "status": "0",
+          "message": "",
+          "out": [],
+          "gas": "*",
+          "refund": "*"
+      }
+    },
+    {
+      "step": "checkState",
+      "accounts": {
+          "sc:gng-minting": {
+              "nonce": "0",
+              "balance": "0",
+              "esdt": {
+                  "str:GNG-abcdef": "1,000,000"
+              },
+              "storage": {
+                  "str:rewardCapacity": "1,000,000",
+                  "+": "*"
+              },
+              "code": "file:../output/gng-minting.wasm"
+          },
+          "+": "*"
+      }
+    }
+  ]
+}
