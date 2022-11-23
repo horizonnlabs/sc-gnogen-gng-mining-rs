@@ -15,12 +15,14 @@ elrond_wasm_node::wasm_endpoints! {
         getBattleTokens
         getCurrentBattle
         getCurrentRewardsForAddress
+        getDailyRewardAmount
         getDogaTokenId
         getEmidasTokenId
         getFirstBattleTimestamp
         getFirstStack
         getGngTokenId
         getGnogonTokenId
+        getRewardCapacity
         getSecondStack
         getStakedForAddress
         getState
@@ -35,6 +37,7 @@ elrond_wasm_node::wasm_endpoints! {
         resume
         setAttributes
         setBattleToken
+        setDailyRewardAmount
         stake
         withdraw
     )
