@@ -142,11 +142,17 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             let (token_id, nonce) = token.into_tuple();
             let token_stats = self.stats_for_nft(&token_id, nonce).get();
 
-            require!(token_stats.owner == caller, "Wrong token");
+            require!(
+                token_stats.owner == caller
+                    && self.staked_for_address(&caller, &token_id).contains(&nonce),
+                "Wrong token"
+            );
 
             self.stats_for_nft(&token_id, nonce).update(|prev| {
                 prev.owner = ManagedAddress::zero();
             });
+            self.staked_for_address(&caller, &token_id)
+                .swap_remove(&nonce);
 
             output_payments.push(EsdtTokenPayment::new(
                 token_id,
@@ -377,6 +383,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         nonce: Nonce,
     ) -> SingleValueMapper<TokenStats<Self::Api>>;
 
+    // TO DELETE ?
     #[view(getCurrentRewardsForAddress)]
     #[storage_mapper("currentRewardsForAddress")]
     fn current_rewards_for_address(&self) -> SingleValueMapper<BigUint>;
