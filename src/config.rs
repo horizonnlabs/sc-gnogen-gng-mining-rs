@@ -77,7 +77,7 @@ pub trait ConfigModule {
         let gng_token_id = self.gng_token_id().get();
         require!(token == gng_token_id, "Invalid token sent");
 
-        self.reward_vault().update(|reward| *reward += amount);
+        self.reward_capacity().update(|reward| *reward += amount);
     }
 
     #[inline]
@@ -97,6 +97,12 @@ pub trait ConfigModule {
     fn remove_admin(&self, admin: ManagedAddress) {
         let is_removed = self.admin().swap_remove(&admin);
         require!(is_removed, "Address is not an admin");
+    }
+
+    #[only_owner]
+    #[endpoint(setDailyRewardAmount)]
+    fn set_daily_reward_amount(&self, amount: BigUint) {
+        self.daily_reward_amount().set(amount);
     }
 
     #[storage_mapper("admin")]
@@ -142,6 +148,11 @@ pub trait ConfigModule {
     #[storage_mapper("dogaTokenId")]
     fn doga_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
+    #[view(getRewardCapacity)]
     #[storage_mapper("rewardCapacity")]
-    fn reward_vault(&self) -> SingleValueMapper<BigUint>;
+    fn reward_capacity(&self) -> SingleValueMapper<BigUint>;
+
+    #[view(getDailyRewardAmount)]
+    #[storage_mapper("dailyRewardAmount")]
+    fn daily_reward_amount(&self) -> SingleValueMapper<BigUint>;
 }
