@@ -250,7 +250,11 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         }
     }
 
-    fn update_stats(&self, winner: &Token<Self::Api>, loser: &Token<Self::Api>) {
+    fn update_stats<'a>(&self, mut winner: &'a Token<Self::Api>, mut loser: &'a Token<Self::Api>) {
+        if self.is_today_a_sunday() {
+            (winner, loser) = (loser, winner);
+        }
+
         let winner_token_stats = self.stats_for_nft(&winner.token_id, winner.nonce);
         let loser_token_stats = self.stats_for_nft(&loser.token_id, loser.nonce);
 
