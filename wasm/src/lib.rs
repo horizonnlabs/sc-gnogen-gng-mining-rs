@@ -11,6 +11,7 @@ elrond_wasm_node::wasm_endpoints! {
         battle
         claimRewards
         depositGng
+        getAllStakedForAddress
         getBattleStatus
         getBattleTokens
         getCurrentBattle

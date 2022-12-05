@@ -368,6 +368,23 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         weekday == 0
     }
 
+    #[view(getAllStakedForAddress)]
+    fn get_all_staked_for_address(
+        &self,
+        address: ManagedAddress,
+    ) -> MultiValueEncoded<MultiValue2<TokenIdentifier, u64>> {
+        let mut result: MultiValueEncoded<MultiValue2<TokenIdentifier, u64>> =
+            MultiValueEncoded::new();
+
+        for collection in self.battle_tokens().iter() {
+            for nonce in self.staked_for_address(&address, &collection).iter() {
+                result.push(MultiValue2::from((collection.clone(), nonce)));
+            }
+        }
+
+        result
+    }
+
     #[view(getCurrentBattle)]
     #[storage_mapper("currentBattle")]
     fn current_battle(&self) -> SingleValueMapper<u64>;

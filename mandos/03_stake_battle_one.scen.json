@@ -39,7 +39,7 @@
     },
     {
       "step": "scCall",
-      "txId": "user1 stake emidas-1",
+      "txId": "user1 stake emidas-1 gnogons-1",
       "tx": {
         "from": "address:user1",
         "to": "sc:gng-minting",
@@ -78,6 +78,18 @@
       },
       "expect": {
         "out": ["1"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get all staked for address user1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAllStakedForAddress",
+        "arguments": ["address:user1"]
+      },
+      "expect": {
+        "out": ["str:EMIDAS-abcdef", "1", "str:GNOGONS-abcdef", "1"]
       }
     },
     {
