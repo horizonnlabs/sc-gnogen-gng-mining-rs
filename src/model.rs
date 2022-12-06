@@ -4,10 +4,9 @@ elrond_wasm::derive_imports!();
 pub type Nonce = u64;
 
 #[derive(TopEncode, TopDecode, TypeAbi)]
-pub struct UserStats<M: ManagedTypeApi> {
+pub struct UserStats {
     pub win: u64,
     pub loss: u64,
-    pub rewards: BigUint<M>,
 }
 
 #[derive(TopEncode, TopDecode, TypeAbi)]
@@ -36,4 +35,30 @@ pub enum BattleStatus {
     Battle,
 }
 
-// add battle status enum
+#[derive(TopEncode, TopDecode, TypeAbi, NestedEncode, NestedDecode)]
+pub struct BattleHistory {
+    pub battle_id: u64,
+    pub total_winner_power: u64,
+}
+
+#[derive(TopEncode, TopDecode, TypeAbi, NestedEncode, NestedDecode)]
+pub struct PendingRewards {
+    pub battle_id: u64,
+    pub power: u64,
+}
+
+impl Default for UserStats {
+    fn default() -> Self {
+        Self { win: 0, loss: 0 }
+    }
+}
+
+impl<M: ManagedTypeApi> Default for TokenStats<M> {
+    fn default() -> Self {
+        Self {
+            win: 0,
+            loss: 0,
+            owner: ManagedAddress::zero(),
+        }
+    }
+}
