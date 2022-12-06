@@ -3,7 +3,7 @@ elrond_wasm::derive_imports!();
 
 pub type Nonce = u64;
 
-#[derive(TopEncode, TopDecode, TypeAbi)]
+#[derive(TopEncode, TopDecode, TypeAbi, Default)]
 pub struct UserStats {
     pub win: u64,
     pub loss: u64,
@@ -45,12 +45,6 @@ pub struct BattleHistory {
 pub struct PendingRewards {
     pub battle_id: u64,
     pub power: u64,
-}
-
-impl Default for UserStats {
-    fn default() -> Self {
-        Self { win: 0, loss: 0 }
-    }
 }
 
 impl<M: ManagedTypeApi> Default for TokenStats<M> {

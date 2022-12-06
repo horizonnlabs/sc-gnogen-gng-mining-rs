@@ -436,9 +436,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let stats_mapper = self.stats_for_address(address);
 
         if stats_mapper.is_empty() {
-            return UserStats::default();
+            UserStats::default()
         } else {
-            return stats_mapper.get();
+            stats_mapper.get()
         }
     }
 
@@ -447,9 +447,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let stats_mapper = self.stats_for_nft(token_id, nonce);
 
         if stats_mapper.is_empty() {
-            return TokenStats::default();
+            TokenStats::default()
         } else {
-            return stats_mapper.get();
+            stats_mapper.get()
         }
     }
 
