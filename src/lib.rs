@@ -10,11 +10,14 @@ mod operations;
 use core::cmp::Ordering;
 
 use config::State;
-use model::{Attributes, BattleStatus, Nonce, Token, TokenStats, UserStats};
+use model::{
+    Attributes, BattleHistory, BattleStatus, Nonce, PendingRewards, Token, TokenStats, UserStats,
+};
 use operations::LoopOp;
 
 const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
+const DIVISION_PRECISION: u64 = 1000000;
 
 #[elrond_wasm::contract]
 pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule {
@@ -41,6 +44,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         require!(!payments.is_empty(), "No payment");
 
         let caller = self.blockchain().get_caller();
+        self.stats_for_address(&caller)
+            .set_if_empty(UserStats::default());
 
         for payment in payments.iter() {
             let (token_id, nonce, amount) = payment.into_tuple();
@@ -71,7 +76,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             }
         }
 
-        self.total_nft_engaged().update(|prev| *prev += payments.len() as u64);
+        self.total_nft_engaged()
+            .update(|prev| *prev += payments.len() as u64);
     }
 
     #[endpoint]
@@ -108,7 +114,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         result
     }
 
-    // perhaps we can "customize" this endpoint and call it something like "claimGng" or "claimGngRewards"
     #[endpoint(claimRewards)]
     fn claim_rewards(&self) {
         require!(
@@ -118,13 +123,13 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let caller = self.blockchain().get_caller();
 
-        let total_rewards = self.stats_for_address(&caller).get().rewards;
+        let total_rewards = self.get_pending_rewards_for_address(&caller);
+        require!(total_rewards > 0, "No rewards");
 
         self.send()
             .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
 
-        self.stats_for_address(&caller)
-            .update(|prev| prev.rewards = BigUint::zero());
+        self.raw_pending_rewards_for_address(&caller).clear();
     }
 
     #[endpoint]
@@ -164,7 +169,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             ));
         }
 
-        self.total_nft_engaged().update(|prev| *prev -= amount_tokens as u64);
+        self.total_nft_engaged()
+            .update(|prev| *prev -= amount_tokens as u64);
 
         self.send().direct_multi(&caller, &output_payments);
     }
@@ -262,14 +268,24 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let winner_token_stats = self.stats_for_nft(&winner.token_id, winner.nonce);
         let loser_token_stats = self.stats_for_nft(&loser.token_id, loser.nonce);
+        let winner_attributes = self.token_attributes(&winner.token_id, winner.nonce).get();
+        let current_battle = self.current_battle().get();
 
         // update winner
         winner_token_stats.update(|prev| prev.win += 1);
         self.stats_for_address(&winner_token_stats.get().owner)
             .update(|prev| {
                 prev.win += 1;
-                prev.rewards += BigUint::from(1_000_000_000u64)
             });
+        // rn adding one item by nft winner
+        self.raw_pending_rewards_for_address(&winner_token_stats.get().owner)
+            .insert(PendingRewards {
+                battle_id: current_battle,
+                power: winner_attributes.power as u64,
+            });
+        self.battle_history(current_battle).update(|prev| {
+            prev.total_winner_power += winner_attributes.power as u64;
+        });
 
         // update loser
         loser_token_stats.update(|prev| prev.loss += 1);
@@ -390,18 +406,56 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         result
     }
 
-    #[view(getCurrentBattle)]
-    #[storage_mapper("currentBattle")]
-    fn current_battle(&self) -> SingleValueMapper<u64>;
+    #[view(getPendingRewardsForAddress)]
+    fn get_pending_rewards_for_address(&self, address: &ManagedAddress) -> BigUint {
+        let raw_pending_rewards = self.raw_pending_rewards_for_address(address);
+        let daily_reward_amount = self.daily_reward_amount().get();
+
+        let mut result = BigUint::zero();
+
+        for pending_reward in raw_pending_rewards.iter() {
+            let battle_history = self.battle_history(pending_reward.battle_id).get();
+            let total_winner_power = battle_history.total_winner_power;
+
+            let big_power = BigUint::from(pending_reward.power).mul(DIVISION_PRECISION);
+            let big_total_winner_power = BigUint::from(total_winner_power).mul(DIVISION_PRECISION);
+
+            // TO DO: check if this is correct
+            let rewards = big_power
+                .div(big_total_winner_power)
+                .mul(&daily_reward_amount)
+                .div(DIVISION_PRECISION);
+
+            result += rewards;
+        }
+        result
+    }
 
     #[view(getStatsForAddress)]
-    #[storage_mapper("statsForAddress")]
-    fn stats_for_address(
-        &self,
-        address: &ManagedAddress,
-    ) -> SingleValueMapper<UserStats<Self::Api>>;
+    fn get_stats_for_address(&self, address: &ManagedAddress) -> UserStats {
+        let stats_mapper = self.stats_for_address(address);
+
+        if stats_mapper.is_empty() {
+            return UserStats::default();
+        } else {
+            return stats_mapper.get();
+        }
+    }
 
     #[view(getStatsForNft)]
+    fn get_stats_for_nft(&self, token_id: &TokenIdentifier, nonce: u64) -> TokenStats<Self::Api> {
+        let stats_mapper = self.stats_for_nft(token_id, nonce);
+
+        if stats_mapper.is_empty() {
+            return TokenStats::default();
+        } else {
+            return stats_mapper.get();
+        }
+    }
+
+    #[storage_mapper("statsForAddress")]
+    fn stats_for_address(&self, address: &ManagedAddress) -> SingleValueMapper<UserStats>;
+
     #[storage_mapper("statsForNft")]
     fn stats_for_nft(
         &self,
@@ -409,10 +463,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         nonce: Nonce,
     ) -> SingleValueMapper<TokenStats<Self::Api>>;
 
-    // TO DELETE ?
-    #[view(getCurrentRewardsForAddress)]
-    #[storage_mapper("currentRewardsForAddress")]
-    fn current_rewards_for_address(&self) -> SingleValueMapper<BigUint>;
+    #[view(getCurrentBattle)]
+    #[storage_mapper("currentBattle")]
+    fn current_battle(&self) -> SingleValueMapper<u64>;
 
     #[view(getStakedForAddress)]
     #[storage_mapper("stakedForAddress")]
@@ -437,4 +490,15 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     #[view(getTotalNftEngaged)]
     #[storage_mapper("totalNftEngaged")]
     fn total_nft_engaged(&self) -> SingleValueMapper<u64>;
+
+    #[view(getBattleHistory)]
+    #[storage_mapper("battleHistory")]
+    fn battle_history(&self, battle: u64) -> SingleValueMapper<BattleHistory>;
+
+    #[view(getRawPendingRewardsForAddress)]
+    #[storage_mapper("rawPendingRewardsForAddress")]
+    fn raw_pending_rewards_for_address(
+        &self,
+        address: &ManagedAddress,
+    ) -> UnorderedSetMapper<PendingRewards>;
 }

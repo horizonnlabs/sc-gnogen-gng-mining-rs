@@ -12,10 +12,10 @@ elrond_wasm_node::wasm_endpoints! {
         claimRewards
         depositGng
         getAllStakedForAddress
+        getBattleHistory
         getBattleStatus
         getBattleTokens
         getCurrentBattle
-        getCurrentRewardsForAddress
         getDailyRewardAmount
         getDogaTokenId
         getEmidasTokenId
@@ -23,6 +23,8 @@ elrond_wasm_node::wasm_endpoints! {
         getFirstStack
         getGngTokenId
         getGnogonTokenId
+        getPendingRewardsForAddress
+        getRawPendingRewardsForAddress
         getRewardCapacity
         getSecondStack
         getStakedForAddress
