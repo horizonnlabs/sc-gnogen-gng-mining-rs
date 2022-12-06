@@ -3,7 +3,7 @@
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
-mod config;
+pub mod config;
 mod model;
 mod operations;
 
@@ -70,6 +70,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                     .push(&Token { token_id, nonce });
             }
         }
+
+        self.total_nft_engaged().update(|prev| *prev += payments.len() as u64);
     }
 
     #[endpoint]
@@ -135,6 +137,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         self.claim_rewards();
 
         let caller = self.blockchain().get_caller();
+        let amount_tokens = tokens.len();
 
         let mut output_payments: ManagedVec<EsdtTokenPayment> = ManagedVec::new();
 
@@ -160,6 +163,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 BigUint::from(NFT_AMOUNT),
             ));
         }
+
+        self.total_nft_engaged().update(|prev| *prev -= amount_tokens as u64);
 
         self.send().direct_multi(&caller, &output_payments);
     }
@@ -428,4 +433,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     #[view(getFirstBattleTimestamp)]
     #[storage_mapper("firstBattleTimestamp")]
     fn first_battle_timestamp(&self) -> SingleValueMapper<u64>;
+
+    #[view(getTotalNftEngaged)]
+    #[storage_mapper("totalNftEngaged")]
+    fn total_nft_engaged(&self) -> SingleValueMapper<u64>;
 }
