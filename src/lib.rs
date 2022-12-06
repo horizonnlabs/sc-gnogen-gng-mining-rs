@@ -443,14 +443,23 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     }
 
     #[view(getStatsForNft)]
-    fn get_stats_for_nft(&self, token_id: &TokenIdentifier, nonce: u64) -> TokenStats<Self::Api> {
-        let stats_mapper = self.stats_for_nft(token_id, nonce);
+    fn get_stats_for_nft(
+        &self,
+        nfts: MultiValueEncoded<MultiValue2<TokenIdentifier, u64>>,
+    ) -> MultiValueEncoded<MultiValue3<TokenIdentifier, u64, TokenStats<Self::Api>>> {
+        let mut result = MultiValueEncoded::new();
 
-        if stats_mapper.is_empty() {
-            TokenStats::default()
-        } else {
-            stats_mapper.get()
+        for nft in nfts.into_iter() {
+            let (token_id, nonce) = nft.into_tuple();
+            let stats_mapper = self.stats_for_nft(&token_id, nonce);
+
+            if stats_mapper.is_empty() {
+                result.push(MultiValue3::from((token_id, nonce, TokenStats::default())));
+            } else {
+                result.push(MultiValue3::from((token_id, nonce, stats_mapper.get())));
+            }
         }
+        result
     }
 
     #[storage_mapper("statsForAddress")]
