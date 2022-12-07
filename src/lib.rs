@@ -124,12 +124,13 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let caller = self.blockchain().get_caller();
 
         let total_rewards = self.get_pending_rewards_for_address(&caller);
-        require!(total_rewards > 0, "No rewards");
 
-        self.send()
-            .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
+        if total_rewards > 0 {
+            self.send()
+                .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
 
-        self.raw_pending_rewards_for_address(&caller).clear();
+            self.raw_pending_rewards_for_address(&caller).clear();
+        }
     }
 
     #[endpoint]
