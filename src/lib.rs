@@ -357,6 +357,12 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             } else {
                 self.first_stack(current_battle + 1).push(&token);
             }
+
+            let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
+
+            token_stats.update(|prev| prev.loss += 1);
+            self.stats_for_address(&token_stats.get().owner)
+                .update(|prev| prev.loss += 1);
         }
         stack_to_drain.clear();
     }
