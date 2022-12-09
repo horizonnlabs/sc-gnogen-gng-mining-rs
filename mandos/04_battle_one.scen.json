@@ -119,6 +119,48 @@
       "expect": {
         "out": ["0"]
       }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": [
+          "address:user1"
+        ]
+      },
+      "expect": {
+        "out": ["7407"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user3",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": [
+          "address:user3"
+        ]
+      },
+      "expect": {
+        "out": ["2592"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user4",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": [
+          "address:user4"
+        ]
+      },
+      "expect": {
+        "out": [""]
+      }
     }
   ]
 }

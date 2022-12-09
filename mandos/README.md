@@ -24,3 +24,14 @@ test-status.scen.json
       so there is no preparation phase but the battle starts directly)
     Battle 4
       -> Status = Preparation
+
+
+first battle
+  270 total power winner (200 + 70)
+  daily rewards 10 000
+    user 1 wins 200 power
+      200/270 * 10 000 = 7407
+    user 3 wins 70 power
+      70/270 * 10 000 = 2592
+    user 4 wins 0 power
+  7407 + 2592 = 9999 (not 10 000 because of integer division)
