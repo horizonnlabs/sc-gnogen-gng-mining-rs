@@ -190,6 +190,33 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let first_token = first_stack_mapper.get(first_random_index);
         let second_token = second_stack_mapper.get(second_random_index);
 
+        // if one of the tokens has owner 0, it means the owner has withdrawn it during the preparation
+        // we remove it from the stack and return
+        // this is a workaround for the fact that it would be too expensive to iterate over the two whole stacks when user withdraws
+        // TO CHECK:
+        //   - if the user has withdrawn and another user has staked the same token during the same preparation
+        //   - the stack should rebalance at the beginning of each battle's tx, but what if this happens during the last tx?
+
+        // BEGIN
+        if self
+            .stats_for_nft(&first_token.token_id, first_token.nonce)
+            .get()
+            .owner
+            .is_zero()
+        {
+            first_stack_mapper.swap_remove(first_random_index);
+            return;
+        } else if self
+            .stats_for_nft(&second_token.token_id, second_token.nonce)
+            .get()
+            .owner
+            .is_zero()
+        {
+            second_stack_mapper.swap_remove(second_random_index);
+            return;
+        }
+        // END
+
         let first_token_attributes = self
             .token_attributes(&first_token.token_id, first_token.nonce)
             .get();
