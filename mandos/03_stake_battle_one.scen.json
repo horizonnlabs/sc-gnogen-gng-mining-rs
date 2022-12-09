@@ -280,6 +280,18 @@
             }
         ]
       }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total nfts engaged",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTotalNftEngaged",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["5"]
+      }
     }
   ]
 }
