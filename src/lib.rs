@@ -459,7 +459,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             let total_winner_power = battle_history.total_winner_power;
 
             let big_power = BigUint::from(pending_reward.power).mul(DIVISION_PRECISION);
-            let big_total_winner_power = BigUint::from(total_winner_power).mul(DIVISION_PRECISION);
+            let big_total_winner_power = BigUint::from(total_winner_power);
 
             // TO DO: check if this is correct
             let rewards = big_power
