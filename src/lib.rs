@@ -91,6 +91,13 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let current_battle = self.current_battle().get();
 
+        if self.battle_history(current_battle).is_empty() {
+            self.battle_history(current_battle).set(BattleHistory {
+                battle_id: current_battle,
+                total_winner_power: 0,
+            });
+        }
+
         let result = self.run_while_it_has_gas(|| {
             if self.first_stack(current_battle).is_empty() {
                 self.drain_stack_and_fill_next_battle(self.second_stack(current_battle));

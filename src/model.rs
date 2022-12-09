@@ -39,6 +39,7 @@ pub enum BattleStatus {
 pub struct BattleHistory {
     pub battle_id: u64,
     pub total_winner_power: u64,
+    // created as a struct to be able to add more fields if needed
 }
 
 #[derive(TopEncode, TopDecode, TypeAbi, NestedEncode, NestedDecode)]
