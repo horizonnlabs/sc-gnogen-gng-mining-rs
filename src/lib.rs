@@ -382,7 +382,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     fn drain_stack_and_fill_next_battle(&self, mut stack_to_drain: VecMapper<Token<Self::Api>>) {
         let current_battle = self.current_battle().get();
         let len = stack_to_drain.len();
-        for i in 1..len {
+        for i in 1..(len + 1) {
             let token = stack_to_drain.get(i);
             if self.first_stack(current_battle + 1).len()
                 > self.second_stack(current_battle + 1).len()
