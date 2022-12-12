@@ -98,6 +98,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             });
         }
 
+        let mut amount_of_battles_done: u64 = 0;
+
         let result = self.run_while_it_has_gas(|| {
             if self.first_stack(current_battle).is_empty() {
                 self.drain_stack_and_fill_next_battle(self.second_stack(current_battle));
@@ -108,9 +110,19 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             }
 
             self.single_battle();
+            amount_of_battles_done += 1;
 
             LoopOp::Continue
         });
+
+        if amount_of_battles_done > 0 {
+            self.send().direct_esdt(
+                &self.blockchain().get_caller(),
+                &self.gng_token_id().get(),
+                0,
+                &(self.base_battle_reward_amount().get() * amount_of_battles_done),
+            );
+        }
 
         match result {
             OperationCompletionStatus::InterruptedBeforeOutOfGas => {}

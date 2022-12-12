@@ -12,6 +12,7 @@ elrond_wasm_node::wasm_endpoints! {
         claimRewards
         depositGng
         getAllStakedForAddress
+        getBaseBattleRewardAmount
         getBattleHistory
         getBattleStatus
         getBattleTokens
@@ -40,6 +41,7 @@ elrond_wasm_node::wasm_endpoints! {
         removeAdmin
         resume
         setAttributes
+        setBaseBattleRewardAmount
         setBattleToken
         setDailyRewardAmount
         stake

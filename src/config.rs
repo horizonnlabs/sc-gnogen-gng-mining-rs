@@ -105,6 +105,12 @@ pub trait ConfigModule {
         self.daily_reward_amount().set(amount);
     }
 
+    #[only_owner]
+    #[endpoint(setBaseBattleRewardAmount)]
+    fn set_base_battle_reward_amount(&self, amount: BigUint) {
+        self.base_battle_reward_amount().set(amount);
+    }
+
     #[storage_mapper("admin")]
     fn admin(&self) -> UnorderedSetMapper<ManagedAddress>;
 
@@ -155,4 +161,8 @@ pub trait ConfigModule {
     #[view(getDailyRewardAmount)]
     #[storage_mapper("dailyRewardAmount")]
     fn daily_reward_amount(&self) -> SingleValueMapper<BigUint>;
+
+    #[view(getBaseBattleRewardAmount)]
+    #[storage_mapper("baseBattleRewardAmount")]
+    fn base_battle_reward_amount(&self) -> SingleValueMapper<BigUint>;
 }

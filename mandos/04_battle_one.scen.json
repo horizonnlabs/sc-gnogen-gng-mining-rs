@@ -54,7 +54,7 @@
     },
     {
       "step": "scCall",
-      "txId": "battle 1 1st tx (call user2)",
+      "txId": "battle 1 2nd tx (call user2)",
       "tx": {
         "from": "address:user2",
         "to": "sc:gng-minting",
@@ -73,7 +73,7 @@
     },
     {
       "step": "scCall",
-      "txId": "battle 1 1st tx (call user2)",
+      "txId": "battle 1 3rd tx (call user2)",
       "tx": {
         "from": "address:user2",
         "to": "sc:gng-minting",
@@ -261,6 +261,28 @@
             "2-owner": "address:user4"
           }
         ]
+      }
+    },
+    {
+      "step": "checkState",
+      "comment": "GNG balance is 20 because the last battle tx didn't execute any single battle",
+      "accounts": {
+        "address:user2": {
+          "nonce": "4",
+          "balance": "1000000",
+          "esdt": {
+            "str:GNG-abcdef": "20",
+            "str:VALIDATORS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "1",
+                  "balance": "1"
+                }
+              ]
+            }
+          }
+        },
+        "+": "*"
       }
     }
   ]
