@@ -18,6 +18,7 @@ elrond_wasm_node::wasm_endpoints! {
         getBattleTokens
         getCurrentBattle
         getDailyRewardAmount
+        getDailyRewardAmountWithHalving
         getDogaTokenId
         getEmidasTokenId
         getFirstBattleTimestamp
