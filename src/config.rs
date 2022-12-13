@@ -1,6 +1,8 @@
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
+use core::convert::TryFrom;
+
 #[derive(TopEncode, TopDecode, PartialEq, TypeAbi)]
 pub enum State {
     Inactive,
@@ -111,6 +113,20 @@ pub trait ConfigModule {
         self.base_battle_reward_amount().set(amount);
     }
 
+    #[view(getDailyRewardAmountWithHalving)]
+    fn get_daily_reward_amount_with_halving(&self) -> BigUint {
+        let base_daily_reward_amount = self.daily_reward_amount().get();
+        let first_battle_timestamp = self.first_battle_timestamp().get();
+
+        let current_timestamp = self.blockchain().get_block_timestamp();
+        let days_since_first_battle = (current_timestamp - first_battle_timestamp) / 86400;
+
+        let halving_count = days_since_first_battle / 365;
+        let final_amount =
+            base_daily_reward_amount / 2u64.pow(u32::try_from(halving_count).unwrap());
+        final_amount
+    }
+
     #[storage_mapper("admin")]
     fn admin(&self) -> UnorderedSetMapper<ManagedAddress>;
 
@@ -165,4 +181,8 @@ pub trait ConfigModule {
     #[view(getBaseBattleRewardAmount)]
     #[storage_mapper("baseBattleRewardAmount")]
     fn base_battle_reward_amount(&self) -> SingleValueMapper<BigUint>;
+
+    #[view(getFirstBattleTimestamp)]
+    #[storage_mapper("firstBattleTimestamp")]
+    fn first_battle_timestamp(&self) -> SingleValueMapper<u64>;
 }

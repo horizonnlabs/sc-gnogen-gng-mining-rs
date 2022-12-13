@@ -462,7 +462,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     #[view(getPendingRewardsForAddress)]
     fn get_pending_rewards_for_address(&self, address: &ManagedAddress) -> BigUint {
         let raw_pending_rewards = self.raw_pending_rewards_for_address(address);
-        let daily_reward_amount = self.daily_reward_amount().get();
+        let daily_reward_amount = self.get_daily_reward_amount_with_halving();
 
         let mut result = BigUint::zero();
 
@@ -544,10 +544,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     #[view(getSecondStack)]
     #[storage_mapper("secondStack")]
     fn second_stack(&self, battle: u64) -> VecMapper<Token<Self::Api>>;
-
-    #[view(getFirstBattleTimestamp)]
-    #[storage_mapper("firstBattleTimestamp")]
-    fn first_battle_timestamp(&self) -> SingleValueMapper<u64>;
 
     #[view(getTotalNftEngaged)]
     #[storage_mapper("totalNftEngaged")]
