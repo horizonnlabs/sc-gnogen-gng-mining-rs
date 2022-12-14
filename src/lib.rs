@@ -13,7 +13,7 @@ use config::State;
 use model::{
     Attributes, BattleHistory, BattleStatus, Nonce, PendingRewards, Token, TokenStats, UserStats,
 };
-use operations::LoopOp;
+use operations::{LoopOp, OperationCompletionStatus};
 
 const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
@@ -130,12 +130,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             );
         }
 
-        match result {
-            OperationCompletionStatus::InterruptedBeforeOutOfGas => {}
-            OperationCompletionStatus::Completed => {
-                self.current_battle().update(|current| *current += 1);
-            }
+        if result.is_completed() {
+            self.current_battle().update(|current| *current += 1);
         }
+
         result
     }
 
