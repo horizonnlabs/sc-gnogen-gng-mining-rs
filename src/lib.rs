@@ -102,9 +102,15 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let result = self.run_while_it_has_gas(|| {
             if self.first_stack(current_battle).is_empty() {
+                if self.second_stack(current_battle).len() > 1 {
+                    return LoopOp::ForceBreakBeforeCompleted;
+                }
                 self.drain_stack_and_fill_next_battle(self.second_stack(current_battle));
                 return LoopOp::Break;
             } else if self.second_stack(current_battle).is_empty() {
+                if self.first_stack(current_battle).len() > 1 {
+                    return LoopOp::ForceBreakBeforeCompleted;
+                }
                 self.drain_stack_and_fill_next_battle(self.first_stack(current_battle));
                 return LoopOp::Break;
             }

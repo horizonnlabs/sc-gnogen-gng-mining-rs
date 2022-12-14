@@ -8,12 +8,7 @@ const MIN_GAS_TO_SAVE_PROGRESS: u64 = 50_000_000;
 pub enum LoopOp {
     Continue,
     Break,
-}
-
-impl LoopOp {
-    fn is_break(&self) -> bool {
-        matches!(self, LoopOp::Break)
-    }
+    ForceBreakBeforeCompleted,
 }
 
 #[elrond_wasm::module]
@@ -30,18 +25,20 @@ pub trait OngoingOperationModule: config::ConfigModule {
         let gas_per_iteration = gas_before - gas_after;
 
         loop {
-            if loop_op.is_break() {
-                break;
-            }
+            match loop_op {
+                LoopOp::Break => return OperationCompletionStatus::Completed,
+                LoopOp::ForceBreakBeforeCompleted => {
+                    return OperationCompletionStatus::InterruptedBeforeOutOfGas
+                }
+                LoopOp::Continue => {
+                    if !self.can_continue_operation(gas_per_iteration) {
+                        return OperationCompletionStatus::InterruptedBeforeOutOfGas;
+                    }
 
-            if !self.can_continue_operation(gas_per_iteration) {
-                return OperationCompletionStatus::InterruptedBeforeOutOfGas;
+                    loop_op = process();
+                }
             }
-
-            loop_op = process();
         }
-
-        OperationCompletionStatus::Completed
     }
 
     fn can_continue_operation(&self, operation_cost: u64) -> bool {
