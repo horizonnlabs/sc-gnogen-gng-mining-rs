@@ -4,7 +4,7 @@ Initial timestamp = 5000
 first battle => 5000
 second battle => 5000 + 86400 = 91400
 third battle => 91400 + 86400 = 182800
-fourth battle => 182800 + 86400 = 274200
+fourth battle => 182800 + 86400 = 274200 (Sunday)
 and so on...
 
 test-status.scen.json
