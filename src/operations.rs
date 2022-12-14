@@ -28,7 +28,7 @@ pub trait OngoingOperationModule: config::ConfigModule {
             match loop_op {
                 LoopOp::Break => return OperationCompletionStatus::Completed,
                 LoopOp::ForceBreakBeforeCompleted => {
-                    return OperationCompletionStatus::InterruptedBeforeOutOfGas
+                    return OperationCompletionStatus::InterruptedBeforeOutOfGas;
                 }
                 LoopOp::Continue => {
                     if !self.can_continue_operation(gas_per_iteration) {

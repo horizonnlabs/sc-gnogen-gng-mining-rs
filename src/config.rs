@@ -122,9 +122,8 @@ pub trait ConfigModule {
         let days_since_first_battle = (current_timestamp - first_battle_timestamp) / 86400;
 
         let halving_count = days_since_first_battle / 365;
-        let final_amount =
-            base_daily_reward_amount / 2u64.pow(u32::try_from(halving_count).unwrap());
-        final_amount
+
+        base_daily_reward_amount / 2u64.pow(u32::try_from(halving_count).unwrap())
     }
 
     #[storage_mapper("admin")]
