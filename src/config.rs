@@ -126,6 +126,17 @@ pub trait ConfigModule {
         base_daily_reward_amount / 2u64.pow(u32::try_from(halving_count).unwrap())
     }
 
+    #[view(getTokenAttributes)]
+    fn get_token_attributes(&self, token_id: &TokenIdentifier, nonce: u64) -> Attributes {
+        let token_attributes = self.token_attributes(token_id, nonce);
+
+        if token_attributes.is_empty() {
+            Attributes::default()
+        } else {
+            token_attributes.get()
+        }
+    }
+
     #[storage_mapper("admin")]
     fn admin(&self) -> UnorderedSetMapper<ManagedAddress>;
 
@@ -137,7 +148,6 @@ pub trait ConfigModule {
     #[storage_mapper("state")]
     fn state(&self) -> SingleValueMapper<State>;
 
-    #[view(getTokenAttributes)]
     #[storage_mapper("tokenAttributes")]
     fn token_attributes(
         &self,

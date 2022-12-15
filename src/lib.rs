@@ -240,12 +240,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         }
         // END
 
-        let first_token_attributes = self
-            .token_attributes(&first_token.token_id, first_token.nonce)
-            .get();
-        let second_token_attributes = self
-            .token_attributes(&second_token.token_id, second_token.nonce)
-            .get();
+        let first_token_attributes =
+            self.get_token_attributes(&first_token.token_id, first_token.nonce);
+        let second_token_attributes =
+            self.get_token_attributes(&second_token.token_id, second_token.nonce);
 
         match first_token_attributes
             .power
@@ -319,7 +317,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let winner_token_stats = self.stats_for_nft(&winner.token_id, winner.nonce);
         let loser_token_stats = self.stats_for_nft(&loser.token_id, loser.nonce);
-        let winner_attributes = self.token_attributes(&winner.token_id, winner.nonce).get();
+        let winner_attributes = self.get_token_attributes(&winner.token_id, winner.nonce);
         let current_battle = self.current_battle().get();
 
         // update winner

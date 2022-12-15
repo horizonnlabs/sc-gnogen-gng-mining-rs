@@ -22,7 +22,7 @@ pub struct Token<M: ManagedTypeApi> {
     pub nonce: u64,
 }
 
-#[derive(TopEncode, TopDecode, TypeAbi)]
+#[derive(TopEncode, TopDecode, TypeAbi, Default)]
 pub struct Attributes {
     pub power: u16,
     pub heart: u16,
