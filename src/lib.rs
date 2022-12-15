@@ -307,6 +307,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 Ordering::Less => self.update_stats(second_token, first_token),
                 Ordering::Equal => self.update_stats_both_losers(first_token, second_token),
             }
+        } else {
+            self.update_stats_both_losers(first_token, second_token);
         }
     }
 
