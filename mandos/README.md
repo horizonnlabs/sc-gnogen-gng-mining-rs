@@ -35,3 +35,24 @@ first battle
       70/270 * 10 000 = 2592
     user 4 wins 0 power
   7407 + 2592 = 9999 (not 10 000 because of integer division)
+
+
+Battle 1
+  user1 -> 7407
+  user3 -> 2592
+
+Claim rewards
+  user1 -> 7407
+
+Battle 2
+  user3 -> 4117 => total 6709
+  user4 -> 5882
+
+Claim rewards
+  user3 -> 6709
+
+Battle 3
+  user1 -> 5324
+  user2 -> 887
+  user3 -> 2839
+  user4 -> 946 => total 6828

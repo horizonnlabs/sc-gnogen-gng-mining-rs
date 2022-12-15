@@ -69,7 +69,8 @@
           "str:VALIDATORS-abcdef", "1", "75", "100", "40",
           "str:VALIDATORS-abcdef", "2", "70", "100", "50",
           "str:VALIDATORS-abcdef", "3", "80", "100", "70",
-          "str:VALIDATORS-abcdef", "4", "80", "100", "110"
+          "str:VALIDATORS-abcdef", "4", "80", "100", "110",
+          "str:VALIDATORS-abcdef", "5", "70", "100", "110"
         ],
         "gasLimit": "599,000,000",
         "gasPrice": "0"
