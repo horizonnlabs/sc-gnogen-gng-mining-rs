@@ -60,6 +60,20 @@ with open('./scripts/data_devnet/validators.csv') as csvfile:
     ram = int(row['ATTRIBUTE:RAM'])
     all_metadatas.append([f'str:{tokenId}', nonce, power, 0, ram])
 
+with open('./scripts/data_devnet/doga.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    tokenId, nonce = fromStringIdToTokenIdAndNonce(row['TOKEN'])
+    power = int(row['ATTRIBUTE:POWER'])
+    all_metadatas.append([f'str:{tokenId}', nonce, power, 0, 0])
+
+with open('./scripts/data_devnet/supreme.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    tokenId, nonce = fromStringIdToTokenIdAndNonce(row['TOKEN'])
+    power = int(row['ATTRIBUTE:POWER'])
+    all_metadatas.append([f'str:{tokenId}', nonce, power, 0, 0])
+
 amountSent = 0
 totalToSend = len(all_metadatas)
 
