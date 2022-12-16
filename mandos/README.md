@@ -51,8 +51,13 @@ Battle 2
 Claim rewards
   user3 -> 6709
 
-Battle 3
+Battle 3 (old rewards)
   user1 -> 5324
   user2 -> 887
   user3 -> 2839
   user4 -> 946 => total 6828
+Battle 3 (new rewards)
+  user -> 5389
+  user2 -> 1736
+  user3 -> 718
+  user4 -> 2155 => total 8037

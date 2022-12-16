@@ -43,9 +43,10 @@ pub struct BattleHistory {
 }
 
 #[derive(TopEncode, TopDecode, TypeAbi, NestedEncode, NestedDecode)]
-pub struct PendingRewards {
-    pub battle_id: u64,
-    pub power: u64,
+pub struct PendingRewards<M: ManagedTypeApi> {
+    pub calculated_rewards: BigUint<M>,
+    pub awaiting_battle_id: u64,
+    pub awaiting_power: u64,
 }
 
 impl<M: ManagedTypeApi> Default for TokenStats<M> {
@@ -54,6 +55,16 @@ impl<M: ManagedTypeApi> Default for TokenStats<M> {
             win: 0,
             loss: 0,
             owner: ManagedAddress::zero(),
+        }
+    }
+}
+
+impl<M: ManagedTypeApi> Default for PendingRewards<M> {
+    fn default() -> Self {
+        Self {
+            calculated_rewards: BigUint::zero(),
+            awaiting_battle_id: 0,
+            awaiting_power: 0,
         }
     }
 }
