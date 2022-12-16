@@ -132,6 +132,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 0,
                 &(self.base_battle_reward_amount().get() * amount_of_battles_done),
             );
+            self.reward_capacity().update(|prev| {
+                *prev -= self.base_battle_reward_amount().get() * amount_of_battles_done
+            });
         }
 
         if result.is_completed() {
@@ -158,6 +161,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
             self.raw_pending_rewards_for_address(&caller)
                 .set(PendingRewards::default());
+            self.reward_capacity().update(|prev| *prev -= total_rewards);
         }
     }
 
