@@ -5,6 +5,7 @@ first battle => 5000
 second battle => 5000 + 86400 = 91400
 third battle => 91400 + 86400 = 182800
 fourth battle => 182800 + 86400 = 274200 (Sunday)
+fifth battle => 274200 + 86400 = 365600
 and so on...
 
 test-status.scen.json
@@ -51,13 +52,8 @@ Battle 2
 Claim rewards
   user3 -> 6709
 
-Battle 3 (old rewards)
-  user1 -> 5324
-  user2 -> 887
-  user3 -> 2839
-  user4 -> 946 => total 6828
 Battle 3 (new rewards)
-  user -> 5389
-  user2 -> 1736
-  user3 -> 718
-  user4 -> 2155 => total 8037
+  user -> 4761
+  user2 -> 1972
+  user3 -> 816
+  user4 -> 2448 => total 8330
