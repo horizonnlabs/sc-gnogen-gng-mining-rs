@@ -42,7 +42,7 @@
         "to": "sc:gng-minting",
         "function": "battle",
         "arguments": [],
-        "gasLimit": "68,000,000",
+        "gasLimit": "65,000,000",
         "gasPrice": "0"
       },
       "expect": {
