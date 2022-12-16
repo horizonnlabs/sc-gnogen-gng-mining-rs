@@ -42,7 +42,7 @@
         "to": "sc:gng-minting",
         "function": "battle",
         "arguments": [],
-        "gasLimit": "65,000,000",
+        "gasLimit": "68,000,000",
         "gasPrice": "0"
       },
       "expect": {
@@ -77,25 +77,6 @@
       "txId": "battle 3 3rd tx (call user2)",
       "tx": {
         "from": "address:user2",
-        "to": "sc:gng-minting",
-        "function": "battle",
-        "arguments": [],
-        "gasLimit": "65,000,000",
-        "gasPrice": "0"
-      },
-      "expect": {
-        "status": "0",
-        "message": "",
-        "out": ["str:interrupted"],
-        "gas": "*",
-        "refund": "*"
-      }
-    },
-    {
-      "step": "scCall",
-      "txId": "battle 3 4th tx (call user4)",
-      "tx": {
-        "from": "address:user4",
         "to": "sc:gng-minting",
         "function": "battle",
         "arguments": [],
@@ -151,7 +132,7 @@
         ]
       },
       "expect": {
-        "out": ["5324"]
+        "out": ["5388"]
       }
     },
     {
@@ -165,7 +146,7 @@
         ]
       },
       "expect": {
-        "out": ["887"]
+        "out": ["1736"]
       }
     },
     {
@@ -179,7 +160,7 @@
         ]
       },
       "expect": {
-        "out": ["2839"]
+        "out": ["718"]
       }
     },
     {
@@ -193,7 +174,7 @@
         ]
       },
       "expect": {
-        "out": ["6828"]
+        "out": ["8037"]
       }
     },
     {
@@ -251,12 +232,16 @@
               "1-nonce": "u64:3"
             },
             {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:2"
+            },
+            {
               "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
               "1-nonce": "u64:2"
             },
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:6"
+              "1-nonce": "u64:4"
             },
             {
               "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
@@ -264,15 +249,11 @@
             },
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:4"
+              "1-nonce": "u64:6"
             },
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
               "1-nonce": "u64:1"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:2"
             }
         ]
       }
@@ -300,16 +281,12 @@
             "1-nonce": "u64:2"
           },
           {
-            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:4"
-          },
-          {
             "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
             "1-nonce": "u64:3"
           },
           {
-            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:3"
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:4"
           },
           {
             "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
@@ -317,6 +294,10 @@
           },
           {
             "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:3"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
             "1-nonce": "u64:3"
           }
         ]
@@ -330,14 +311,14 @@
           "nonce": "11",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "100"
+            "str:GNG-abcdef": "90"
           }
         },
         "address:user4": {
-          "nonce": "6",
+          "nonce": "5",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "20"
+            "str:GNG-abcdef": "30"
           }
         },
         "+": "*"
