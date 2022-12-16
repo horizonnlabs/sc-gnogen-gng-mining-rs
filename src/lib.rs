@@ -115,8 +115,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 return LoopOp::Break;
             }
 
-            self.single_battle();
-            amount_of_battles_done += 1;
+            let is_real_battle = self.single_battle();
+            if is_real_battle {
+                amount_of_battles_done += 1;
+            }
 
             LoopOp::Continue
         });
@@ -199,7 +201,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         self.send().direct_multi(&caller, &output_payments);
     }
 
-    fn single_battle(&self) {
+    fn single_battle(&self) -> bool {
         let current_battle = self.current_battle().get();
         let mut first_stack_mapper = self.first_stack(current_battle);
         let mut second_stack_mapper = self.second_stack(current_battle);
@@ -228,7 +230,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .is_zero()
         {
             first_stack_mapper.swap_remove(first_random_index);
-            return;
+            return false;
         } else if self
             .stats_for_nft(&second_token.token_id, second_token.nonce)
             .get()
@@ -236,7 +238,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .is_zero()
         {
             second_stack_mapper.swap_remove(second_random_index);
-            return;
+            return false;
         }
         // END
 
@@ -264,6 +266,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         first_stack_mapper.swap_remove(first_random_index);
         second_stack_mapper.swap_remove(second_random_index);
+
+        return true;
     }
 
     fn handle_tiebreak(

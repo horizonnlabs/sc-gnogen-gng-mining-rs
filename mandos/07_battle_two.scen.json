@@ -281,7 +281,7 @@
     },
     {
       "step": "checkState",
-      "comment": "check GNG balance for user2 (already has 20) and user4",
+      "comment": "check GNG balance for user2 (already has 20) and user4 (0 because fake battle)",
       "accounts": {
         "address:user2": {
           "nonce": "7",
@@ -306,7 +306,7 @@
           "nonce": "3",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "10",
+            "str:GNG-abcdef": "0",
             "str:VALIDATORS-abcdef": {
               "instances": [
                 {

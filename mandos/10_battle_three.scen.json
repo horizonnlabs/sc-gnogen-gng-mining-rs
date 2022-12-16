@@ -337,7 +337,7 @@
           "nonce": "6",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "30"
+            "str:GNG-abcdef": "20"
           }
         },
         "+": "*"
