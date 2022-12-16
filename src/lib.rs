@@ -432,6 +432,13 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let len = stack_to_drain.len();
         for i in 1..(len + 1) {
             let token = stack_to_drain.get(i);
+            let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
+
+            if token_stats.get().owner.is_zero() {
+                // will be removed right after the for loop
+                continue;
+            }
+
             if self.first_stack(current_battle + 1).len()
                 > self.second_stack(current_battle + 1).len()
             {
@@ -439,8 +446,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             } else {
                 self.first_stack(current_battle + 1).push(&token);
             }
-
-            let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
 
             token_stats.update(|prev| prev.loss += 1);
             self.stats_for_address(&token_stats.get().owner)
