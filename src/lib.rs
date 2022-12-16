@@ -46,6 +46,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let caller = self.blockchain().get_caller();
         self.stats_for_address(&caller)
             .set_if_empty(UserStats::default());
+        self.raw_pending_rewards_for_address(&caller)
+            .set_if_empty(PendingRewards::default());
 
         for payment in payments.iter() {
             let (token_id, nonce, amount) = payment.into_tuple();
@@ -154,7 +156,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             self.send()
                 .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
 
-            self.raw_pending_rewards_for_address(&caller).clear();
+            self.raw_pending_rewards_for_address(&caller)
+                .set(PendingRewards::default());
         }
     }
 
@@ -332,12 +335,33 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .update(|prev| {
                 prev.win += 1;
             });
-        // rn adding one item by nft winner
-        self.raw_pending_rewards_for_address(&winner_token_stats.get().owner)
-            .insert(PendingRewards {
-                battle_id: current_battle,
-                power: winner_attributes.power as u64,
+
+        let winner_rewards_mapper =
+            self.raw_pending_rewards_for_address(&winner_token_stats.get().owner);
+        let winner_rewards = self
+            .raw_pending_rewards_for_address(&winner_token_stats.get().owner)
+            .get();
+        if winner_rewards.awaiting_battle_id == 0 {
+            winner_rewards_mapper.update(|prev| {
+                prev.awaiting_battle_id = current_battle;
+                prev.awaiting_power = winner_attributes.power as u64;
             });
+        } else if winner_rewards.awaiting_battle_id < current_battle {
+            let rewards_to_add = self.calculate_single_battle_rewards(
+                winner_rewards.awaiting_battle_id,
+                winner_rewards.awaiting_power,
+            );
+            winner_rewards_mapper.update(|prev| {
+                prev.calculated_rewards += rewards_to_add;
+                prev.awaiting_battle_id = current_battle;
+                prev.awaiting_power = winner_attributes.power as u64;
+            });
+        } else {
+            winner_rewards_mapper.update(|prev| {
+                prev.awaiting_power += winner_attributes.power as u64;
+            });
+        }
+
         self.battle_history(current_battle).update(|prev| {
             prev.total_winner_power += winner_attributes.power as u64;
         });
@@ -426,6 +450,20 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         rand.next_usize_in_range(min, max)
     }
 
+    fn calculate_single_battle_rewards(&self, battle_id: u64, power: u64) -> BigUint {
+        let daily_reward_amount = self.get_daily_reward_amount_with_halving();
+        let battle_history = self.battle_history(battle_id).get();
+        let total_winner_power = battle_history.total_winner_power;
+
+        let big_power = BigUint::from(power).mul(DIVISION_PRECISION);
+        let big_total_winner_power = BigUint::from(total_winner_power);
+
+        big_power
+            .div(big_total_winner_power)
+            .mul(&daily_reward_amount)
+            .div(DIVISION_PRECISION)
+    }
+
     #[view(getBattleStatus)]
     fn get_battle_status(&self) -> BattleStatus {
         let current_timestamp = self.blockchain().get_block_timestamp();
@@ -469,27 +507,23 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
     #[view(getPendingRewardsForAddress)]
     fn get_pending_rewards_for_address(&self, address: &ManagedAddress) -> BigUint {
-        let raw_pending_rewards = self.raw_pending_rewards_for_address(address);
-        let daily_reward_amount = self.get_daily_reward_amount_with_halving();
-
-        let mut result = BigUint::zero();
-
-        for pending_reward in raw_pending_rewards.iter() {
-            let battle_history = self.battle_history(pending_reward.battle_id).get();
-            let total_winner_power = battle_history.total_winner_power;
-
-            let big_power = BigUint::from(pending_reward.power).mul(DIVISION_PRECISION);
-            let big_total_winner_power = BigUint::from(total_winner_power);
-
-            // TO DO: check if this is correct
-            let rewards = big_power
-                .div(big_total_winner_power)
-                .mul(&daily_reward_amount)
-                .div(DIVISION_PRECISION);
-
-            result += rewards;
+        if self.raw_pending_rewards_for_address(address).is_empty() {
+            return BigUint::zero();
         }
-        result
+        let pending_rewards = self.raw_pending_rewards_for_address(address).get();
+
+        if (pending_rewards.awaiting_battle_id == self.current_battle().get()
+            && self.get_battle_status() == BattleStatus::Battle)
+            || pending_rewards.awaiting_battle_id == 0
+        {
+            pending_rewards.calculated_rewards
+        } else {
+            let rewards_to_add = self.calculate_single_battle_rewards(
+                pending_rewards.awaiting_battle_id,
+                pending_rewards.awaiting_power,
+            );
+            pending_rewards.calculated_rewards + rewards_to_add
+        }
     }
 
     #[view(getStatsForAddress)]
@@ -566,5 +600,5 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     fn raw_pending_rewards_for_address(
         &self,
         address: &ManagedAddress,
-    ) -> UnorderedSetMapper<PendingRewards>;
+    ) -> SingleValueMapper<PendingRewards<Self::Api>>;
 }
