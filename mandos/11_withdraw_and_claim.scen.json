@@ -1,30 +1,33 @@
 {
-  "name": "withdraw after battle 1",
+  "name": "withdraw after battle 3",
   "steps": [
     {
       "step": "externalSteps",
-      "path": "07_battle_two.scen.json"
+      "path": "10_battle_three.scen.json"
     },
     {
       "step": "scQuery",
-      "txId": "get all staked for address user3",
+      "txId": "get all staked for address user2",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getAllStakedForAddress",
-        "arguments": ["address:user3"]
+        "arguments": ["address:user2"]
       },
       "expect": {
-        "out": ["str:GNOGONS-abcdef", "3", "str:GNOGONS-abcdef", "4"]
+        "out": [
+          "str:VALIDATORS-abcdef", "1",
+          "str:VALIDATORS-abcdef", "5"
+        ]
       }
     },
     {
       "step": "scCall",
-      "txId": "user3 withdraw gnogons 3",
+      "txId": "user2 withdraw validator 5",
       "tx": {
-        "from": "address:user3",
+        "from": "address:user2",
         "to": "sc:gng-minting",
         "function": "withdraw",
-        "arguments": ["str:GNOGONS-abcdef", "3"],
+        "arguments": ["str:VALIDATORS-abcdef", "5"],
         "gasLimit": "20,000,000",
         "gasPrice": "0"
       },
@@ -38,14 +41,30 @@
     },
     {
       "step": "scQuery",
-      "txId": "get all staked for address user3",
+      "txId": "get pending rewards for user2",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": [
+          "address:user2"
+        ]
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get all staked for address user2",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getAllStakedForAddress",
-        "arguments": ["address:user3"]
+        "arguments": ["address:user2"]
       },
       "expect": {
-        "out": ["str:GNOGONS-abcdef", "4"]
+        "out": [
+          "str:VALIDATORS-abcdef", "1"
+        ]
       }
     },
     {
@@ -57,22 +76,22 @@
         "arguments": []
       },
       "expect": {
-        "out": ["3"]
+        "out": ["14"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get stats for gnogons 3",
+      "txId": "get stats for validator 5",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getStatsForNft",
-        "arguments": ["str:GNOGONS-abcdef", "3"]
+        "arguments": ["str:VALIDATORS-abcdef", "5"]
       },
       "expect": {
         "out": [
-          "str:GNOGONS-abcdef", "3",
+          "str:VALIDATORS-abcdef", "5",
           {
-            "0-win": "u64:2",
+            "0-win": "u64:1",
             "1-loss": "u64:0",
             "2-owner": "0x0000000000000000000000000000000000000000000000000000000000000000",
             "3-stakedId": "u64:0"
@@ -82,28 +101,17 @@
     },
     {
       "step": "checkState",
+      "comment": "check GNG balance for user2 (already has 80)",
       "accounts": {
-        "address:user3": {
-          "nonce": "2",
+        "address:user2": {
+          "nonce": "12",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "6,709",
-            "str:GNOGONS-abcdef": {
+            "str:GNG-abcdef": "2,052",
+            "str:VALIDATORS-abcdef": {
               "instances": [
                 {
-                  "nonce": "2",
-                  "balance": "1"
-                },
-                {
-                  "nonce": "3",
-                  "balance": "1"
-                },
-                {
                   "nonce": "5",
-                  "balance": "1"
-                },
-                {
-                  "nonce": "6",
                   "balance": "1"
                 }
               ]

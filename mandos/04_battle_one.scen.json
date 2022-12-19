@@ -210,15 +210,18 @@
         "out": [
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:1"
+              "1-nonce": "u64:1",
+              "2-id": "u64:2"
             },
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:4"
+              "1-nonce": "u64:4",
+              "2-id": "u64:4"
             },
             {
               "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:3"
+              "1-nonce": "u64:3",
+              "2-id": "u64:5"
             }
         ]
       }
@@ -235,11 +238,13 @@
         "out": [
             {
               "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:1"
+              "1-nonce": "u64:1",
+              "2-id": "u64:1"
             },
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:3"
+              "1-nonce": "u64:3",
+              "2-id": "u64:3"
             }
         ]
       }
@@ -258,7 +263,8 @@
           {
             "0-win": "u64:0",
             "1-loss": "u64:1",
-            "2-owner": "address:user4"
+            "2-owner": "address:user4",
+            "3-stakedId": "u64:5"
           }
         ]
       }

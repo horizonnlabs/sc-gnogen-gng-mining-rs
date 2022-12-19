@@ -25,6 +25,7 @@ elrond_wasm_node::wasm_endpoints! {
         getFirstStack
         getGngTokenId
         getGnogonTokenId
+        getLastStakedId
         getPendingRewardsForAddress
         getRawPendingRewardsForAddress
         getRewardCapacity

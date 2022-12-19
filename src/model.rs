@@ -14,12 +14,14 @@ pub struct TokenStats<M: ManagedTypeApi> {
     pub win: u64,
     pub loss: u64,
     pub owner: ManagedAddress<M>,
+    pub current_id_token: u64,
 }
 
 #[derive(TopEncode, TopDecode, TypeAbi)]
 pub struct Token<M: ManagedTypeApi> {
     pub token_id: TokenIdentifier<M>,
     pub nonce: u64,
+    pub id: u64,
 }
 
 #[derive(TopEncode, TopDecode, TypeAbi, Default)]
@@ -55,6 +57,7 @@ impl<M: ManagedTypeApi> Default for TokenStats<M> {
             win: 0,
             loss: 0,
             owner: ManagedAddress::zero(),
+            current_id_token: 0,
         }
     }
 }

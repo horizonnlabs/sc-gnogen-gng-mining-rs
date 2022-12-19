@@ -28,6 +28,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .set_if_empty(first_battle_timestamp);
         self.gng_token_id().set_if_empty(gng_token_id);
 
+        self.last_staked_id().set_if_empty(0);
+
         self.state().set(State::Active);
     }
 
@@ -49,6 +51,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         self.raw_pending_rewards_for_address(&caller)
             .set_if_empty(PendingRewards::default());
 
+        let mut staked_id = self.last_staked_id().get();
+
         for payment in payments.iter() {
             let (token_id, nonce, amount) = payment.into_tuple();
             require!(self.battle_tokens().contains(&token_id), "Wrong token");
@@ -58,26 +62,38 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
             self.staked_for_address(&caller, &token_id).insert(nonce);
 
+            staked_id += 1;
+
             if self.stats_for_nft(&token_id, nonce).is_empty() {
                 self.stats_for_nft(&token_id, nonce).set(TokenStats {
                     win: 0,
                     loss: 0,
                     owner: caller.clone(),
-                })
+                    current_id_token: staked_id,
+                });
             } else {
-                self.stats_for_nft(&token_id, nonce)
-                    .update(|prev| prev.owner = caller.clone())
+                self.stats_for_nft(&token_id, nonce).update(|prev| {
+                    prev.owner = caller.clone();
+                    prev.current_id_token = staked_id;
+                });
             }
 
             if self.first_stack(current_battle).len() > self.second_stack(current_battle).len() {
-                self.second_stack(current_battle)
-                    .push(&Token { token_id, nonce });
+                self.second_stack(current_battle).push(&Token {
+                    token_id,
+                    nonce,
+                    id: staked_id,
+                });
             } else {
-                self.first_stack(current_battle)
-                    .push(&Token { token_id, nonce });
+                self.first_stack(current_battle).push(&Token {
+                    token_id,
+                    nonce,
+                    id: staked_id,
+                });
             }
         }
 
+        self.last_staked_id().set(staked_id);
         self.total_nft_engaged()
             .update(|prev| *prev += payments.len() as u64);
     }
@@ -191,6 +207,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
             self.stats_for_nft(&token_id, nonce).update(|prev| {
                 prev.owner = ManagedAddress::zero();
+                prev.current_id_token = 0;
             });
             self.staked_for_address(&caller, &token_id)
                 .swap_remove(&nonce);
@@ -222,7 +239,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let first_token = first_stack_mapper.get(first_random_index);
         let second_token = second_stack_mapper.get(second_random_index);
 
-        // if one of the tokens has owner 0, it means the owner has withdrawn it during the preparation
+        // if one of the tokens has its id different than the one in token_stats, it means the owner has withdrawn it during the preparation
         // we remove it from the stack and return
         // this is a workaround for the fact that it would be too expensive to iterate over the two whole stacks when user withdraws
         // TO CHECK:
@@ -233,16 +250,16 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         if self
             .stats_for_nft(&first_token.token_id, first_token.nonce)
             .get()
-            .owner
-            .is_zero()
+            .current_id_token
+            != first_token.id
         {
             first_stack_mapper.swap_remove(first_random_index);
             return false;
         } else if self
             .stats_for_nft(&second_token.token_id, second_token.nonce)
             .get()
-            .owner
-            .is_zero()
+            .current_id_token
+            != second_token.id
         {
             second_stack_mapper.swap_remove(second_random_index);
             return false;
@@ -434,7 +451,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             let token = stack_to_drain.get(i);
             let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
 
-            if token_stats.get().owner.is_zero() {
+            if token_stats.get().current_id_token != token.id {
                 // will be removed right after the for loop
                 continue;
             }
@@ -610,4 +627,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         &self,
         address: &ManagedAddress,
     ) -> SingleValueMapper<PendingRewards<Self::Api>>;
+
+    #[view(getLastStakedId)]
+    #[storage_mapper("lastStakedId")]
+    fn last_staked_id(&self) -> SingleValueMapper<u64>;
 }
