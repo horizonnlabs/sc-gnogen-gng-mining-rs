@@ -1,0 +1,159 @@
+{
+  "name": "setup",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "00_init.scen.json"
+    },
+    {
+      "step": "scCall",
+      "txId": "add battle tokens",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "setBattleToken",
+        "arguments": [
+          "str:EMIDAS-abcdef",
+          "str:SUPREME-abcdef",
+          "str:GNOGONS-abcdef",
+          "str:VALIDATORS-abcdef",
+          "str:DOGA-abcdef"
+        ],
+        "gasLimit": "599,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle tokens",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleTokens",
+        "arguments": []
+      },
+      "expect": {
+        "out": [
+          "str:EMIDAS-abcdef",
+          "str:SUPREME-abcdef",
+          "str:GNOGONS-abcdef",
+          "str:VALIDATORS-abcdef",
+          "str:DOGA-abcdef"
+        ]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "add token attributes",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "setAttributes",
+        "arguments": [
+          "str:EMIDAS-abcdef", "1", "200", "100", "0",
+          "str:EMIDAS-abcdef", "2", "150", "100", "0",
+          "str:EMIDAS-abcdef", "3", "100", "100", "0",
+          "str:EMIDAS-abcdef", "4", "50", "100", "0",
+          "str:GNOGONS-abcdef", "1", "100", "100", "0",
+          "str:GNOGONS-abcdef", "2", "80", "100", "0",
+          "str:GNOGONS-abcdef", "3", "70", "100", "0",
+          "str:GNOGONS-abcdef", "4", "60", "100", "0",
+          "str:GNOGONS-abcdef", "5", "60", "100", "0",
+          "str:GNOGONS-abcdef", "6", "90", "100", "0",
+          "str:VALIDATORS-abcdef", "1", "75", "100", "40",
+          "str:VALIDATORS-abcdef", "2", "70", "100", "50",
+          "str:VALIDATORS-abcdef", "3", "80", "100", "70",
+          "str:VALIDATORS-abcdef", "4", "80", "100", "110",
+          "str:VALIDATORS-abcdef", "5", "70", "100", "110"
+        ],
+        "gasLimit": "599,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get token attributes",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTokenAttributes",
+        "arguments": ["str:GNOGONS-abcdef", "3"]
+      },
+      "expect": {
+        "out": ["u16:70|u16:100|u16:0"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "set daily rewards amount (10 000)",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "setDailyRewardAmount",
+        "arguments": ["10,000"],
+        "gasLimit": "599,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get daily rewards amount",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmount"
+      },
+      "expect": {
+        "out": ["10,000"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "set base battle reward amount",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "setBaseBattleRewardAmount",
+        "arguments": ["10"],
+        "gasLimit": "10,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get base battle reward amount",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBaseBattleRewardAmount"
+      },
+      "expect": {
+        "out": ["10"]
+      }
+    }
+  ]
+}

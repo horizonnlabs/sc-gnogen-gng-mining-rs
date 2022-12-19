@@ -1,0 +1,350 @@
+{
+  "name": "stake battle 1",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "08_withdraw_and_claim.scen.json"
+    },
+    {
+      "step": "scCall",
+      "txId": "user1 stake all",
+      "tx": {
+        "from": "address:user1",
+        "to": "sc:gng-minting",
+        "function": "stake",
+        "arguments": [],
+        "esdtValue": [
+          {
+            "tokenIdentifier": "str:EMIDAS-abcdef",
+            "nonce": "1",
+            "value": "1"
+          },
+          {
+            "tokenIdentifier": "str:EMIDAS-abcdef",
+            "nonce": "2",
+            "value": "1"
+          }
+        ],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get all staked for address user1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAllStakedForAddress",
+        "arguments": ["address:user1"]
+      },
+      "expect": {
+        "out": [
+          "str:EMIDAS-abcdef", "1",
+          "str:EMIDAS-abcdef", "2",
+          "str:GNOGONS-abcdef", "1"
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total nfts engaged",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTotalNftEngaged",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["5"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "user2 stake all",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "stake",
+        "arguments": [],
+        "esdtValue": [
+          {
+            "tokenIdentifier": "str:VALIDATORS-abcdef",
+            "nonce": "1",
+            "value": "1"
+          },
+          {
+            "tokenIdentifier": "str:VALIDATORS-abcdef",
+            "nonce": "5",
+            "value": "1"
+          }
+        ],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get all staked for address user2",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAllStakedForAddress",
+        "arguments": ["address:user2"]
+      },
+      "expect": {
+        "out": [
+          "str:VALIDATORS-abcdef", "1",
+          "str:VALIDATORS-abcdef", "5"
+        ]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "user3 stake all",
+      "tx": {
+        "from": "address:user3",
+        "to": "sc:gng-minting",
+        "function": "stake",
+        "arguments": [],
+        "esdtValue": [
+          {
+            "tokenIdentifier": "str:GNOGONS-abcdef",
+            "nonce": "2",
+            "value": "1"
+          },
+          {
+            "tokenIdentifier": "str:GNOGONS-abcdef",
+            "nonce": "3",
+            "value": "1"
+          },
+          {
+            "tokenIdentifier": "str:GNOGONS-abcdef",
+            "nonce": "5",
+            "value": "1"
+          },
+          {
+            "tokenIdentifier": "str:GNOGONS-abcdef",
+            "nonce": "6",
+            "value": "1"
+          }
+        ],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get all staked for address user3",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAllStakedForAddress",
+        "arguments": ["address:user3"]
+      },
+      "expect": {
+        "out": [
+          "str:GNOGONS-abcdef", "4",
+          "str:GNOGONS-abcdef", "2",
+          "str:GNOGONS-abcdef", "3",
+          "str:GNOGONS-abcdef", "5",
+          "str:GNOGONS-abcdef", "6"
+        ]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "user4 stake all",
+      "tx": {
+        "from": "address:user4",
+        "to": "sc:gng-minting",
+        "function": "stake",
+        "arguments": [],
+        "esdtValue": [
+          {
+            "tokenIdentifier": "str:EMIDAS-abcdef",
+            "nonce": "4",
+            "value": "1"
+          },
+          {
+            "tokenIdentifier": "str:VALIDATORS-abcdef",
+            "nonce": "2",
+            "value": "1"
+          },
+          {
+            "tokenIdentifier": "str:VALIDATORS-abcdef",
+            "nonce": "3",
+            "value": "1"
+          },
+          {
+            "tokenIdentifier": "str:VALIDATORS-abcdef",
+            "nonce": "4",
+            "value": "1"
+          }
+        ],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get all staked for address user4",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAllStakedForAddress",
+        "arguments": ["address:user4"]
+      },
+      "expect": {
+        "out": [
+          "str:EMIDAS-abcdef", "3",
+          "str:EMIDAS-abcdef", "4",
+          "str:VALIDATORS-abcdef", "2",
+          "str:VALIDATORS-abcdef", "3",
+          "str:VALIDATORS-abcdef", "4"
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get first stack",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getFirstStack",
+        "arguments": ["3"]
+      },
+      "expect": {
+        "out": [
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:5"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:3"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:1",
+              "2-id": "u64:6"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:1",
+              "2-id": "u64:8"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:2",
+              "2-id": "u64:10"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:5",
+              "2-id": "u64:12"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:4",
+              "2-id": "u64:14"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:16"
+            }
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get second stack",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getSecondStack",
+        "arguments": ["3"]
+      },
+      "expect": {
+        "out": [
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:1",
+              "2-id": "u64:2"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:4",
+              "2-id": "u64:4"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:2",
+              "2-id": "u64:7"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:5",
+              "2-id": "u64:9"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:11"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:6",
+              "2-id": "u64:13"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:2",
+              "2-id": "u64:15"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:4",
+              "2-id": "u64:17"
+            }
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total nfts engaged",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTotalNftEngaged",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["15"]
+      }
+    }
+  ]
+}

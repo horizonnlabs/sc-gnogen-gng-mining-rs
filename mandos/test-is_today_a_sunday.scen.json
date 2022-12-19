@@ -1,0 +1,85 @@
+{
+  "name": "test isTodayASunday (not in the main flow)",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "01_setup.scen.json"
+    },
+    {
+      "step": "setState",
+      "comment": "Sunday 18 December 2022 10:50:20 GMT",
+      "currentBlockInfo": {
+        "blockTimestamp": "1671360620"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get isTodayASunday (yes expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "isTodayASunday",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Saturday 17 December 2022 10:50:20 GMT",
+      "currentBlockInfo": {
+        "blockTimestamp": "1671274220"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get isTodayASunday (no expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "isTodayASunday",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Saturday 24 December 2022 23:59:59 GMT",
+      "currentBlockInfo": {
+        "blockTimestamp": "1671926399"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get isTodayASunday (no expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "isTodayASunday",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Sunday 25 December 2022 00:00:00 GMT",
+      "currentBlockInfo": {
+        "blockTimestamp": "1671926400"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get isTodayASunday (yes expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "isTodayASunday",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    }
+  ]
+}

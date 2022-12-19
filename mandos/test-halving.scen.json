@@ -1,0 +1,180 @@
+{
+  "name": "test halving (not in the main flow)",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "01_setup.scen.json"
+    },
+    {
+      "step": "setState",
+      "comment": "Thursday 1 January 1970 01:23:20 GMT 1st battle 1st year",
+      "currentBlockInfo": {
+        "blockTimestamp": "5000"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 1 battle 1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["10000"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Thursday 31 December 1970 23:23:20 GMT last battle 1st year",
+      "currentBlockInfo": {
+        "blockTimestamp": "31533800"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 1 last battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["10000"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Friday 1 January 1971 01:23:20 GMT 1st battle 2nd year",
+      "currentBlockInfo": {
+        "blockTimestamp": "31541000"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 2 battle 1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["5000"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Friday 31 December 1971 23:23:20 GMT last battle 2nd year",
+      "currentBlockInfo": {
+        "blockTimestamp": "63069800"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 2 last battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["5000"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Friday 1 January 1972 01:23:20 GMT 1st battle 3nd year",
+      "currentBlockInfo": {
+        "blockTimestamp": "63077000"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 3 battle 1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["2500"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Saturday 30 December 1972 23:23:20 GMT last battle 3nd year (leap year)",
+      "currentBlockInfo": {
+        "blockTimestamp": "94605800"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 3 last battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["2500"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Sunday 31 December 1972 23:23:20 GMT 1st battle 4nd year",
+      "currentBlockInfo": {
+        "blockTimestamp": "94692200"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 4 battle 1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["1250"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Sunday 30 December 1973 23:23:20 GMT last battle 4nd year",
+      "currentBlockInfo": {
+        "blockTimestamp": "126141800"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 4 last battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["1250"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "Monday 31 December 1973 23:23:20 GMT 1st battle 5nd year",
+      "currentBlockInfo": {
+        "blockTimestamp": "126228200"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 5",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["625"]
+      }
+    }
+  ]
+}

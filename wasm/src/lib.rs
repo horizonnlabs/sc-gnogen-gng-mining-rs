@@ -7,18 +7,45 @@
 elrond_wasm_node::wasm_endpoints! {
     gng_minting
     (
+        addAdmin
         battle
         claimRewards
+        depositGng
+        getAllStakedForAddress
+        getBaseBattleRewardAmount
+        getBattleHistory
+        getBattleStatus
+        getBattleTokens
         getCurrentBattle
-        getCurrentRewardsForAddress
-        getScoresForAddress
-        getScoresForNft
+        getDailyRewardAmount
+        getDailyRewardAmountWithHalving
+        getDogaTokenId
+        getEmidasTokenId
+        getFirstBattleTimestamp
+        getFirstStack
+        getGngTokenId
+        getGnogonTokenId
+        getLastStakedId
+        getPendingRewardsForAddress
+        getRawPendingRewardsForAddress
+        getRewardCapacity
+        getSecondStack
         getStakedForAddress
         getState
+        getStatsForAddress
+        getStatsForNft
+        getSupremeTokenId
+        getTokenAttributes
+        getTotalNftEngaged
+        getValidatorV2TokenId
+        isTodayASunday
         pause
+        removeAdmin
         resume
+        setAttributes
+        setBaseBattleRewardAmount
         setBattleToken
-        setPowerAndHeartScores
+        setDailyRewardAmount
         stake
         withdraw
     )

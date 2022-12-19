@@ -1,0 +1,125 @@
+{
+  "name": "withdraw after battle 3",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "10_battle_three.scen.json"
+    },
+    {
+      "step": "scQuery",
+      "txId": "get all staked for address user2",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAllStakedForAddress",
+        "arguments": ["address:user2"]
+      },
+      "expect": {
+        "out": [
+          "str:VALIDATORS-abcdef", "1",
+          "str:VALIDATORS-abcdef", "5"
+        ]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "user2 withdraw validator 5",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "withdraw",
+        "arguments": ["str:VALIDATORS-abcdef", "5"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user2",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": [
+          "address:user2"
+        ]
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get all staked for address user2",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAllStakedForAddress",
+        "arguments": ["address:user2"]
+      },
+      "expect": {
+        "out": [
+          "str:VALIDATORS-abcdef", "1"
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total nfts engaged",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTotalNftEngaged",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["14"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get stats for validator 5",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getStatsForNft",
+        "arguments": ["str:VALIDATORS-abcdef", "5"]
+      },
+      "expect": {
+        "out": [
+          "str:VALIDATORS-abcdef", "5",
+          {
+            "0-win": "u64:1",
+            "1-loss": "u64:0",
+            "2-owner": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "3-stakedId": "u64:0"
+          }
+        ]
+      }
+    },
+    {
+      "step": "checkState",
+      "comment": "check GNG balance for user2 (already has 80)",
+      "accounts": {
+        "address:user2": {
+          "nonce": "12",
+          "balance": "1000000",
+          "esdt": {
+            "str:GNG-abcdef": "2,052",
+            "str:VALIDATORS-abcdef": {
+              "instances": [
+                {
+                  "nonce": "5",
+                  "balance": "1"
+                }
+              ]
+            }
+          }
+        },
+        "+": "*"
+      }
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "name": "test status (not in the main flow)",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "01_setup.scen.json"
+    },
+    {
+      "step": "setState",
+      "currentBlockInfo": {
+        "blockTimestamp": "5100"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status (preparation expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "simu battle",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "599,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status (preparation expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "currentBlockInfo": {
+        "blockTimestamp": "91400"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status (battle expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "simu battle",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "599,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status (preparation expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "currentBlockInfo": {
+        "blockTimestamp": "274200"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "simu battle",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "599,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status (preparation expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "simu battle",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "599,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status (preparation expected)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    }
+  ]
+}
