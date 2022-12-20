@@ -435,6 +435,23 @@
       }
     },
     {
+      "step": "scQuery",
+      "txId": "get global stats",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getGlobalStats",
+        "arguments": []
+      },
+      "expect": {
+        "out": [
+          "address:user1", "450", "23710", "3",
+          "address:user3", "360", "12800", "5",
+          "address:user4", "380", "9587", "5",
+          "address:user2", "75", "3895", "1"
+        ]
+      }
+    },
+    {
       "step": "checkState",
       "comment": "check GNG balance for user2 (already has 2052) and user4 (already has 30)",
       "accounts": {

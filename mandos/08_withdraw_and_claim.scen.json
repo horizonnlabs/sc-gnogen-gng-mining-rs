@@ -38,6 +38,24 @@
     },
     {
       "step": "scQuery",
+      "txId": "get stats for user3",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getStatsForAddress",
+        "arguments": ["address:user3"]
+      },
+      "expect": {
+        "out": [
+          {
+            "0-win": "u64:2",
+            "1-loss": "u64:2",
+            "2-gng_claimed": "biguint:6,709"
+          }
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
       "txId": "get all staked for address user3",
       "tx": {
         "to": "sc:gng-minting",

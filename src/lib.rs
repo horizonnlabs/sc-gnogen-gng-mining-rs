@@ -93,6 +93,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             }
         }
 
+        self.addresses().insert(caller);
         self.last_staked_id().set(staked_id);
         self.total_nft_engaged()
             .update(|prev| *prev += payments.len() as u64);
@@ -177,7 +178,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
             self.raw_pending_rewards_for_address(&caller)
                 .set(PendingRewards::default());
-            self.reward_capacity().update(|prev| *prev -= total_rewards);
+            self.reward_capacity()
+                .update(|prev| *prev -= total_rewards.clone());
+            self.stats_for_address(&caller)
+                .update(|prev| prev.gng_claimed += total_rewards);
         }
     }
 
@@ -517,13 +521,13 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     #[view(getAllStakedForAddress)]
     fn get_all_staked_for_address(
         &self,
-        address: ManagedAddress,
+        address: &ManagedAddress,
     ) -> MultiValueEncoded<MultiValue2<TokenIdentifier, u64>> {
         let mut result: MultiValueEncoded<MultiValue2<TokenIdentifier, u64>> =
             MultiValueEncoded::new();
 
         for collection in self.battle_tokens().iter() {
-            for nonce in self.staked_for_address(&address, &collection).iter() {
+            for nonce in self.staked_for_address(address, &collection).iter() {
                 result.push(MultiValue2::from((collection.clone(), nonce)));
             }
         }
@@ -553,7 +557,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     }
 
     #[view(getStatsForAddress)]
-    fn get_stats_for_address(&self, address: &ManagedAddress) -> UserStats {
+    fn get_stats_for_address(&self, address: &ManagedAddress) -> UserStats<Self::Api> {
         let stats_mapper = self.stats_for_address(address);
 
         if stats_mapper.is_empty() {
@@ -583,8 +587,42 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         result
     }
 
+    #[view(getGlobalStats)]
+    fn get_global_stats(
+        &self,
+    ) -> MultiValueEncoded<MultiValue4<ManagedAddress, u64, BigUint, u16>> {
+        let mut result = MultiValueEncoded::new();
+
+        for address in self.addresses().iter() {
+            let mut total_power = 0u64;
+            let mut total_gng = BigUint::zero();
+            let mut total_nfts = 0u16;
+            let nfts_staked = self.get_all_staked_for_address(&address);
+
+            for nft in nfts_staked.into_iter() {
+                let (token_id, nonce) = nft.into_tuple();
+                total_power += self.get_token_attributes(&token_id, nonce).power as u64;
+                total_nfts += 1;
+            }
+
+            total_gng += self.stats_for_address(&address).get().gng_claimed;
+            total_gng += self.get_pending_rewards_for_address(&address);
+
+            result.push(MultiValue4::from((
+                address.clone(),
+                total_power,
+                total_gng,
+                total_nfts,
+            )));
+        }
+        result
+    }
+
     #[storage_mapper("statsForAddress")]
-    fn stats_for_address(&self, address: &ManagedAddress) -> SingleValueMapper<UserStats>;
+    fn stats_for_address(
+        &self,
+        address: &ManagedAddress,
+    ) -> SingleValueMapper<UserStats<Self::Api>>;
 
     #[storage_mapper("statsForNft")]
     fn stats_for_nft(
@@ -631,4 +669,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     #[view(getLastStakedId)]
     #[storage_mapper("lastStakedId")]
     fn last_staked_id(&self) -> SingleValueMapper<u64>;
+
+    #[view(getAddresses)]
+    #[storage_mapper("addresses")]
+    fn addresses(&self) -> UnorderedSetMapper<ManagedAddress>;
 }

@@ -116,7 +116,8 @@
         "out": [
           {
             "0-win": "u64:0",
-            "1-loss": "u64:0"
+            "1-loss": "u64:0",
+            "2-gng_claimed": "biguint:0"
           }
         ]
       }

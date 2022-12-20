@@ -11,6 +11,7 @@ elrond_wasm_node::wasm_endpoints! {
         battle
         claimRewards
         depositGng
+        getAddresses
         getAllStakedForAddress
         getBaseBattleRewardAmount
         getBattleHistory
@@ -23,6 +24,7 @@ elrond_wasm_node::wasm_endpoints! {
         getEmidasTokenId
         getFirstBattleTimestamp
         getFirstStack
+        getGlobalStats
         getGngTokenId
         getGnogonTokenId
         getLastStakedId

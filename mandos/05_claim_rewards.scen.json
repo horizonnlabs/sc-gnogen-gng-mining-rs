@@ -26,6 +26,24 @@
     },
     {
       "step": "scQuery",
+      "txId": "get stats for user1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getStatsForAddress",
+        "arguments": ["address:user1"]
+      },
+      "expect": {
+        "out": [
+          {
+            "0-win": "u64:1",
+            "1-loss": "u64:1",
+            "2-gng_claimed": "biguint:7407"
+          }
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
       "txId": "get pending rewards for user1 after claimed",
       "tx": {
         "to": "sc:gng-minting",
@@ -36,6 +54,22 @@
       },
       "expect": {
         "out": ["0"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get global stats",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getGlobalStats",
+        "arguments": []
+      },
+      "expect": {
+        "out": [
+          "address:user1", "300", "7407", "2",
+          "address:user3", "130", "2592", "2",
+          "address:user4", "100", "0", "1"
+        ]
       }
     },
     {
