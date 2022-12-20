@@ -6,7 +6,7 @@ from erdpy.proxy.core import ElrondProxy
 from erdpy.transactions import Transaction
 
 AMOUNT_IN_ONE_TX = 300
-SC_ADDRESS='erd1qqqqqqqqqqqqqpgqnv9zr6wxyqlfax06zap2k4vkwnqckwww46lqw84ayu'
+SC_ADDRESS='erd1qqqqqqqqqqqqqpgq3e2aclafyqmr88s9pphwtwtjdy9szng046lqkzu3ch'
 proxy = ElrondProxy('https://devnet-gateway.elrond.com')
 network = proxy.get_network_config()
 user = Account(pem_file='wallet.pem')
