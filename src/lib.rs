@@ -78,19 +78,11 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 });
             }
 
-            if self.first_stack(current_battle).len() > self.second_stack(current_battle).len() {
-                self.second_stack(current_battle).push(&Token {
-                    token_id,
-                    nonce,
-                    id: staked_id,
-                });
-            } else {
-                self.first_stack(current_battle).push(&Token {
-                    token_id,
-                    nonce,
-                    id: staked_id,
-                });
-            }
+            self.battle_stack(current_battle).push(&Token {
+                token_id,
+                nonce,
+                id: staked_id,
+            });
         }
 
         self.addresses().insert(caller);
@@ -106,8 +98,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             "Battle in preparation"
         );
 
-        self.rebalance_stacks();
-
         let current_battle = self.current_battle().get();
 
         if self.battle_history(current_battle).is_empty() {
@@ -120,17 +110,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let mut amount_of_battles_done: u64 = 0;
 
         let result = self.run_while_it_has_gas(|| {
-            if self.first_stack(current_battle).is_empty() {
-                if self.second_stack(current_battle).len() > 1 {
-                    return LoopOp::ForceBreakBeforeCompleted;
-                }
-                self.drain_stack_and_fill_next_battle(self.second_stack(current_battle));
-                return LoopOp::Break;
-            } else if self.second_stack(current_battle).is_empty() {
-                if self.first_stack(current_battle).len() > 1 {
-                    return LoopOp::ForceBreakBeforeCompleted;
-                }
-                self.drain_stack_and_fill_next_battle(self.first_stack(current_battle));
+            if self.battle_stack(current_battle).len() <= 1 {
+                self.drain_stack_and_fill_next_battle(self.battle_stack(current_battle));
                 return LoopOp::Break;
             }
 
@@ -231,17 +212,15 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
     fn single_battle(&self) -> bool {
         let current_battle = self.current_battle().get();
-        let mut first_stack_mapper = self.first_stack(current_battle);
-        let mut second_stack_mapper = self.second_stack(current_battle);
+        let mut battle_stack_mapper = self.battle_stack(current_battle);
 
-        let first_stack_len = first_stack_mapper.len();
-        let second_stack_len = second_stack_mapper.len();
+        let battle_stack_len = battle_stack_mapper.len();
 
-        let first_random_index = self.get_random_index(1, first_stack_len + 1);
-        let second_random_index = self.get_random_index(1, second_stack_len + 1);
+        let (first_random_index, second_random_index) =
+            self.get_two_distinct_random_index(1, battle_stack_len + 1);
 
-        let first_token = first_stack_mapper.get(first_random_index);
-        let second_token = second_stack_mapper.get(second_random_index);
+        let first_token = battle_stack_mapper.get(first_random_index);
+        let second_token = battle_stack_mapper.get(second_random_index);
 
         // if one of the tokens has its id different than the one in token_stats, it means the owner has withdrawn it during the preparation
         // we remove it from the stack and return
@@ -257,7 +236,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .current_id_token
             != first_token.id
         {
-            first_stack_mapper.swap_remove(first_random_index);
+            battle_stack_mapper.swap_remove(first_random_index);
             return false;
         } else if self
             .stats_for_nft(&second_token.token_id, second_token.nonce)
@@ -265,7 +244,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .current_id_token
             != second_token.id
         {
-            second_stack_mapper.swap_remove(second_random_index);
+            battle_stack_mapper.swap_remove(second_random_index);
             return false;
         }
         // END
@@ -289,11 +268,17 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             ),
         }
 
-        self.first_stack(current_battle + 1).push(&second_token);
-        self.second_stack(current_battle + 1).push(&first_token);
+        self.battle_stack(current_battle + 1).push(&second_token);
+        self.battle_stack(current_battle + 1).push(&first_token);
 
-        first_stack_mapper.swap_remove(first_random_index);
-        second_stack_mapper.swap_remove(second_random_index);
+        // needs to remove the greater index first because of the behaviour of swap_remove
+        if first_random_index > second_random_index {
+            battle_stack_mapper.swap_remove(first_random_index);
+            battle_stack_mapper.swap_remove(second_random_index);
+        } else {
+            battle_stack_mapper.swap_remove(second_random_index);
+            battle_stack_mapper.swap_remove(first_random_index);
+        }
 
         return true;
     }
@@ -412,42 +397,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .update(|prev| prev.loss += 1);
     }
 
-    fn rebalance_stacks(&self) {
-        let current_battle = self.current_battle().get();
-        let mut first_stack_mapper = self.first_stack(current_battle);
-        let mut second_stack_mapper = self.second_stack(current_battle);
-
-        let initial_len_first_stack = first_stack_mapper.len();
-        let initial_len_second_stack = second_stack_mapper.len();
-
-        if initial_len_first_stack > initial_len_second_stack + 1 {
-            let mut diff = initial_len_first_stack - initial_len_second_stack;
-
-            while diff > 1 {
-                // indexes start at 1
-                let last_item_index = first_stack_mapper.len();
-                let item_to_switch = first_stack_mapper.get(last_item_index);
-
-                second_stack_mapper.push(&item_to_switch);
-                first_stack_mapper.swap_remove(last_item_index);
-
-                diff -= 2;
-            }
-        } else if initial_len_second_stack > initial_len_first_stack + 1 {
-            let mut diff = initial_len_second_stack - initial_len_first_stack;
-
-            while diff > 1 {
-                let last_item_index = second_stack_mapper.len();
-                let item_to_switch = second_stack_mapper.get(last_item_index);
-
-                first_stack_mapper.push(&item_to_switch);
-                second_stack_mapper.swap_remove(last_item_index);
-
-                diff -= 2;
-            }
-        }
-    }
-
     fn drain_stack_and_fill_next_battle(&self, mut stack_to_drain: VecMapper<Token<Self::Api>>) {
         let current_battle = self.current_battle().get();
         let len = stack_to_drain.len();
@@ -460,13 +409,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 continue;
             }
 
-            if self.first_stack(current_battle + 1).len()
-                > self.second_stack(current_battle + 1).len()
-            {
-                self.second_stack(current_battle + 1).push(&token);
-            } else {
-                self.first_stack(current_battle + 1).push(&token);
-            }
+            self.battle_stack(current_battle + 1).push(&token);
 
             token_stats.update(|prev| prev.loss += 1);
             self.stats_for_address(&token_stats.get().owner)
@@ -475,9 +418,21 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         stack_to_drain.clear();
     }
 
-    fn get_random_index(&self, min: usize, max: usize) -> usize {
+    // TO CHECK
+    fn get_two_distinct_random_index(&self, min: usize, max: usize) -> (usize, usize) {
         let mut rand = RandomnessSource::<Self::Api>::new();
-        rand.next_usize_in_range(min, max)
+        let first_idx = rand.next_usize_in_range(min, max);
+        let mut second_idx = rand.next_usize_in_range(min, max);
+
+        // we assume that max > (min + 1)
+        if second_idx == first_idx {
+            second_idx = second_idx + 1;
+            if second_idx == max {
+                second_idx = min;
+            }
+        }
+
+        (first_idx, second_idx)
     }
 
     fn calculate_single_battle_rewards(&self, battle_id: u64, power: u64) -> BigUint {
@@ -643,13 +598,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         token_id: &TokenIdentifier,
     ) -> UnorderedSetMapper<Nonce>;
 
-    #[view(getFirstStack)]
-    #[storage_mapper("firstStack")]
-    fn first_stack(&self, battle: u64) -> VecMapper<Token<Self::Api>>;
-
-    #[view(getSecondStack)]
-    #[storage_mapper("secondStack")]
-    fn second_stack(&self, battle: u64) -> VecMapper<Token<Self::Api>>;
+    #[view(getBattleStack)]
+    #[storage_mapper("battleStack")]
+    fn battle_stack(&self, battle: u64) -> VecMapper<Token<Self::Api>>;
 
     #[view(getTotalNftEngaged)]
     #[storage_mapper("totalNftEngaged")]

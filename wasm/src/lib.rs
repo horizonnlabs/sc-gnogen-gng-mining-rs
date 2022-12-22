@@ -15,6 +15,7 @@ elrond_wasm_node::wasm_endpoints! {
         getAllStakedForAddress
         getBaseBattleRewardAmount
         getBattleHistory
+        getBattleStack
         getBattleStatus
         getBattleTokens
         getCurrentBattle
@@ -23,7 +24,6 @@ elrond_wasm_node::wasm_endpoints! {
         getDogaTokenId
         getEmidasTokenId
         getFirstBattleTimestamp
-        getFirstStack
         getGlobalStats
         getGngTokenId
         getGnogonTokenId
@@ -31,7 +31,6 @@ elrond_wasm_node::wasm_endpoints! {
         getPendingRewardsForAddress
         getRawPendingRewardsForAddress
         getRewardCapacity
-        getSecondStack
         getStakedForAddress
         getState
         getStatsForAddress
