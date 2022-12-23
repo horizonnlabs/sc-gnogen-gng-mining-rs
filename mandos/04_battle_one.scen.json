@@ -47,7 +47,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "1"],
         "gas": "*",
         "refund": "*"
       }
@@ -66,7 +66,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "1"],
         "gas": "*",
         "refund": "*"
       }
@@ -85,7 +85,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", "0"],
         "gas": "*",
         "refund": "*"
       }
@@ -131,7 +131,7 @@
         ]
       },
       "expect": {
-        "out": ["7407"]
+        "out": ["4761"]
       }
     },
     {
@@ -145,7 +145,7 @@
         ]
       },
       "expect": {
-        "out": ["2592"]
+        "out": ["5238"]
       }
     },
     {
@@ -159,27 +159,15 @@
         ]
       },
       "expect": {
-        "out": [""]
+        "out": ["0"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get first stack",
+      "txId": "get battle stack",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getFirstStack",
-        "arguments": ["1"]
-      },
-      "expect": {
-        "out": []
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
+        "function": "getBattleStack",
         "arguments": ["1"]
       },
       "expect": {
@@ -200,18 +188,28 @@
     },
     {
       "step": "scQuery",
-      "txId": "get first stack next battle",
+      "txId": "get battle stack next battle",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getFirstStack",
+        "function": "getBattleStack",
         "arguments": ["2"]
       },
       "expect": {
         "out": [
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:3"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
               "1-nonce": "u64:1",
               "2-id": "u64:2"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:5"
             },
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
@@ -220,51 +218,28 @@
             },
             {
               "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:3",
-              "2-id": "u64:5"
-            }
-        ]
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack next battle",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
-        "arguments": ["2"]
-      },
-      "expect": {
-        "out": [
-            {
-              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
               "1-nonce": "u64:1",
               "2-id": "u64:1"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:3",
-              "2-id": "u64:3"
             }
         ]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get stats for emidas 3 (alone at the end)",
+      "txId": "get stats for emidas 1 (alone at the end)",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getStatsForNft",
-        "arguments": ["str:EMIDAS-abcdef", "3"]
+        "arguments": ["str:EMIDAS-abcdef", "1"]
       },
       "expect": {
         "out": [
-          "str:EMIDAS-abcdef", "3",
+          "str:EMIDAS-abcdef", "1",
           {
             "0-win": "u64:0",
             "1-loss": "u64:1",
-            "2-owner": "address:user4",
-            "3-stakedId": "u64:5"
+            "2-owner": "address:user1",
+            "3-stakedId": "u64:1"
           }
         ]
       }

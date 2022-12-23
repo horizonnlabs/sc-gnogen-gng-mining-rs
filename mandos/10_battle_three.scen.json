@@ -59,7 +59,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "2"],
         "gas": "*",
         "refund": "*"
       }
@@ -78,7 +78,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "3"],
         "gas": "*",
         "refund": "*"
       }
@@ -97,7 +97,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", "2"],
         "gas": "*",
         "refund": "*"
       }
@@ -154,7 +154,7 @@
         ]
       },
       "expect": {
-        "out": ["4761"]
+        "out": ["9055"]
       }
     },
     {
@@ -168,7 +168,7 @@
         ]
       },
       "expect": {
-        "out": ["1972"]
+        "out": ["1411"]
       }
     },
     {
@@ -182,7 +182,7 @@
         ]
       },
       "expect": {
-        "out": ["816"]
+        "out": ["2453"]
       }
     },
     {
@@ -196,27 +196,15 @@
         ]
       },
       "expect": {
-        "out": ["8330"]
+        "out": ["1840"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get first stack",
+      "txId": "get battle stack",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getFirstStack",
-        "arguments": ["3"]
-      },
-      "expect": {
-        "out": []
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
+        "function": "getBattleStack",
         "arguments": ["3"]
       },
       "expect": {
@@ -237,10 +225,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "get first stack next battle",
+      "txId": "get battle stack next battle",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getFirstStack",
+        "function": "getBattleStack",
         "arguments": ["4"]
       },
       "expect": {
@@ -252,28 +240,8 @@
             },
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:3",
-              "2-id": "u64:11"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:2",
-              "2-id": "u64:7"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
-              "1-nonce": "u64:2",
-              "2-id": "u64:15"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:4",
-              "2-id": "u64:4"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
               "1-nonce": "u64:5",
-              "2-id": "u64:9"
+              "2-id": "u64:12"
             },
             {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
@@ -281,58 +249,65 @@
               "2-id": "u64:13"
             },
             {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:16"
+            },
+            {
               "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
               "1-nonce": "u64:1",
               "2-id": "u64:2"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:2",
+              "2-id": "u64:7"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:4",
+              "2-id": "u64:4"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:2",
+              "2-id": "u64:10"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:1",
+              "2-id": "u64:8"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:5"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:4",
+              "2-id": "u64:14"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:2",
+              "2-id": "u64:15"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+              "1-nonce": "u64:5",
+              "2-id": "u64:9"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+              "1-nonce": "u64:1",
+              "2-id": "u64:6"
+            },
+            {
+              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+              "1-nonce": "u64:3",
+              "2-id": "u64:11"
             }
-        ]
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack next battle",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
-        "arguments": ["4"]
-      },
-      "expect": {
-        "out": [
-          {
-            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:1",
-            "2-id": "u64:6"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
-            "1-nonce": "u64:1",
-            "2-id": "u64:8"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:2",
-            "2-id": "u64:10"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
-            "1-nonce": "u64:3",
-            "2-id": "u64:16"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:4",
-            "2-id": "u64:14"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:5",
-            "2-id": "u64:12"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:3",
-            "2-id": "u64:5"
-          }
         ]
       }
     },
@@ -348,7 +323,7 @@
           }
         },
         "address:user4": {
-          "nonce": "5",
+          "nonce": "4",
           "balance": "1000000",
           "esdt": {
             "str:GNG-abcdef": "30"

@@ -144,41 +144,24 @@
     },
     {
       "step": "scQuery",
-      "txId": "get first stack",
+      "txId": "get battle stack",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getFirstStack",
+        "function": "getBattleStack",
         "arguments": ["1"]
       },
       "expect": {
         "out": [
-          [
-            {
-              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:1",
-              "2-id": "u64:1"
-            }
-          ]
-        ]
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
-        "arguments": ["1"]
-      },
-      "expect": {
-        "out": [
-          [
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:1",
-              "2-id": "u64:2"
-            }
-          ]
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:1",
+            "2-id": "u64:1"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:1",
+            "2-id": "u64:2"
+          }
         ]
       }
     },
@@ -241,52 +224,39 @@
     },
     {
       "step": "scQuery",
-      "txId": "get first stack",
+      "txId": "get battle stack",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getFirstStack",
+        "function": "getBattleStack",
         "arguments": ["1"]
       },
       "expect": {
         "out": [
-            {
-              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:1",
-              "2-id": "u64:1"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:3",
-              "2-id": "u64:3"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:3",
-              "2-id": "u64:5"
-            }
-        ]
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
-        "arguments": ["1"]
-      },
-      "expect": {
-        "out": [
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:1",
-              "2-id": "u64:2"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:4",
-              "2-id": "u64:4"
-            }
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:1",
+            "2-id": "u64:1"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:1",
+            "2-id": "u64:2"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:3",
+            "2-id": "u64:3"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:4",
+            "2-id": "u64:4"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:3",
+            "2-id": "u64:5"
+          }
         ]
       }
     },

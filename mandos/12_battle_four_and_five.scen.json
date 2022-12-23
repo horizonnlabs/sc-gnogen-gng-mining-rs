@@ -59,7 +59,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "2"],
         "gas": "*",
         "refund": "*"
       }
@@ -78,7 +78,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "2"],
         "gas": "*",
         "refund": "*"
       }
@@ -91,13 +91,13 @@
         "to": "sc:gng-minting",
         "function": "battle",
         "arguments": [],
-        "gasLimit": "65,000,000",
+        "gasLimit": "68,000,000",
         "gasPrice": "0"
       },
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", "3"],
         "gas": "*",
         "refund": "*"
       }
@@ -138,7 +138,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "2"],
         "gas": "*",
         "refund": "*"
       }
@@ -157,7 +157,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "3"],
         "gas": "*",
         "refund": "*"
       }
@@ -176,7 +176,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", "2"],
         "gas": "*",
         "refund": "*"
       }
@@ -233,7 +233,7 @@
         ]
       },
       "expect": {
-        "out": ["16303"]
+        "out": ["17219"]
       }
     },
     {
@@ -247,7 +247,7 @@
         ]
       },
       "expect": {
-        "out": ["1923"]
+        "out": ["2894"]
       }
     },
     {
@@ -261,7 +261,7 @@
         ]
       },
       "expect": {
-        "out": ["6091"]
+        "out": ["8150"]
       }
     },
     {
@@ -275,15 +275,15 @@
         ]
       },
       "expect": {
-        "out": ["9587"]
+        "out": ["5080"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get first stack 4",
+      "txId": "get battle stack 4",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getFirstStack",
+        "function": "getBattleStack",
         "arguments": ["4"]
       },
       "expect": {
@@ -292,34 +292,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "get second stack 4",
+      "txId": "get battle stack 5",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getSecondStack",
-        "arguments": ["4"]
-      },
-      "expect": {
-        "out": []
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get first stack 5",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getFirstStack",
-        "arguments": ["5"]
-      },
-      "expect": {
-        "out": []
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack 5",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
+        "function": "getBattleStack",
         "arguments": ["5"]
       },
       "expect": {
