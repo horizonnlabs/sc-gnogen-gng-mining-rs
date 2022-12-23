@@ -78,11 +78,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 });
             }
 
-            self.battle_stack(current_battle).push(&Token {
-                token_id,
-                nonce,
-                id: staked_id,
-            });
+            self.battle_stack(current_battle).push(&staked_id);
+            self.token_by_unique_id(staked_id)
+                .set(Token { token_id, nonce });
         }
 
         self.addresses().insert(caller);
@@ -190,12 +188,14 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 "Wrong token"
             );
 
+            self.staked_for_address(&caller, &token_id)
+                .swap_remove(&nonce);
+            self.token_by_unique_id(token_stats.current_id_token)
+                .clear();
             self.stats_for_nft(&token_id, nonce).update(|prev| {
                 prev.owner = ManagedAddress::zero();
                 prev.current_id_token = 0;
             });
-            self.staked_for_address(&caller, &token_id)
-                .swap_remove(&nonce);
 
             output_payments.push(EsdtTokenPayment::new(
                 token_id,
@@ -219,8 +219,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let (first_random_index, second_random_index) =
             self.get_two_distinct_random_index(1, battle_stack_len + 1);
 
-        let first_token = battle_stack_mapper.get(first_random_index);
-        let second_token = battle_stack_mapper.get(second_random_index);
+        let first_token_unique_id = battle_stack_mapper.get(first_random_index);
+        let second_token_unique_id = battle_stack_mapper.get(second_random_index);
 
         // if one of the tokens has its id different than the one in token_stats, it means the owner has withdrawn it during the preparation
         // we remove it from the stack and return
@@ -230,24 +230,17 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         //   - the stack should rebalance at the beginning of each battle's tx, but what if this happens during the last tx?
 
         // BEGIN
-        if self
-            .stats_for_nft(&first_token.token_id, first_token.nonce)
-            .get()
-            .current_id_token
-            != first_token.id
-        {
+        if self.token_by_unique_id(first_token_unique_id).is_empty() {
             battle_stack_mapper.swap_remove(first_random_index);
             return false;
-        } else if self
-            .stats_for_nft(&second_token.token_id, second_token.nonce)
-            .get()
-            .current_id_token
-            != second_token.id
-        {
+        } else if self.token_by_unique_id(second_token_unique_id).is_empty() {
             battle_stack_mapper.swap_remove(second_random_index);
             return false;
         }
         // END
+
+        let first_token = self.token_by_unique_id(first_token_unique_id).get();
+        let second_token = self.token_by_unique_id(second_token_unique_id).get();
 
         let first_token_attributes =
             self.get_token_attributes(&first_token.token_id, first_token.nonce);
@@ -268,8 +261,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             ),
         }
 
-        self.battle_stack(current_battle + 1).push(&second_token);
-        self.battle_stack(current_battle + 1).push(&first_token);
+        self.battle_stack(current_battle + 1)
+            .push(&first_token_unique_id);
+        self.battle_stack(current_battle + 1)
+            .push(&second_token_unique_id);
 
         // needs to remove the greater index first because of the behaviour of swap_remove
         if first_random_index > second_random_index {
@@ -397,19 +392,20 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .update(|prev| prev.loss += 1);
     }
 
-    fn drain_stack_and_fill_next_battle(&self, mut stack_to_drain: VecMapper<Token<Self::Api>>) {
+    fn drain_stack_and_fill_next_battle(&self, mut stack_to_drain: VecMapper<u64>) {
         let current_battle = self.current_battle().get();
         let len = stack_to_drain.len();
         for i in 1..(len + 1) {
-            let token = stack_to_drain.get(i);
-            let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
+            let unique_token_id = stack_to_drain.get(i);
 
-            if token_stats.get().current_id_token != token.id {
-                // will be removed right after the for loop
+            if self.token_by_unique_id(unique_token_id).is_empty() {
                 continue;
             }
 
-            self.battle_stack(current_battle + 1).push(&token);
+            let token = self.token_by_unique_id(unique_token_id).get();
+            let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
+
+            self.battle_stack(current_battle + 1).push(&unique_token_id);
 
             token_stats.update(|prev| prev.loss += 1);
             self.stats_for_address(&token_stats.get().owner)
@@ -600,7 +596,11 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
     #[view(getBattleStack)]
     #[storage_mapper("battleStack")]
-    fn battle_stack(&self, battle: u64) -> VecMapper<Token<Self::Api>>;
+    fn battle_stack(&self, battle: u64) -> VecMapper<u64>;
+
+    #[view(getTokenByUniqueId)]
+    #[storage_mapper("tokenByUniqueId")]
+    fn token_by_unique_id(&self, id: u64) -> SingleValueMapper<Token<Self::Api>>;
 
     #[view(getTotalNftEngaged)]
     #[storage_mapper("totalNftEngaged")]

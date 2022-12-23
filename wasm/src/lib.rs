@@ -37,6 +37,7 @@ elrond_wasm_node::wasm_endpoints! {
         getStatsForNft
         getSupremeTokenId
         getTokenAttributes
+        getTokenByUniqueId
         getTotalNftEngaged
         getValidatorV2TokenId
         isTodayASunday

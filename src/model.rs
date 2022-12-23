@@ -22,7 +22,6 @@ pub struct TokenStats<M: ManagedTypeApi> {
 pub struct Token<M: ManagedTypeApi> {
     pub token_id: TokenIdentifier<M>,
     pub nonce: u64,
-    pub id: u64,
 }
 
 #[derive(TopEncode, TopDecode, TypeAbi, Default)]
