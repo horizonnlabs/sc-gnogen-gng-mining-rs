@@ -92,7 +92,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     }
 
     #[endpoint]
-    fn battle(&self) -> OperationCompletionStatus {
+    fn battle(&self) -> MultiValue2<OperationCompletionStatus, u64> {
         require!(
             self.get_battle_status() == BattleStatus::Battle,
             "Battle in preparation"
@@ -139,7 +139,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             self.current_battle().update(|current| *current += 1);
         }
 
-        result
+        MultiValue2::from((result, amount_of_battles_done))
     }
 
     #[endpoint(claimRewards)]
