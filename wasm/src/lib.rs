@@ -27,7 +27,6 @@ elrond_wasm_node::wasm_endpoints! {
         getGlobalStats
         getGngTokenId
         getGnogonTokenId
-        getLastStakedId
         getPendingRewardsForAddress
         getRawPendingRewardsForAddress
         getRewardCapacity
@@ -38,6 +37,7 @@ elrond_wasm_node::wasm_endpoints! {
         getSupremeTokenId
         getTokenAttributes
         getTotalNftEngaged
+        getUniqueIdBattleStack
         getValidatorV2TokenId
         isTodayASunday
         pause
