@@ -3,9 +3,10 @@ CHAIN="D"
 OWNER="wallet.pem"
 CONTRACT="output/gng-minting.wasm"
 
-SC_ADDRESS="erd1qqqqqqqqqqqqqpgq3e2aclafyqmr88s9pphwtwtjdy9szng046lqkzu3ch"
+SC_ADDRESS_V1="erd1qqqqqqqqqqqqqpgq3e2aclafyqmr88s9pphwtwtjdy9szng046lqkzu3ch"
+SC_ADDRESS="erd1qqqqqqqqqqqqqpgqp8tdvgkt2kgpjd626ykluvqm3hzdz50s46lq673ssu"
 
-FIRST_BATTLE_TIMESTAMP=1671555600
+FIRST_BATTLE_TIMESTAMP=1671813000
 GNG_TOKEN_ID="str:GNG-b90f5e"
 
 # deploy
@@ -94,5 +95,15 @@ setBaseBattleRewardAmount() {
           --gas-limit=20000000 \
           --function="setBaseBattleRewardAmount" \
           --arguments 500000000000000000 \
+          --send || return
+}
+
+setFirstBalleTimestamp() {
+    erdpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
+          --pem=${OWNER} \
+          --proxy=${PROXY} --chain=${CHAIN} \
+          --gas-limit=20000000 \
+          --function="setFirstBalleTimeStamp" \
+          --arguments 1671814200 \
           --send || return
 }
