@@ -383,7 +383,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
     // TO CHECK
     fn get_two_distinct_random_index(&self, min: usize, max: usize) -> (usize, usize) {
-        let mut rand = RandomnessSource::<Self::Api>::new();
+        let mut rand = RandomnessSource::new();
         let first_idx = rand.next_usize_in_range(min, max);
         let mut second_idx = rand.next_usize_in_range(min, max);
 
