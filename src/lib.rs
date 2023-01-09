@@ -85,12 +85,12 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let current_battle = self.current_battle().get();
 
-        if self.battle_history(current_battle).is_empty() {
-            self.battle_history(current_battle).set(BattleHistory {
+        // TODO: SingleValueMapper
+        self.battle_history(current_battle)
+            .set_if_empty(BattleHistory {
                 battle_id: current_battle,
                 total_winner_power: 0,
             });
-        }
 
         if self.unique_id_battle_stack(current_battle).is_empty() {
             self.unique_id_battle_stack(current_battle)
@@ -105,10 +105,8 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 return LoopOp::Break;
             }
 
-            let is_real_battle = self.single_battle();
-            if is_real_battle {
-                amount_of_battles_done += 1;
-            }
+            self.single_battle();
+            amount_of_battles_done += 1;
 
             LoopOp::Continue
         });
@@ -204,7 +202,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         self.send().direct_multi(&caller, &output_payments);
     }
 
-    fn single_battle(&self) -> bool {
+    fn single_battle(&self) {
         let current_battle = self.current_battle().get();
         let battle_stack_mapper = self.battle_stack();
         let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
@@ -247,8 +245,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             unique_id_battle_stack_mapper.swap_remove(second_random_index);
             unique_id_battle_stack_mapper.swap_remove(first_random_index);
         }
-
-        return true;
     }
 
     fn handle_tiebreak(
@@ -304,25 +300,24 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let winner_token_stats = self.stats_for_nft(&winner.token_id, winner.nonce);
         let loser_token_stats = self.stats_for_nft(&loser.token_id, loser.nonce);
-        let winner_attributes = self.get_token_attributes(&winner.token_id, winner.nonce);
+        let winner_address = winner_token_stats.get().owner;
+        let winner_power = self
+            .get_token_attributes(&winner.token_id, winner.nonce)
+            .power as u64;
         let current_battle = self.current_battle().get();
 
         // update winner
         winner_token_stats.update(|prev| prev.win += 1);
-        self.stats_for_address(&winner_token_stats.get().owner)
-            .update(|prev| {
-                prev.win += 1;
-            });
+        self.stats_for_address(&winner_address).update(|prev| {
+            prev.win += 1;
+        });
 
-        let winner_rewards_mapper =
-            self.raw_pending_rewards_for_address(&winner_token_stats.get().owner);
-        let winner_rewards = self
-            .raw_pending_rewards_for_address(&winner_token_stats.get().owner)
-            .get();
+        let winner_rewards_mapper = self.raw_pending_rewards_for_address(&winner_address);
+        let winner_rewards = self.raw_pending_rewards_for_address(&winner_address).get();
         if winner_rewards.awaiting_battle_id == 0 {
             winner_rewards_mapper.update(|prev| {
                 prev.awaiting_battle_id = current_battle;
-                prev.awaiting_power = winner_attributes.power as u64;
+                prev.awaiting_power = winner_power;
             });
         } else if winner_rewards.awaiting_battle_id < current_battle {
             let rewards_to_add = self.calculate_single_battle_rewards(
@@ -332,16 +327,16 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             winner_rewards_mapper.update(|prev| {
                 prev.calculated_rewards += rewards_to_add;
                 prev.awaiting_battle_id = current_battle;
-                prev.awaiting_power = winner_attributes.power as u64;
+                prev.awaiting_power = winner_power;
             });
         } else {
             winner_rewards_mapper.update(|prev| {
-                prev.awaiting_power += winner_attributes.power as u64;
+                prev.awaiting_power += winner_power;
             });
         }
 
         self.battle_history(current_battle).update(|prev| {
-            prev.total_winner_power += winner_attributes.power as u64;
+            prev.total_winner_power += winner_power;
         });
 
         // update loser
@@ -367,7 +362,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
     fn drain_stack(&self) {
         let current_battle = self.current_battle().get();
-        let unique_id_stack_mapper = self.unique_id_battle_stack(current_battle);
+        let mut unique_id_stack_mapper = self.unique_id_battle_stack(current_battle);
         let len = unique_id_stack_mapper.len();
         for i in 1..(len + 1) {
             let token_idx = unique_id_stack_mapper.get(i);
@@ -377,8 +372,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             token_stats.update(|prev| prev.loss += 1);
             self.stats_for_address(&token_stats.get().owner)
                 .update(|prev| prev.loss += 1);
+
+            unique_id_stack_mapper.swap_remove(token_idx);
         }
-        // unique_id_stack_mapper.clear();
     }
 
     // TO CHECK
