@@ -19,7 +19,7 @@ elrond_wasm_node::wasm_endpoints! {
         claimRewards
         withdraw
         getBattleStatus
-        isTodayASunday
+        isTodaySpecial
         getAllStakedForAddress
         getPendingRewardsForAddress
         getStatsForAddress

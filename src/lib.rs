@@ -17,7 +17,9 @@ use operations::{LoopOp, OperationCompletionStatus};
 
 const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
+const ONE_WEEK_TIMESTAMP: u64 = ONE_DAY_TIMESTAMP * 7;
 const DIVISION_PRECISION: u64 = 1000000;
+const SPECIAL_DAY_RECCURENCE: u64 = 6;
 
 #[elrond_wasm::contract]
 pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule {
@@ -294,7 +296,7 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     }
 
     fn update_stats<'a>(&self, mut winner: &'a Token<Self::Api>, mut loser: &'a Token<Self::Api>) {
-        if self.is_today_a_sunday() {
+        if self.is_today_special() {
             (winner, loser) = (loser, winner);
         }
 
@@ -414,22 +416,18 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         let first_battle_timestamp = self.first_battle_timestamp().get();
         let current_battle = self.current_battle().get();
 
-        if current_timestamp >= first_battle_timestamp + (ONE_DAY_TIMESTAMP * (current_battle - 1))
+        if current_timestamp >= first_battle_timestamp + (ONE_WEEK_TIMESTAMP * (current_battle - 1))
         {
             return BattleStatus::Battle;
         }
         BattleStatus::Preparation
     }
 
-    #[view(isTodayASunday)]
-    fn is_today_a_sunday(&self) -> bool {
-        let current_timestamp = self.blockchain().get_block_timestamp();
+    #[view(isTodaySpecial)]
+    fn is_today_special(&self) -> bool {
+        let current_battle = self.current_battle().get();
 
-        let days = current_timestamp / 60 / 60 / 24;
-        let weekday = (days + 4) % 7;
-
-        // Sunday is index 0 [sunday, monday, ... , saturday]
-        weekday == 0
+        current_battle % SPECIAL_DAY_RECCURENCE == 0
     }
 
     #[view(getAllStakedForAddress)]
