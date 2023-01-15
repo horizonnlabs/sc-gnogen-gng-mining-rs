@@ -136,8 +136,7 @@
           {
             "0-win": "u64:0",
             "1-loss": "u64:0",
-            "2-owner": "address:user1",
-            "3-staked-id": "u64:1"
+            "2-owner": "address:user1"
           }
         ]
       }
@@ -148,19 +147,17 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getBattleStack",
-        "arguments": ["1"]
+        "arguments": []
       },
       "expect": {
         "out": [
           {
             "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:1",
-            "2-id": "u64:1"
+            "1-nonce": "u64:1"
           },
           {
             "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:1",
-            "2-id": "u64:2"
+            "1-nonce": "u64:1"
           }
         ]
       }
@@ -228,34 +225,29 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getBattleStack",
-        "arguments": ["1"]
+        "arguments": []
       },
       "expect": {
         "out": [
           {
             "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:1",
-            "2-id": "u64:1"
+            "1-nonce": "u64:1"
           },
           {
             "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:1",
-            "2-id": "u64:2"
+            "1-nonce": "u64:1"
           },
           {
             "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:3",
-            "2-id": "u64:3"
+            "1-nonce": "u64:3"
           },
           {
             "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:4",
-            "2-id": "u64:4"
+            "1-nonce": "u64:4"
           },
           {
             "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:3",
-            "2-id": "u64:5"
+            "1-nonce": "u64:3"
           }
         ]
       }

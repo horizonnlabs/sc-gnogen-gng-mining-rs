@@ -94,9 +94,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 total_winner_power: 0,
             });
 
-        if self.unique_id_battle_stack(current_battle).is_empty() {
+        if self.has_battle_started(current_battle).get() == false {
             self.unique_id_battle_stack(current_battle)
                 .set_initial_len(self.battle_stack().len());
+            self.has_battle_started(current_battle).set(true);
         }
 
         let mut amount_of_battles_done: u64 = 0;
@@ -562,6 +563,10 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     #[view(getUniqueIdBattleStack)]
     #[storage_mapper("uniqueIdBattleStack")]
     fn unique_id_battle_stack(&self, battle: u64) -> UniqueIdMapper<Self::Api>;
+
+    #[view(hasBattleStarted)]
+    #[storage_mapper("hasBattleStarted")]
+    fn has_battle_started(&self, battle: u64) -> SingleValueMapper<bool>;
 
     #[view(getTotalNftEngaged)]
     #[storage_mapper("totalNftEngaged")]
