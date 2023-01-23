@@ -208,21 +208,21 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         self.send().direct_multi(&caller, &output_payments);
     }
 
+    /// We assume there is at least 2 tokens in the stack
     fn single_battle(&self) {
         let current_battle = self.current_battle().get();
         let battle_stack_mapper = self.battle_stack();
         let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
 
-        let unique_id_battle_stack_len = unique_id_battle_stack_mapper.len();
-
-        let (first_random_index, second_random_index) =
-            self.get_two_distinct_random_index(1, unique_id_battle_stack_len + 1);
-
+        let first_random_index = self.get_random_index(1, unique_id_battle_stack_mapper.len() + 1);
         let first_token_idx = unique_id_battle_stack_mapper.get(first_random_index);
-        let second_token_idx = unique_id_battle_stack_mapper.get(second_random_index);
-
         let first_token = battle_stack_mapper.get_by_index(first_token_idx);
+        unique_id_battle_stack_mapper.swap_remove(first_random_index);
+
+        let second_random_index = self.get_random_index(1, unique_id_battle_stack_mapper.len() + 1);
+        let second_token_idx = unique_id_battle_stack_mapper.get(second_random_index);
         let second_token = battle_stack_mapper.get_by_index(second_token_idx);
+        unique_id_battle_stack_mapper.swap_remove(second_random_index);
 
         let first_token_attributes =
             self.get_token_attributes(&first_token.token_id, first_token.nonce);
@@ -241,15 +241,6 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
                 &second_token,
                 &second_token_attributes,
             ),
-        }
-
-        // needs to remove the greater index first because of the behaviour of swap_remove
-        if first_random_index > second_random_index {
-            unique_id_battle_stack_mapper.swap_remove(first_random_index);
-            unique_id_battle_stack_mapper.swap_remove(second_random_index);
-        } else {
-            unique_id_battle_stack_mapper.swap_remove(second_random_index);
-            unique_id_battle_stack_mapper.swap_remove(first_random_index);
         }
     }
 
@@ -381,21 +372,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         unique_id_stack_mapper.swap_remove(1);
     }
 
-    // TO CHECK
-    fn get_two_distinct_random_index(&self, min: usize, max: usize) -> (usize, usize) {
+    fn get_random_index(&self, min: usize, max: usize) -> usize {
         let mut rand = RandomnessSource::new();
-        let first_idx = rand.next_usize_in_range(min, max);
-        let mut second_idx = rand.next_usize_in_range(min, max);
-
-        // we assume that max > (min + 1)
-        if second_idx == first_idx {
-            second_idx = second_idx + 1;
-            if second_idx == max {
-                second_idx = min;
-            }
-        }
-
-        (first_idx, second_idx)
+        rand.next_usize_in_range(min, max)
     }
 
     fn calculate_single_battle_rewards(&self, battle_id: u64, power: u64) -> BigUint {
