@@ -2,8 +2,7 @@ from erdpy.accounts import Account, Address
 from erdpy.transactions import Transaction, BunchOfTransactions
 from erdpy.proxy.core import ElrondProxy
 
-SC_ADDRESS = 'erd1qqqqqqqqqqqqqpgqp8tdvgkt2kgpjd626ykluvqm3hzdz50s46lq673ssu'
-sc_address_hex = Address(SC_ADDRESS).hex()
+SC_ADDRESS = 'erd1qqqqqqqqqqqqqpgqptrdfneuhckxp4qmww3re4g56pptfhzj46lqlxhwl9'
 proxy = ElrondProxy('https://devnet-gateway.elrond.com')
 network = proxy.get_network_config()
 user = Account(pem_file='user.pem')
@@ -15,7 +14,7 @@ def prepare_tx(args, gas_limit = 20_000_000):
   tx.nonce = userNonce
   tx.value = "0"
   tx.sender = user.address.bech32()
-  tx.receiver = user.address.bech32()
+  tx.receiver = SC_ADDRESS
   tx.gasPrice = network.min_gas_price
   tx.gasLimit = gas_limit
   tx.data = args
@@ -37,6 +36,7 @@ txs = BunchOfTransactions()
 for data_tx in data_txs:
   tx = prepare_tx(data_tx, 600_000_000)
   txs.add_prepared(tx)
+  userNonce += 1
 
 
 [amount, hashes] = txs.send(proxy)
