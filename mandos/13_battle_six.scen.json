@@ -1,0 +1,170 @@
+{
+  "name": "battle one",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "12_battle_four_and_five.scen.json"
+    },
+    {
+      "step": "scCall",
+      "txId": "user2 stake",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "stake",
+        "arguments": [],
+        "esdtValue": [
+          {
+            "tokenIdentifier": "str:VALIDATORS-abcdef",
+            "nonce": "5",
+            "value": "1"
+          }
+        ],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 6",
+      "currentBlockInfo": {
+        "blockTimestamp": "3029000"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["6"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total nfts engaged",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTotalNftEngaged"
+      },
+      "expect": {
+        "out": ["15"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 6 one tx",
+      "tx": {
+        "from": "address:user4",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "200,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "try one more battle tx",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "4",
+        "message": "str:Battle in preparation",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["7"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get temp battle stack",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getUniqueIdBattleStack",
+        "arguments": ["6"]
+      },
+      "expect": {
+        "out": []
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total nfts engaged",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTotalNftEngaged",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["15"]
+      }
+    }
+  ]
+}

@@ -19,7 +19,7 @@ const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
 const ONE_WEEK_TIMESTAMP: u64 = ONE_DAY_TIMESTAMP * 7;
 const DIVISION_PRECISION: u64 = 1000000;
-const SPECIAL_DAY_RECCURENCE: u64 = 6;
+const SPECIAL_DAY_RECCURENCE: u64 = 7;
 
 #[elrond_wasm::contract]
 pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule {
@@ -102,17 +102,20 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
 
         let mut amount_of_battles_done: u64 = 0;
 
-        let result = self.run_while_it_has_gas(|| {
-            if self.unique_id_battle_stack(current_battle).len() <= 1 {
-                self.drain_stack();
-                return LoopOp::Break;
-            }
+        let result =
+            self.run_while_it_has_gas(|| match self.unique_id_battle_stack(current_battle).len() {
+                0 => return LoopOp::Break,
+                1 => {
+                    self.drain_stack();
+                    return LoopOp::Break;
+                }
+                _ => {
+                    self.single_battle();
+                    amount_of_battles_done += 1;
 
-            self.single_battle();
-            amount_of_battles_done += 1;
-
-            LoopOp::Continue
-        });
+                    LoopOp::Continue
+                }
+            });
 
         if amount_of_battles_done > 0 {
             self.send().direct_esdt(
@@ -363,21 +366,19 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
             .update(|prev| prev.loss += 1);
     }
 
+    /// We assume there is exactly one token in the stack
     fn drain_stack(&self) {
         let current_battle = self.current_battle().get();
         let mut unique_id_stack_mapper = self.unique_id_battle_stack(current_battle);
-        let len = unique_id_stack_mapper.len();
-        for i in 1..(len + 1) {
-            let token_idx = unique_id_stack_mapper.get(i);
-            let token = self.battle_stack().get_by_index(token_idx);
-            let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
+        let token_idx = unique_id_stack_mapper.get(1);
+        let token = self.battle_stack().get_by_index(token_idx);
+        let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
 
-            token_stats.update(|prev| prev.loss += 1);
-            self.stats_for_address(&token_stats.get().owner)
-                .update(|prev| prev.loss += 1);
+        token_stats.update(|prev| prev.loss += 1);
+        self.stats_for_address(&token_stats.get().owner)
+            .update(|prev| prev.loss += 1);
 
-            unique_id_stack_mapper.swap_remove(token_idx);
-        }
+        unique_id_stack_mapper.swap_remove(1);
     }
 
     // TO CHECK

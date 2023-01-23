@@ -6,6 +6,7 @@ second battle => 5000 + 86400 * 7 = 609800
 third battle => 609800 + 86400 * 7 = 1214600
 fourth battle => 1214600 + 86400 * 7 = 1819400
 fifth battle => 1819400 + 86400 * 7 = 2424200
+sixth battle => 2424200 + 86400 * 7 = 3029000
 and so on...
 
 test-status.scen.json
