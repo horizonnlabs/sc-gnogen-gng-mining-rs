@@ -37,7 +37,7 @@
           {
             "0-win": "u64:1",
             "1-loss": "u64:1",
-            "2-gng_claimed": "biguint:7407"
+            "2-gng_claimed": "biguint:6451"
           }
         ]
       }
@@ -66,8 +66,8 @@
       },
       "expect": {
         "out": [
-          "address:user1", "300", "7407", "2",
-          "address:user3", "130", "2592", "2",
+          "address:user1", "300", "6451", "2",
+          "address:user3", "180", "3548", "2",
           "address:user4", "100", "0", "1"
         ]
       }
@@ -79,7 +79,7 @@
           "nonce": "2",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "7,407",
+            "str:GNG-abcdef": "6,451",
             "str:EMIDAS-abcdef": {
               "instances": [
                 {

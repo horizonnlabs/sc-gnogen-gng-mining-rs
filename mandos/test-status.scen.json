@@ -13,7 +13,7 @@
     },
     {
       "step": "scQuery",
-      "txId": "get battle status (preparation expected)",
+      "txId": "get battle status (battle expected) -1",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getBattleStatus",
@@ -37,14 +37,14 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", ""],
         "gas": "*",
         "refund": "*"
       }
     },
     {
       "step": "scQuery",
-      "txId": "get battle status (preparation expected)",
+      "txId": "get battle status (preparation expected) -2",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getBattleStatus",
@@ -57,7 +57,7 @@
     {
       "step": "setState",
       "currentBlockInfo": {
-        "blockTimestamp": "91400"
+        "blockTimestamp": "609800"
       }
     },
     {
@@ -86,14 +86,14 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", ""],
         "gas": "*",
         "refund": "*"
       }
     },
     {
       "step": "scQuery",
-      "txId": "get battle status (preparation expected)",
+      "txId": "get battle status (preparation expected) -3",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getBattleStatus",
@@ -106,31 +106,12 @@
     {
       "step": "setState",
       "currentBlockInfo": {
-        "blockTimestamp": "274200"
-      }
-    },
-    {
-      "step": "scCall",
-      "txId": "simu battle",
-      "tx": {
-        "from": "address:owner",
-        "to": "sc:gng-minting",
-        "function": "battle",
-        "arguments": [],
-        "gasLimit": "599,000,000",
-        "gasPrice": "0"
-      },
-      "expect": {
-        "status": "0",
-        "message": "",
-        "out": ["str:completed"],
-        "gas": "*",
-        "refund": "*"
+        "blockTimestamp": "1819400"
       }
     },
     {
       "step": "scQuery",
-      "txId": "get battle status (preparation expected)",
+      "txId": "get battle status (battle expected) -3",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getBattleStatus",
@@ -154,14 +135,45 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", ""],
         "gas": "*",
         "refund": "*"
       }
     },
     {
       "step": "scQuery",
-      "txId": "get battle status (preparation expected)",
+      "txId": "get battle status (battle expected) -4",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "simu battle",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "599,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", ""],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status (preparation expected) -5",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getBattleStatus",

@@ -50,9 +50,9 @@
       "expect": {
         "out": [
           {
-            "0-win": "u64:2",
-            "1-loss": "u64:0",
-            "2-gng_claimed": "biguint:1,972"
+            "0-win": "u64:1",
+            "1-loss": "u64:1",
+            "2-gng_claimed": "biguint:1,360"
           }
         ]
       }
@@ -109,10 +109,9 @@
         "out": [
           "str:VALIDATORS-abcdef", "5",
           {
-            "0-win": "u64:1",
-            "1-loss": "u64:0",
-            "2-owner": "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "3-stakedId": "u64:0"
+            "0-win": "u64:0",
+            "1-loss": "u64:1",
+            "2-owner": "0x0000000000000000000000000000000000000000000000000000000000000000"
           }
         ]
       }
@@ -122,10 +121,10 @@
       "comment": "check GNG balance for user2 (already has 80)",
       "accounts": {
         "address:user2": {
-          "nonce": "12",
+          "nonce": "11",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "2,052",
+            "str:GNG-abcdef": "1,420",
             "str:VALIDATORS-abcdef": {
               "instances": [
                 {

@@ -31,7 +31,7 @@
       "step": "setState",
       "comment": "set timestamp for battle 5",
       "currentBlockInfo": {
-        "blockTimestamp": "365600"
+        "blockTimestamp": "2424200"
       }
     },
     {
@@ -59,7 +59,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "4"],
         "gas": "*",
         "refund": "*"
       }
@@ -78,26 +78,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
-        "gas": "*",
-        "refund": "*"
-      }
-    },
-    {
-      "step": "scCall",
-      "txId": "battle 4 3rd tx (call user2)",
-      "tx": {
-        "from": "address:user2",
-        "to": "sc:gng-minting",
-        "function": "battle",
-        "arguments": [],
-        "gasLimit": "65,000,000",
-        "gasPrice": "0"
-      },
-      "expect": {
-        "status": "0",
-        "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", "3"],
         "gas": "*",
         "refund": "*"
       }
@@ -138,7 +119,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
+        "out": ["str:interrupted", "4"],
         "gas": "*",
         "refund": "*"
       }
@@ -157,26 +138,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted"],
-        "gas": "*",
-        "refund": "*"
-      }
-    },
-    {
-      "step": "scCall",
-      "txId": "battle 5 3rd tx (call user2)",
-      "tx": {
-        "from": "address:user2",
-        "to": "sc:gng-minting",
-        "function": "battle",
-        "arguments": [],
-        "gasLimit": "65,000,000",
-        "gasPrice": "0"
-      },
-      "expect": {
-        "status": "0",
-        "message": "",
-        "out": ["str:completed"],
+        "out": ["str:completed", "3"],
         "gas": "*",
         "refund": "*"
       }
@@ -233,7 +195,7 @@
         ]
       },
       "expect": {
-        "out": ["16303"]
+        "out": ["18575"]
       }
     },
     {
@@ -247,7 +209,7 @@
         ]
       },
       "expect": {
-        "out": ["1923"]
+        "out": ["2788"]
       }
     },
     {
@@ -261,7 +223,7 @@
         ]
       },
       "expect": {
-        "out": ["6091"]
+        "out": ["6896"]
       }
     },
     {
@@ -275,15 +237,15 @@
         ]
       },
       "expect": {
-        "out": ["9587"]
+        "out": ["5134"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get first stack 4",
+      "txId": "get temp battle stack 4",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getFirstStack",
+        "function": "getUniqueIdBattleStack",
         "arguments": ["4"]
       },
       "expect": {
@@ -292,34 +254,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "get second stack 4",
+      "txId": "get temp battle stack 5",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getSecondStack",
-        "arguments": ["4"]
-      },
-      "expect": {
-        "out": []
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get first stack 5",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getFirstStack",
-        "arguments": ["5"]
-      },
-      "expect": {
-        "out": []
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack 5",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
+        "function": "getUniqueIdBattleStack",
         "arguments": ["5"]
       },
       "expect": {
@@ -340,102 +278,6 @@
     },
     {
       "step": "scQuery",
-      "txId": "get first stack next battle",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getFirstStack",
-        "arguments": ["6"]
-      },
-      "expect": {
-        "out": [
-            {
-              "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-              "1-nonce": "u64:2",
-              "2-id": "u64:7"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
-              "1-nonce": "u64:4",
-              "2-id": "u64:17"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:1",
-              "2-id": "u64:2"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:4",
-              "2-id": "u64:4"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:6",
-              "2-id": "u64:13"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-              "1-nonce": "u64:3",
-              "2-id": "u64:11"
-            },
-            {
-              "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
-              "1-nonce": "u64:2",
-              "2-id": "u64:15"
-            }
-        ]
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get second stack next battle",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getSecondStack",
-        "arguments": ["6"]
-      },
-      "expect": {
-        "out": [
-          {
-            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:5",
-            "2-id": "u64:12"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:1",
-            "2-id": "u64:6"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
-            "1-nonce": "u64:3",
-            "2-id": "u64:16"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
-            "1-nonce": "u64:1",
-            "2-id": "u64:8"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:4",
-            "2-id": "u64:14"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
-            "1-nonce": "u64:2",
-            "2-id": "u64:10"
-          },
-          {
-            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
-            "1-nonce": "u64:3",
-            "2-id": "u64:5"
-          }
-        ]
-      }
-    },
-    {
-      "step": "scQuery",
       "txId": "get global stats",
       "tx": {
         "to": "sc:gng-minting",
@@ -444,10 +286,10 @@
       },
       "expect": {
         "out": [
-          "address:user1", "450", "23710", "3",
-          "address:user3", "360", "12800", "5",
-          "address:user4", "380", "9587", "5",
-          "address:user2", "75", "3895", "1"
+          "address:user1", "450", "25026", "3",
+          "address:user3", "410", "15682", "5",
+          "address:user4", "380", "5134", "5",
+          "address:user2", "115", "4148", "1"
         ]
       }
     },
@@ -456,10 +298,10 @@
       "comment": "check GNG balance for user2 (already has 2052) and user4 (already has 30)",
       "accounts": {
         "address:user2": {
-          "nonce": "17",
+          "nonce": "14",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "2152",
+            "str:GNG-abcdef": "1,480",
             "str:VALIDATORS-abcdef": {
               "instances": [
                 {
@@ -471,10 +313,10 @@
           }
         },
         "address:user4": {
-          "nonce": "7",
+          "nonce": "6",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "70"
+            "str:GNG-abcdef": "130"
           }
         },
         "+": "*"
