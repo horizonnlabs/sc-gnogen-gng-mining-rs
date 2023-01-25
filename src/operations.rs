@@ -5,7 +5,7 @@ use elrond_wasm::elrond_codec::{EncodeErrorHandler, TopEncodeMulti, TopEncodeMul
 
 use super::config;
 
-const MIN_GAS_TO_SAVE_PROGRESS: u64 = 50_000_000;
+const MIN_GAS_TO_SAVE_PROGRESS: u64 = 15_000_000;
 
 pub enum LoopOp {
     Continue,
