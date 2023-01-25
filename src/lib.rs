@@ -481,34 +481,40 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
     }
 
     #[view(getGlobalStats)]
-    fn get_global_stats(
-        &self,
-    ) -> MultiValueEncoded<MultiValue4<ManagedAddress, u64, BigUint, u16>> {
+    fn get_global_stats(&self) -> MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>> {
         let mut result = MultiValueEncoded::new();
 
         for address in self.addresses().iter() {
-            let mut total_power = 0u64;
             let mut total_gng = BigUint::zero();
-            let mut total_nfts = 0u16;
-            let nfts_staked = self.get_all_staked_for_address(&address);
-
-            for nft in nfts_staked.into_iter() {
-                let (token_id, nonce) = nft.into_tuple();
-                total_power += self.get_token_attributes(&token_id, nonce).power as u64;
-                total_nfts += 1;
-            }
 
             total_gng += self.stats_for_address(&address).get().gng_claimed;
             total_gng += self.get_pending_rewards_for_address(&address);
 
-            result.push(MultiValue4::from((
-                address.clone(),
-                total_power,
-                total_gng,
-                total_nfts,
-            )));
+            result.push(MultiValue2::from((address.clone(), total_gng)));
         }
         result
+    }
+
+    #[view(getGlobalStatsByAddress)]
+    fn get_global_stats_by_address(
+        &self,
+        address: &ManagedAddress,
+    ) -> MultiValue4<ManagedAddress, u64, BigUint, u16> {
+        let mut total_power = 0u64;
+        let mut total_gng = BigUint::zero();
+        let mut total_nfts = 0u16;
+        let nfts_staked = self.get_all_staked_for_address(&address);
+
+        for nft in nfts_staked.into_iter() {
+            let (token_id, nonce) = nft.into_tuple();
+            total_power += self.get_token_attributes(&token_id, nonce).power as u64;
+            total_nfts += 1;
+        }
+
+        total_gng += self.stats_for_address(&address).get().gng_claimed;
+        total_gng += self.get_pending_rewards_for_address(&address);
+
+        MultiValue4::from((address.clone(), total_power, total_gng, total_nfts))
     }
 
     #[storage_mapper("statsForAddress")]

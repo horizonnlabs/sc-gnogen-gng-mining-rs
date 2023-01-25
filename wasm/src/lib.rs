@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           43
+// Endpoints:                           44
 // Async Callback (empty):               1
-// Total number of exported functions:  45
+// Total number of exported functions:  46
 
 #![no_std]
 
@@ -25,6 +25,7 @@ elrond_wasm_node::wasm_endpoints! {
         getStatsForAddress
         getStatsForNft
         getGlobalStats
+        getGlobalStatsByAddress
         getCurrentBattle
         getStakedForAddress
         getBattleStack
