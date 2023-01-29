@@ -4,6 +4,7 @@ elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
 pub mod config;
+mod events;
 mod model;
 mod operations;
 
@@ -22,7 +23,9 @@ const DIVISION_PRECISION: u64 = 1000000;
 const SPECIAL_DAY_RECCURENCE: u64 = 7;
 
 #[elrond_wasm::contract]
-pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule {
+pub trait GngMinting:
+    config::ConfigModule + operations::OngoingOperationModule + events::EventsModule
+{
     #[init]
     fn init(&self, first_battle_timestamp: u64, gng_token_id: TokenIdentifier) {
         self.current_battle().set_if_empty(1);
@@ -340,6 +343,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         loser_token_stats.update(|prev| prev.loss += 1);
         self.stats_for_address(&loser_token_stats.get().owner)
             .update(|prev| prev.loss += 1);
+
+        // Emit event
+        self.clash_event(winner, loser, false);
     }
 
     fn update_stats_both_losers(&self, loser1: &Token<Self::Api>, loser2: &Token<Self::Api>) {
@@ -355,6 +361,9 @@ pub trait GngMinting: config::ConfigModule + operations::OngoingOperationModule 
         loser2_token_stats.update(|prev| prev.loss += 1);
         self.stats_for_address(&loser2_token_stats.get().owner)
             .update(|prev| prev.loss += 1);
+
+        // Emit event
+        self.clash_event(loser1, loser2, true);
     }
 
     /// We assume there is exactly one token in the stack
