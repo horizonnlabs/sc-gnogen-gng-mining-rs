@@ -101,6 +101,7 @@ pub trait GngMinting:
             self.unique_id_battle_stack(current_battle)
                 .set_initial_len(self.battle_stack().len());
             self.has_battle_started(current_battle).set(true);
+            self.start_battle_event(current_battle);
         }
 
         let mut amount_of_battles_done: u64 = 0;
@@ -133,6 +134,7 @@ pub trait GngMinting:
         }
 
         if result.is_completed() {
+            self.end_battle_event(current_battle);
             self.current_battle().update(|current| *current += 1);
         }
 
