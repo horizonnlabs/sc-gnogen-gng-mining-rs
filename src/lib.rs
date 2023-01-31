@@ -86,7 +86,7 @@ pub trait GngMinting:
 
         let current_battle = self.current_battle().get();
 
-        if self.has_battle_started(current_battle).get() == false {
+        if !self.has_battle_started(current_battle).get() {
             self.unique_id_battle_stack(current_battle)
                 .set_initial_len(self.battle_stack().len());
             self.has_battle_started(current_battle).set(true);
@@ -99,10 +99,10 @@ pub trait GngMinting:
 
         let result =
             self.run_while_it_has_gas(|| match self.unique_id_battle_stack(current_battle).len() {
-                0 => return LoopOp::Break,
+                0 => LoopOp::Break,
                 1 => {
                     self.drain_stack();
-                    return LoopOp::Break;
+                    LoopOp::Break
                 }
                 _ => {
                     // let clash_data = self.single_battle();
@@ -339,8 +339,8 @@ pub trait GngMinting:
 
         self.clash_event(
             current_battle,
-            &winner,
-            &loser,
+            winner,
+            loser,
             false,
             &winner_address,
             &self.nft_owner(&loser.token_id, loser.nonce).get(),
@@ -505,12 +505,12 @@ pub trait GngMinting:
         &self,
         address: &ManagedAddress,
     ) -> MultiValue3<ManagedAddress, u64, BigUint> {
-        let stats_for_address = self.stats_for_address(&address).get();
+        let stats_for_address = self.stats_for_address(address).get();
         let power = stats_for_address.power;
         let mut total_gng = BigUint::zero();
 
-        total_gng += self.stats_for_address(&address).get().gng_claimed;
-        total_gng += self.get_pending_rewards_for_address(&address);
+        total_gng += self.stats_for_address(address).get().gng_claimed;
+        total_gng += self.get_pending_rewards_for_address(address);
 
         MultiValue3::from((address.clone(), power, total_gng))
     }
