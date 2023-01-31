@@ -46,7 +46,7 @@
       "step": "setState",
       "comment": "set timestamp for battle 6",
       "currentBlockInfo": {
-        "blockTimestamp": "3029000"
+        "blockTimestamp": "452000"
       }
     },
     {

@@ -31,7 +31,7 @@
       "step": "setState",
       "comment": "set timestamp for battle 5",
       "currentBlockInfo": {
-        "blockTimestamp": "2424200"
+        "blockTimestamp": "365600"
       }
     },
     {
@@ -152,9 +152,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user1"
-        ]
+        "arguments": ["address:user1"]
       },
       "expect": {
         "out": ["18854"]
@@ -166,9 +164,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user2"
-        ]
+        "arguments": ["address:user2"]
       },
       "expect": {
         "out": ["2839"]
@@ -180,9 +176,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user3"
-        ]
+        "arguments": ["address:user3"]
       },
       "expect": {
         "out": ["5494"]
@@ -194,9 +188,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user4"
-        ]
+        "arguments": ["address:user4"]
       },
       "expect": {
         "out": ["6191"]
@@ -248,10 +240,18 @@
       },
       "expect": {
         "out": [
-          "address:user1", "25305", "450",
-          "address:user3", "14280", "410",
-          "address:user4", "6191", "380",
-          "address:user2", "4216", "115"
+          "address:user1",
+          "25305",
+          "450",
+          "address:user3",
+          "14280",
+          "410",
+          "address:user4",
+          "6191",
+          "380",
+          "address:user2",
+          "4216",
+          "115"
         ]
       }
     },

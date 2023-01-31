@@ -16,9 +16,7 @@ use operations::{LoopOp, OperationCompletionStatus};
 
 const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
-const ONE_WEEK_TIMESTAMP: u64 = ONE_DAY_TIMESTAMP * 7;
 const DIVISION_PRECISION: u64 = 1000000;
-const SPECIAL_DAY_RECCURENCE: u64 = 7;
 
 #[elrond_wasm::contract]
 pub trait GngMinting:
@@ -402,7 +400,7 @@ pub trait GngMinting:
         let first_battle_timestamp = self.first_battle_timestamp().get();
         let current_battle = self.current_battle().get();
 
-        if current_timestamp >= first_battle_timestamp + (ONE_WEEK_TIMESTAMP * (current_battle - 1))
+        if current_timestamp >= first_battle_timestamp + (ONE_DAY_TIMESTAMP * (current_battle - 1))
         {
             return BattleStatus::Battle;
         }
@@ -411,9 +409,13 @@ pub trait GngMinting:
 
     #[view(isTodaySpecial)]
     fn is_today_special(&self) -> bool {
-        let current_battle = self.current_battle().get();
+        let current_timestamp = self.blockchain().get_block_timestamp();
 
-        current_battle % SPECIAL_DAY_RECCURENCE == 0
+        let days = current_timestamp / 60 / 60 / 24;
+        let weekday = (days + 4) % 7;
+
+        // Sunday is index 0 [sun, mon, tue, wed, thu, fri, sat]
+        weekday == 0
     }
 
     #[view(getAllStakedForAddress)]

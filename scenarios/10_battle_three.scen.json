@@ -20,7 +20,7 @@
       "step": "setState",
       "comment": "set timestamp for battle 3",
       "currentBlockInfo": {
-        "blockTimestamp": "1214600"
+        "blockTimestamp": "182800"
       }
     },
     {
@@ -111,9 +111,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user1"
-        ]
+        "arguments": ["address:user1"]
       },
       "expect": {
         "out": ["8952"]
@@ -125,9 +123,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user2"
-        ]
+        "arguments": ["address:user2"]
       },
       "expect": {
         "out": ["1377"]
@@ -139,9 +135,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user3"
-        ]
+        "arguments": ["address:user3"]
       },
       "expect": {
         "out": ["2275"]
@@ -153,9 +147,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user4"
-        ]
+        "arguments": ["address:user4"]
       },
       "expect": {
         "out": ["2155"]
