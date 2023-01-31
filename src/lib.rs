@@ -185,7 +185,7 @@ pub trait GngMinting:
                 "Wrong token"
             );
 
-            self.nft_owner(&token_id, nonce).clear();
+            self.nft_owner(&token_id, nonce).set(ManagedAddress::zero());
 
             self.staked_for_address(&caller, &token_id)
                 .swap_remove(&nonce);
@@ -501,6 +501,7 @@ pub trait GngMinting:
         address: &ManagedAddress,
     ) -> SingleValueMapper<UserStats<Self::Api>>;
 
+    #[view(getNftOwner)]
     #[storage_mapper("nft_owner")]
     fn nft_owner(
         &self,
