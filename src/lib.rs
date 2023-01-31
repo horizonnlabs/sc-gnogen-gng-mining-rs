@@ -11,7 +11,7 @@ mod operations;
 use core::cmp::Ordering;
 
 use config::State;
-use model::{Attributes, BattleStatus, Nonce, PendingRewards, Token, UserStats};
+use model::{Attributes, BattleStatus, ClashEventStruct, Nonce, PendingRewards, Token, UserStats};
 use operations::{LoopOp, OperationCompletionStatus};
 
 const NFT_AMOUNT: u64 = 1;
@@ -94,6 +94,7 @@ pub trait GngMinting:
         }
 
         let mut amount_of_battles_done: u64 = 0;
+        let mut event_data: ManagedVec<ClashEventStruct<Self::Api>> = ManagedVec::new();
 
         let result =
             self.run_while_it_has_gas(|| match self.unique_id_battle_stack(current_battle).len() {
@@ -103,7 +104,8 @@ pub trait GngMinting:
                     return LoopOp::Break;
                 }
                 _ => {
-                    self.single_battle();
+                    let clash_data = self.single_battle();
+                    event_data.push(clash_data);
                     amount_of_battles_done += 1;
 
                     LoopOp::Continue
@@ -120,6 +122,7 @@ pub trait GngMinting:
             self.reward_capacity().update(|prev| {
                 *prev -= self.base_battle_reward_amount().get() * amount_of_battles_done
             });
+            self.clashes_event(current_battle, event_data);
         }
 
         if result.is_completed() {
@@ -210,7 +213,7 @@ pub trait GngMinting:
     }
 
     /// We assume there is at least 2 tokens in the stack
-    fn single_battle(&self) {
+    fn single_battle(&self) -> ClashEventStruct<Self::Api> {
         let current_battle = self.current_battle().get();
         let battle_stack_mapper = self.battle_stack();
         let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
@@ -251,25 +254,25 @@ pub trait GngMinting:
         first_token_attr: &Attributes,
         second_token: &Token<Self::Api>,
         second_token_attr: &Attributes,
-    ) {
+    ) -> ClashEventStruct<Self::Api> {
         let emidas_token_id = self.emidas_token_id().get();
         let gnogon_token_id = self.gnogon_token_id().get();
         let validator_token_id = self.validator_v2_token_id().get();
 
         if first_token.token_id == emidas_token_id && second_token.token_id != emidas_token_id {
-            self.update_stats(first_token, second_token);
+            self.update_stats(first_token, second_token)
         } else if first_token.token_id != emidas_token_id
             && second_token.token_id == emidas_token_id
         {
-            self.update_stats(second_token, first_token);
+            self.update_stats(second_token, first_token)
         } else if first_token.token_id == gnogon_token_id
             && second_token.token_id == validator_token_id
         {
-            self.update_stats(first_token, second_token);
+            self.update_stats(first_token, second_token)
         } else if first_token.token_id == validator_token_id
             && second_token.token_id == gnogon_token_id
         {
-            self.update_stats(second_token, first_token);
+            self.update_stats(second_token, first_token)
         } else if first_token.token_id == gnogon_token_id
             && second_token.token_id == gnogon_token_id
         {
@@ -287,11 +290,15 @@ pub trait GngMinting:
                 Ordering::Equal => self.update_stats_both_losers(first_token, second_token),
             }
         } else {
-            self.update_stats_both_losers(first_token, second_token);
+            self.update_stats_both_losers(first_token, second_token)
         }
     }
 
-    fn update_stats<'a>(&self, mut winner: &'a Token<Self::Api>, mut loser: &'a Token<Self::Api>) {
+    fn update_stats<'a>(
+        &self,
+        mut winner: &'a Token<Self::Api>,
+        mut loser: &'a Token<Self::Api>,
+    ) -> ClashEventStruct<Self::Api> {
         if self.is_today_special() {
             (winner, loser) = (loser, winner);
         }
@@ -329,13 +336,27 @@ pub trait GngMinting:
         self.total_battle_winner_power(current_battle)
             .update(|prev| *prev += winner_power);
 
-        // Emit event
-        self.clash_event(winner, loser, false);
+        ClashEventStruct {
+            winner: winner.clone(),
+            loser: loser.clone(),
+            is_draw: false,
+            winner_address,
+            loser_address: self.nft_owner(&loser.token_id, loser.nonce).get(),
+        }
     }
 
-    fn update_stats_both_losers(&self, loser1: &Token<Self::Api>, loser2: &Token<Self::Api>) {
-        // Emit event
-        self.clash_event(loser1, loser2, true);
+    fn update_stats_both_losers(
+        &self,
+        loser1: &Token<Self::Api>,
+        loser2: &Token<Self::Api>,
+    ) -> ClashEventStruct<Self::Api> {
+        ClashEventStruct {
+            winner: loser1.clone(),
+            loser: loser2.clone(),
+            is_draw: true,
+            winner_address: self.nft_owner(&loser2.token_id, loser2.nonce).get(),
+            loser_address: self.nft_owner(&loser2.token_id, loser2.nonce).get(),
+        }
     }
 
     /// We assume there is exactly one token in the stack
@@ -343,8 +364,14 @@ pub trait GngMinting:
         let current_battle = self.current_battle().get();
         let mut unique_id_stack_mapper = self.unique_id_battle_stack(current_battle);
         let token_idx = unique_id_stack_mapper.get(1);
-        let _token = self.battle_stack().get_by_index(token_idx);
+        let token = self.battle_stack().get_by_index(token_idx);
+
         //emit event
+        self.single_token_clash_event(
+            current_battle,
+            &token,
+            self.nft_owner(&token.token_id, token.nonce).get(),
+        );
 
         unique_id_stack_mapper.swap_remove(1);
     }

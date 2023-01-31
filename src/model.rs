@@ -9,7 +9,7 @@ pub struct UserStats<M: ManagedTypeApi> {
     pub gng_claimed: BigUint<M>,
 }
 
-#[derive(TopEncode, TopDecode, NestedDecode, NestedEncode, TypeAbi)]
+#[derive(TopEncode, TopDecode, NestedDecode, NestedEncode, TypeAbi, ManagedVecItem, Clone)]
 pub struct Token<M: ManagedTypeApi> {
     pub token_id: TokenIdentifier<M>,
     pub nonce: u64,
@@ -33,6 +33,15 @@ pub struct PendingRewards<M: ManagedTypeApi> {
     pub calculated_rewards: BigUint<M>,
     pub awaiting_battle_id: u64,
     pub awaiting_power: u64,
+}
+
+#[derive(ManagedVecItem, TypeAbi, NestedEncode, NestedDecode)]
+pub struct ClashEventStruct<M: ManagedTypeApi> {
+    pub winner: Token<M>,
+    pub loser: Token<M>,
+    pub is_draw: bool,
+    pub winner_address: ManagedAddress<M>,
+    pub loser_address: ManagedAddress<M>,
 }
 
 impl<M: ManagedTypeApi> Default for UserStats<M> {

@@ -1,15 +1,22 @@
 elrond_wasm::imports!();
 
-use crate::model::Token;
+use crate::model::{ClashEventStruct, Token};
 
 #[elrond_wasm::module]
 trait EventsModule {
-    #[event("clash")]
-    fn clash_event(
+    #[event("clashes")]
+    fn clashes_event(
         &self,
-        #[indexed] winner: &Token<Self::Api>,
-        #[indexed] loser: &Token<Self::Api>,
-        #[indexed] is_draw: bool,
+        #[indexed] battle_id: u64,
+        data: ManagedVec<ClashEventStruct<Self::Api>>,
+    );
+
+    #[event("singleTokenClash")]
+    fn single_token_clash_event(
+        &self,
+        #[indexed] battle_id: u64,
+        #[indexed] token: &Token<Self::Api>,
+        #[indexed] owner: ManagedAddress,
     );
 
     #[event("startBattle")]
