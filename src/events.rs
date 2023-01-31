@@ -1,16 +1,9 @@
 elrond_wasm::imports!();
 
-use crate::model::{ClashEventStruct, Token};
+use crate::model::Token;
 
 #[elrond_wasm::module]
 trait EventsModule {
-    #[event("clashes")]
-    fn clashes_event(
-        &self,
-        #[indexed] battle_id: u64,
-        data: ManagedVec<ClashEventStruct<Self::Api>>,
-    );
-
     #[event("clash")]
     fn clash_event(
         &self,

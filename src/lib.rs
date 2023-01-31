@@ -95,7 +95,6 @@ pub trait GngMinting:
 
         let mut amount_of_battles_done: u64 = 0;
         let mut total_winner_power: u64 = 0;
-        // let mut event_data: ManagedVec<ClashEventStruct<Self::Api>> = ManagedVec::new();
 
         let result =
             self.run_while_it_has_gas(|| match self.unique_id_battle_stack(current_battle).len() {
@@ -105,8 +104,6 @@ pub trait GngMinting:
                     LoopOp::Break
                 }
                 _ => {
-                    // let clash_data = self.single_battle();
-                    // event_data.push(clash_data);
                     let single_battle_power = self.single_battle();
                     total_winner_power += single_battle_power;
                     amount_of_battles_done += 1;
@@ -127,7 +124,6 @@ pub trait GngMinting:
             });
             self.total_battle_winner_power(current_battle)
                 .update(|prev| *prev += total_winner_power);
-            // self.clashes_event(current_battle, event_data);
         }
 
         if result.is_completed() {
@@ -346,16 +342,7 @@ pub trait GngMinting:
             &self.nft_owner(&loser.token_id, loser.nonce).get(),
         );
 
-        // push it to top level with the event ?
-        // self.total_battle_winner_power(current_battle)
-        //     .update(|prev| *prev += winner_power);
         winner_power
-
-        // ClashEventStruct {
-        //     winner: winner.clone(),
-        //     loser: loser.clone(),
-        //     is_draw: false,
-        // }
     }
 
     fn update_stats_both_losers(
@@ -363,11 +350,6 @@ pub trait GngMinting:
         loser1: &Token<Self::Api>,
         loser2: &Token<Self::Api>,
     ) -> u64 {
-        // ClashEventStruct {
-        //     winner: loser1.clone(),
-        //     loser: loser2.clone(),
-        //     is_draw: true,
-        // }
         self.clash_event(
             self.current_battle().get(),
             loser1,
