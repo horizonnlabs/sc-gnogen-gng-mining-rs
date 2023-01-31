@@ -1,33 +1,30 @@
 {
-  "name": "withdraw after battle 3",
+  "name": "withdraw and claim after battle 2",
   "steps": [
     {
       "step": "externalSteps",
-      "path": "10_battle_three.scen.json"
+      "path": "07_battle_two.scen.json"
     },
     {
       "step": "scQuery",
-      "txId": "get all staked for address user2",
+      "txId": "get all staked for address user3",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getAllStakedForAddress",
-        "arguments": ["address:user2"]
+        "arguments": ["address:user3"]
       },
       "expect": {
-        "out": [
-          "str:VALIDATORS-abcdef", "1",
-          "str:VALIDATORS-abcdef", "5"
-        ]
+        "out": ["str:GNOGONS-abcdef", "3", "str:GNOGONS-abcdef", "4"]
       }
     },
     {
       "step": "scCall",
-      "txId": "user2 withdraw validator 5",
+      "txId": "user3 withdraw gnogons 3",
       "tx": {
-        "from": "address:user2",
+        "from": "address:user3",
         "to": "sc:gng-minting",
         "function": "withdraw",
-        "arguments": ["str:VALIDATORS-abcdef", "5"],
+        "arguments": ["str:GNOGONS-abcdef", "3"],
         "gasLimit": "20,000,000",
         "gasPrice": "0"
       },
@@ -41,48 +38,31 @@
     },
     {
       "step": "scQuery",
-      "txId": "get stats for user2",
+      "txId": "get stats for user3",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getStatsForAddress",
-        "arguments": ["address:user2"]
+        "arguments": ["address:user3"]
       },
       "expect": {
         "out": [
           {
-            "0-win": "u64:1",
-            "1-loss": "u64:1",
-            "2-gng_claimed": "biguint:1,360"
+            "0-power": "u64:110",
+            "2-gng_claimed": "biguint:8786"
           }
         ]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get pending rewards for user2",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user2"
-        ]
-      },
-      "expect": {
-        "out": ["0"]
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get all staked for address user2",
+      "txId": "get all staked for address user3",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getAllStakedForAddress",
-        "arguments": ["address:user2"]
+        "arguments": ["address:user3"]
       },
       "expect": {
-        "out": [
-          "str:VALIDATORS-abcdef", "1"
-        ]
+        "out": ["str:GNOGONS-abcdef", "4"]
       }
     },
     {
@@ -94,41 +74,47 @@
         "arguments": []
       },
       "expect": {
-        "out": ["14"]
+        "out": ["3"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get stats for validator 5",
+      "txId": "get owner for gnogons 3",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getStatsForNft",
-        "arguments": ["str:VALIDATORS-abcdef", "5"]
+        "function": "getNftOwner",
+        "arguments": ["str:GNOGONS-abcdef", "3"]
       },
       "expect": {
         "out": [
-          "str:VALIDATORS-abcdef", "5",
-          {
-            "0-win": "u64:0",
-            "1-loss": "u64:1",
-            "2-owner": "0x0000000000000000000000000000000000000000000000000000000000000000"
-          }
+          "0x0000000000000000000000000000000000000000000000000000000000000000"
         ]
       }
     },
     {
       "step": "checkState",
-      "comment": "check GNG balance for user2 (already has 80)",
       "accounts": {
-        "address:user2": {
-          "nonce": "11",
+        "address:user3": {
+          "nonce": "2",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "1,420",
-            "str:VALIDATORS-abcdef": {
+            "str:GNG-abcdef": "8,786",
+            "str:GNOGONS-abcdef": {
               "instances": [
                 {
+                  "nonce": "2",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "3",
+                  "balance": "1"
+                },
+                {
                   "nonce": "5",
+                  "balance": "1"
+                },
+                {
+                  "nonce": "6",
                   "balance": "1"
                 }
               ]

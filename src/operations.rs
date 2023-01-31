@@ -10,14 +10,12 @@ const MIN_GAS_TO_SAVE_PROGRESS: u64 = 15_000_000;
 pub enum LoopOp {
     Continue,
     Break,
-    ForceBreakBeforeCompleted,
 }
 
 #[derive(TypeAbi)]
 pub enum OperationCompletionStatus {
     Completed,
     InterruptedBeforeOutOfGas,
-    ForcedInterruption,
 }
 
 impl OperationCompletionStatus {
@@ -25,7 +23,6 @@ impl OperationCompletionStatus {
         match self {
             OperationCompletionStatus::Completed => b"completed",
             OperationCompletionStatus::InterruptedBeforeOutOfGas => b"interrupted",
-            OperationCompletionStatus::ForcedInterruption => b"forcedInterruption",
         }
     }
 
@@ -60,9 +57,6 @@ pub trait OngoingOperationModule: config::ConfigModule {
         loop {
             match loop_op {
                 LoopOp::Break => return OperationCompletionStatus::Completed,
-                LoopOp::ForceBreakBeforeCompleted => {
-                    return OperationCompletionStatus::ForcedInterruption;
-                }
                 LoopOp::Continue => {
                     if !self.can_continue_operation(gas_per_iteration) {
                         return OperationCompletionStatus::InterruptedBeforeOutOfGas;

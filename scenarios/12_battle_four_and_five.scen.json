@@ -1,9 +1,9 @@
 {
-  "name": "battle one",
+  "name": "battle four and five (timestamp to battle five and skip battle four)",
   "steps": [
     {
       "step": "externalSteps",
-      "path": "03_stake_battle_one.scen.json"
+      "path": "11_withdraw_and_claim.scen.json"
     },
     {
       "step": "scQuery",
@@ -17,9 +17,21 @@
       }
     },
     {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["4"]
+      }
+    },
+    {
       "step": "setState",
+      "comment": "set timestamp for battle 5",
       "currentBlockInfo": {
-        "blockTimestamp": "5010"
+        "blockTimestamp": "2424200"
       }
     },
     {
@@ -35,57 +47,60 @@
     },
     {
       "step": "scCall",
-      "txId": "battle 1 1st tx (call user2)",
+      "txId": "battle 4 1st tx (call user4)",
       "tx": {
-        "from": "address:user2",
+        "from": "address:user4",
         "to": "sc:gng-minting",
         "function": "battle",
         "arguments": [],
-        "gasLimit": "10,000,000",
+        "gasLimit": "65,000,000",
         "gasPrice": "0"
       },
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted", "1"],
+        "out": ["str:completed", "7"],
         "gas": "*",
         "refund": "*"
       }
     },
     {
-      "step": "scCall",
-      "txId": "battle 1 2nd tx (call user2)",
+      "step": "scQuery",
+      "txId": "get battle status",
       "tx": {
-        "from": "address:user2",
         "to": "sc:gng-minting",
-        "function": "battle",
-        "arguments": [],
-        "gasLimit": "10,000,000",
-        "gasPrice": "0"
+        "function": "getBattleStatus"
       },
       "expect": {
-        "status": "0",
-        "message": "",
-        "out": ["str:interrupted", "1"],
-        "gas": "*",
-        "refund": "*"
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["5"]
       }
     },
     {
       "step": "scCall",
-      "txId": "battle 1 3rd tx (call user2)",
+      "txId": "battle 5 1st tx (call user4)",
       "tx": {
-        "from": "address:user2",
+        "from": "address:user4",
         "to": "sc:gng-minting",
         "function": "battle",
         "arguments": [],
-        "gasLimit": "10,000,000",
+        "gasLimit": "65,000,000",
         "gasPrice": "0"
       },
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:completed", "0"],
+        "out": ["str:completed", "7"],
         "gas": "*",
         "refund": "*"
       }
@@ -98,7 +113,7 @@
         "to": "sc:gng-minting",
         "function": "battle",
         "arguments": [],
-        "gasLimit": "10,000,000",
+        "gasLimit": "50,000,000",
         "gasPrice": "0"
       },
       "expect": {
@@ -107,6 +122,17 @@
         "out": [],
         "gas": "*",
         "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["6"]
       }
     },
     {
@@ -131,7 +157,21 @@
         ]
       },
       "expect": {
-        "out": ["6451"]
+        "out": ["18854"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user2",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": [
+          "address:user2"
+        ]
+      },
+      "expect": {
+        "out": ["2839"]
       }
     },
     {
@@ -145,7 +185,7 @@
         ]
       },
       "expect": {
-        "out": ["3548"]
+        "out": ["5494"]
       }
     },
     {
@@ -159,16 +199,28 @@
         ]
       },
       "expect": {
-        "out": ["0"]
+        "out": ["6191"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get temp battle stack",
+      "txId": "get temp battle stack 4",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getUniqueIdBattleStack",
-        "arguments": ["1"]
+        "arguments": ["4"]
+      },
+      "expect": {
+        "out": []
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get temp battle stack 5",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getUniqueIdBattleStack",
+        "arguments": ["5"]
       },
       "expect": {
         "out": []
@@ -183,49 +235,50 @@
         "arguments": []
       },
       "expect": {
-        "out": ["5"]
+        "out": ["14"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get stats for emidas 1 (alone at the end)",
+      "txId": "get global stats",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getStatsForNft",
-        "arguments": ["str:EMIDAS-abcdef", "1"]
+        "function": "getGlobalStats",
+        "arguments": []
       },
       "expect": {
         "out": [
-          "str:EMIDAS-abcdef", "1",
-          {
-            "0-win": "u64:1",
-            "1-loss": "u64:0",
-            "2-owner": "address:user1"
-          }
+          "address:user1", "25305", "450",
+          "address:user3", "14280", "410",
+          "address:user4", "6191", "380",
+          "address:user2", "4216", "115"
         ]
       }
     },
     {
       "step": "checkState",
-      "comment": "GNG balance is 20 because the last battle tx didn't execute any single battle",
+      "comment": "check GNG balance",
       "accounts": {
         "address:user2": {
-          "nonce": "4",
+          "nonce": "11",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "20",
+            "str:GNG-abcdef": "1,407",
             "str:VALIDATORS-abcdef": {
               "instances": [
-                {
-                  "nonce": "1",
-                  "balance": "1"
-                },
                 {
                   "nonce": "5",
                   "balance": "1"
                 }
               ]
             }
+          }
+        },
+        "address:user4": {
+          "nonce": "6",
+          "balance": "1000000",
+          "esdt": {
+            "str:GNG-abcdef": "220"
           }
         },
         "+": "*"

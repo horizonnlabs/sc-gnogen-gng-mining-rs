@@ -23,16 +23,16 @@ elrond_wasm_node::wasm_endpoints! {
         getAllStakedForAddress
         getPendingRewardsForAddress
         getStatsForAddress
-        getStatsForNft
         getGlobalStats
         getGlobalStatsByAddress
+        getNftOwner
         getCurrentBattle
         getStakedForAddress
         getBattleStack
         getUniqueIdBattleStack
         hasBattleStarted
         getTotalNftEngaged
-        getBattleHistory
+        getTotalBattleWinnerPower
         getRawPendingRewardsForAddress
         getAddresses
         setBattleToken
