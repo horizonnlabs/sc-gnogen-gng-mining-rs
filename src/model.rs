@@ -40,8 +40,6 @@ pub struct ClashEventStruct<M: ManagedTypeApi> {
     pub winner: Token<M>,
     pub loser: Token<M>,
     pub is_draw: bool,
-    pub winner_address: ManagedAddress<M>,
-    pub loser_address: ManagedAddress<M>,
 }
 
 impl<M: ManagedTypeApi> Default for UserStats<M> {

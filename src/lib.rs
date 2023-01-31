@@ -11,7 +11,7 @@ mod operations;
 use core::cmp::Ordering;
 
 use config::State;
-use model::{Attributes, BattleStatus, ClashEventStruct, Nonce, PendingRewards, Token, UserStats};
+use model::{Attributes, BattleStatus, Nonce, PendingRewards, Token, UserStats};
 use operations::{LoopOp, OperationCompletionStatus};
 
 const NFT_AMOUNT: u64 = 1;
@@ -94,7 +94,8 @@ pub trait GngMinting:
         }
 
         let mut amount_of_battles_done: u64 = 0;
-        let mut event_data: ManagedVec<ClashEventStruct<Self::Api>> = ManagedVec::new();
+        let mut total_winner_power: u64 = 0;
+        // let mut event_data: ManagedVec<ClashEventStruct<Self::Api>> = ManagedVec::new();
 
         let result =
             self.run_while_it_has_gas(|| match self.unique_id_battle_stack(current_battle).len() {
@@ -104,8 +105,10 @@ pub trait GngMinting:
                     return LoopOp::Break;
                 }
                 _ => {
-                    let clash_data = self.single_battle();
-                    event_data.push(clash_data);
+                    // let clash_data = self.single_battle();
+                    // event_data.push(clash_data);
+                    let single_battle_power = self.single_battle();
+                    total_winner_power += single_battle_power;
                     amount_of_battles_done += 1;
 
                     LoopOp::Continue
@@ -122,7 +125,9 @@ pub trait GngMinting:
             self.reward_capacity().update(|prev| {
                 *prev -= self.base_battle_reward_amount().get() * amount_of_battles_done
             });
-            self.clashes_event(current_battle, event_data);
+            self.total_battle_winner_power(current_battle)
+                .update(|prev| *prev += total_winner_power);
+            // self.clashes_event(current_battle, event_data);
         }
 
         if result.is_completed() {
@@ -213,7 +218,7 @@ pub trait GngMinting:
     }
 
     /// We assume there is at least 2 tokens in the stack
-    fn single_battle(&self) -> ClashEventStruct<Self::Api> {
+    fn single_battle(&self) -> u64 {
         let current_battle = self.current_battle().get();
         let battle_stack_mapper = self.battle_stack();
         let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
@@ -254,7 +259,7 @@ pub trait GngMinting:
         first_token_attr: &Attributes,
         second_token: &Token<Self::Api>,
         second_token_attr: &Attributes,
-    ) -> ClashEventStruct<Self::Api> {
+    ) -> u64 {
         let emidas_token_id = self.emidas_token_id().get();
         let gnogon_token_id = self.gnogon_token_id().get();
         let validator_token_id = self.validator_v2_token_id().get();
@@ -298,7 +303,7 @@ pub trait GngMinting:
         &self,
         mut winner: &'a Token<Self::Api>,
         mut loser: &'a Token<Self::Api>,
-    ) -> ClashEventStruct<Self::Api> {
+    ) -> u64 {
         if self.is_today_special() {
             (winner, loser) = (loser, winner);
         }
@@ -332,31 +337,46 @@ pub trait GngMinting:
             });
         }
 
-        // push it to top level with the event ?
-        self.total_battle_winner_power(current_battle)
-            .update(|prev| *prev += winner_power);
+        self.clash_event(
+            current_battle,
+            &winner,
+            &loser,
+            false,
+            &winner_address,
+            &self.nft_owner(&loser.token_id, loser.nonce).get(),
+        );
 
-        ClashEventStruct {
-            winner: winner.clone(),
-            loser: loser.clone(),
-            is_draw: false,
-            winner_address,
-            loser_address: self.nft_owner(&loser.token_id, loser.nonce).get(),
-        }
+        // push it to top level with the event ?
+        // self.total_battle_winner_power(current_battle)
+        //     .update(|prev| *prev += winner_power);
+        winner_power
+
+        // ClashEventStruct {
+        //     winner: winner.clone(),
+        //     loser: loser.clone(),
+        //     is_draw: false,
+        // }
     }
 
     fn update_stats_both_losers(
         &self,
         loser1: &Token<Self::Api>,
         loser2: &Token<Self::Api>,
-    ) -> ClashEventStruct<Self::Api> {
-        ClashEventStruct {
-            winner: loser1.clone(),
-            loser: loser2.clone(),
-            is_draw: true,
-            winner_address: self.nft_owner(&loser2.token_id, loser2.nonce).get(),
-            loser_address: self.nft_owner(&loser2.token_id, loser2.nonce).get(),
-        }
+    ) -> u64 {
+        // ClashEventStruct {
+        //     winner: loser1.clone(),
+        //     loser: loser2.clone(),
+        //     is_draw: true,
+        // }
+        self.clash_event(
+            self.current_battle().get(),
+            loser1,
+            loser2,
+            true,
+            &self.nft_owner(&loser1.token_id, loser1.nonce).get(),
+            &self.nft_owner(&loser2.token_id, loser2.nonce).get(),
+        );
+        0
     }
 
     /// We assume there is exactly one token in the stack
