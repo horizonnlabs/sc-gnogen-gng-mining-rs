@@ -11,9 +11,7 @@ mod operations;
 use core::cmp::Ordering;
 
 use config::State;
-use model::{
-    Attributes, BattleHistory, BattleStatus, Nonce, PendingRewards, Token, TokenStats, UserStats,
-};
+use model::{Attributes, BattleStatus, Nonce, PendingRewards, Token, UserStats};
 use operations::{LoopOp, OperationCompletionStatus};
 
 const NFT_AMOUNT: u64 = 1;
@@ -54,27 +52,25 @@ pub trait GngMinting:
         self.raw_pending_rewards_for_address(&caller)
             .set_if_empty(PendingRewards::default());
 
+        let mut total_power = 0;
+
         for payment in payments.iter() {
             let (token_id, nonce, amount) = payment.into_tuple();
             require!(self.battle_tokens().contains(&token_id), "Wrong token");
             require!(amount == NFT_AMOUNT, "Invalid token amount");
 
             self.staked_for_address(&caller, &token_id).insert(nonce);
+            let attributes = self.token_attributes(&token_id, nonce).get();
+            total_power += attributes.power;
 
-            if self.stats_for_nft(&token_id, nonce).is_empty() {
-                self.stats_for_nft(&token_id, nonce).set(TokenStats {
-                    win: 0,
-                    loss: 0,
-                    owner: caller.clone(),
-                });
-            } else {
-                self.stats_for_nft(&token_id, nonce).update(|prev| {
-                    prev.owner = caller.clone();
-                });
-            }
+            self.nft_owner(&token_id, nonce).set(caller.clone());
 
             self.battle_stack().insert(Token { token_id, nonce });
         }
+
+        self.stats_for_address(&caller).update(|prev| {
+            prev.power += total_power as u64;
+        });
 
         self.addresses().insert(caller);
         self.total_nft_engaged()
@@ -89,13 +85,6 @@ pub trait GngMinting:
         );
 
         let current_battle = self.current_battle().get();
-
-        // TODO: SingleValueMapper
-        self.battle_history(current_battle)
-            .set_if_empty(BattleHistory {
-                battle_id: current_battle,
-                total_winner_power: 0,
-            });
 
         if self.has_battle_started(current_battle).get() == false {
             self.unique_id_battle_stack(current_battle)
@@ -178,20 +167,23 @@ pub trait GngMinting:
         let amount_tokens = tokens.len();
 
         let mut output_payments: ManagedVec<EsdtTokenPayment> = ManagedVec::new();
+        let mut total_power = 0;
 
         for token in tokens.into_iter() {
             let (token_id, nonce) = token.into_tuple();
-            let token_stats = self.stats_for_nft(&token_id, nonce).get();
+            let token_owner = self.nft_owner(&token_id, nonce).get();
+
+            let attributes = self.token_attributes(&token_id, nonce).get();
+            total_power += attributes.power;
 
             require!(
-                token_stats.owner == caller
+                token_owner == caller
                     && self.staked_for_address(&caller, &token_id).contains(&nonce),
                 "Wrong token"
             );
 
-            self.stats_for_nft(&token_id, nonce).update(|prev| {
-                prev.owner = ManagedAddress::zero();
-            });
+            self.nft_owner(&token_id, nonce).clear();
+
             self.staked_for_address(&caller, &token_id)
                 .swap_remove(&nonce);
 
@@ -206,6 +198,10 @@ pub trait GngMinting:
                 BigUint::from(NFT_AMOUNT),
             ));
         }
+
+        self.stats_for_address(&caller).update(|prev| {
+            prev.power -= total_power as u64;
+        });
 
         self.total_nft_engaged()
             .update(|prev| *prev -= amount_tokens as u64);
@@ -300,19 +296,11 @@ pub trait GngMinting:
             (winner, loser) = (loser, winner);
         }
 
-        let winner_token_stats = self.stats_for_nft(&winner.token_id, winner.nonce);
-        let loser_token_stats = self.stats_for_nft(&loser.token_id, loser.nonce);
-        let winner_address = winner_token_stats.get().owner;
+        let winner_address = self.nft_owner(&winner.token_id, winner.nonce).get();
         let winner_power = self
             .get_token_attributes(&winner.token_id, winner.nonce)
             .power as u64;
         let current_battle = self.current_battle().get();
-
-        // update winner
-        winner_token_stats.update(|prev| prev.win += 1);
-        self.stats_for_address(&winner_address).update(|prev| {
-            prev.win += 1;
-        });
 
         let winner_rewards_mapper = self.raw_pending_rewards_for_address(&winner_address);
         let winner_rewards = self.raw_pending_rewards_for_address(&winner_address).get();
@@ -337,33 +325,15 @@ pub trait GngMinting:
             });
         }
 
-        self.battle_history(current_battle).update(|prev| {
-            prev.total_winner_power += winner_power;
-        });
-
-        // update loser
-        loser_token_stats.update(|prev| prev.loss += 1);
-        self.stats_for_address(&loser_token_stats.get().owner)
-            .update(|prev| prev.loss += 1);
+        // push it to top level with the event ?
+        self.total_battle_winner_power(current_battle)
+            .update(|prev| *prev += winner_power);
 
         // Emit event
         self.clash_event(winner, loser, false);
     }
 
     fn update_stats_both_losers(&self, loser1: &Token<Self::Api>, loser2: &Token<Self::Api>) {
-        let loser1_token_stats = self.stats_for_nft(&loser1.token_id, loser1.nonce);
-        let loser2_token_stats = self.stats_for_nft(&loser2.token_id, loser2.nonce);
-
-        // update loser1
-        loser1_token_stats.update(|prev| prev.loss += 1);
-        self.stats_for_address(&loser1_token_stats.get().owner)
-            .update(|prev| prev.loss += 1);
-
-        // update loser2
-        loser2_token_stats.update(|prev| prev.loss += 1);
-        self.stats_for_address(&loser2_token_stats.get().owner)
-            .update(|prev| prev.loss += 1);
-
         // Emit event
         self.clash_event(loser1, loser2, true);
     }
@@ -373,12 +343,8 @@ pub trait GngMinting:
         let current_battle = self.current_battle().get();
         let mut unique_id_stack_mapper = self.unique_id_battle_stack(current_battle);
         let token_idx = unique_id_stack_mapper.get(1);
-        let token = self.battle_stack().get_by_index(token_idx);
-        let token_stats = self.stats_for_nft(&token.token_id, token.nonce);
-
-        token_stats.update(|prev| prev.loss += 1);
-        self.stats_for_address(&token_stats.get().owner)
-            .update(|prev| prev.loss += 1);
+        let _token = self.battle_stack().get_by_index(token_idx);
+        //emit event
 
         unique_id_stack_mapper.swap_remove(1);
     }
@@ -390,8 +356,7 @@ pub trait GngMinting:
 
     fn calculate_single_battle_rewards(&self, battle_id: u64, power: u64) -> BigUint {
         let daily_reward_amount = self.get_daily_reward_amount_with_halving();
-        let battle_history = self.battle_history(battle_id).get();
-        let total_winner_power = battle_history.total_winner_power;
+        let total_winner_power = self.total_battle_winner_power(battle_id).get();
 
         let big_power = BigUint::from(power).mul(DIVISION_PRECISION);
         let big_total_winner_power = BigUint::from(total_winner_power);
@@ -471,37 +436,19 @@ pub trait GngMinting:
         }
     }
 
-    #[view(getStatsForNft)]
-    fn get_stats_for_nft(
-        &self,
-        nfts: MultiValueEncoded<MultiValue2<TokenIdentifier, u64>>,
-    ) -> MultiValueEncoded<MultiValue3<TokenIdentifier, u64, TokenStats<Self::Api>>> {
-        let mut result = MultiValueEncoded::new();
-
-        for nft in nfts.into_iter() {
-            let (token_id, nonce) = nft.into_tuple();
-            let stats_mapper = self.stats_for_nft(&token_id, nonce);
-
-            if stats_mapper.is_empty() {
-                result.push(MultiValue3::from((token_id, nonce, TokenStats::default())));
-            } else {
-                result.push(MultiValue3::from((token_id, nonce, stats_mapper.get())));
-            }
-        }
-        result
-    }
-
     #[view(getGlobalStats)]
-    fn get_global_stats(&self) -> MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>> {
+    fn get_global_stats(&self) -> MultiValueEncoded<MultiValue3<ManagedAddress, BigUint, u64>> {
         let mut result = MultiValueEncoded::new();
 
         for address in self.addresses().iter() {
+            let stats_for_address = self.stats_for_address(&address).get();
+            let power = stats_for_address.power;
             let mut total_gng = BigUint::zero();
 
-            total_gng += self.stats_for_address(&address).get().gng_claimed;
+            total_gng += stats_for_address.gng_claimed;
             total_gng += self.get_pending_rewards_for_address(&address);
 
-            result.push(MultiValue2::from((address.clone(), total_gng)));
+            result.push(MultiValue3::from((address.clone(), total_gng, power)));
         }
         result
     }
@@ -510,22 +457,15 @@ pub trait GngMinting:
     fn get_global_stats_by_address(
         &self,
         address: &ManagedAddress,
-    ) -> MultiValue4<ManagedAddress, u64, BigUint, u16> {
-        let mut total_power = 0u64;
+    ) -> MultiValue3<ManagedAddress, u64, BigUint> {
+        let stats_for_address = self.stats_for_address(&address).get();
+        let power = stats_for_address.power;
         let mut total_gng = BigUint::zero();
-        let mut total_nfts = 0u16;
-        let nfts_staked = self.get_all_staked_for_address(&address);
-
-        for nft in nfts_staked.into_iter() {
-            let (token_id, nonce) = nft.into_tuple();
-            total_power += self.get_token_attributes(&token_id, nonce).power as u64;
-            total_nfts += 1;
-        }
 
         total_gng += self.stats_for_address(&address).get().gng_claimed;
         total_gng += self.get_pending_rewards_for_address(&address);
 
-        MultiValue4::from((address.clone(), total_power, total_gng, total_nfts))
+        MultiValue3::from((address.clone(), power, total_gng))
     }
 
     #[storage_mapper("statsForAddress")]
@@ -534,12 +474,12 @@ pub trait GngMinting:
         address: &ManagedAddress,
     ) -> SingleValueMapper<UserStats<Self::Api>>;
 
-    #[storage_mapper("statsForNft")]
-    fn stats_for_nft(
+    #[storage_mapper("nft_owner")]
+    fn nft_owner(
         &self,
         token_id: &TokenIdentifier,
         nonce: Nonce,
-    ) -> SingleValueMapper<TokenStats<Self::Api>>;
+    ) -> SingleValueMapper<ManagedAddress>;
 
     #[view(getCurrentBattle)]
     #[storage_mapper("currentBattle")]
@@ -569,9 +509,9 @@ pub trait GngMinting:
     #[storage_mapper("totalNftEngaged")]
     fn total_nft_engaged(&self) -> SingleValueMapper<u64>;
 
-    #[view(getBattleHistory)]
-    #[storage_mapper("battleHistory")]
-    fn battle_history(&self, battle: u64) -> SingleValueMapper<BattleHistory>;
+    #[view(getTotalBattleWinnerPower)]
+    #[storage_mapper("totalBattleWinnerPower")]
+    fn total_battle_winner_power(&self, battle: u64) -> SingleValueMapper<u64>;
 
     #[view(getRawPendingRewardsForAddress)]
     #[storage_mapper("rawPendingRewardsForAddress")]
