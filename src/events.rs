@@ -8,7 +8,7 @@ trait EventsModule {
     fn clashes_event(
         &self,
         #[indexed] battle_id: u64,
-        data: ManagedVec<ClashEventStruct<Self::Api>>,
+        #[indexed] clashes: &MultiValueManagedVec<ClashEventStruct<Self::Api>>,
     );
 
     #[event("singleTokenClash")]

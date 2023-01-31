@@ -35,7 +35,7 @@ pub struct PendingRewards<M: ManagedTypeApi> {
     pub awaiting_power: u64,
 }
 
-#[derive(ManagedVecItem, TypeAbi, NestedEncode, NestedDecode)]
+#[derive(ManagedVecItem, TypeAbi, TopEncode)]
 pub struct ClashEventStruct<M: ManagedTypeApi> {
     pub winner: Token<M>,
     pub loser: Token<M>,
