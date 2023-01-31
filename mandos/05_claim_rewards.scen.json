@@ -35,8 +35,7 @@
       "expect": {
         "out": [
           {
-            "0-win": "u64:1",
-            "1-loss": "u64:1",
+            "0-power": "u64:300",
             "2-gng_claimed": "biguint:6451"
           }
         ]
@@ -66,9 +65,9 @@
       },
       "expect": {
         "out": [
-          "address:user1", "300", "6451", "2",
-          "address:user3", "180", "3548", "2",
-          "address:user4", "100", "0", "1"
+          "address:user1", "6451", "300",
+          "address:user3", "3548", "180",
+          "address:user4", "0", "100"
         ]
       }
     },

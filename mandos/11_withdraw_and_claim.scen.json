@@ -50,9 +50,8 @@
       "expect": {
         "out": [
           {
-            "0-win": "u64:1",
-            "1-loss": "u64:1",
-            "2-gng_claimed": "biguint:1,360"
+            "0-power": "u64:115",
+            "2-gng_claimed": "biguint:1,377"
           }
         ]
       }
@@ -98,33 +97,14 @@
       }
     },
     {
-      "step": "scQuery",
-      "txId": "get stats for validator 5",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getStatsForNft",
-        "arguments": ["str:VALIDATORS-abcdef", "5"]
-      },
-      "expect": {
-        "out": [
-          "str:VALIDATORS-abcdef", "5",
-          {
-            "0-win": "u64:0",
-            "1-loss": "u64:1",
-            "2-owner": "0x0000000000000000000000000000000000000000000000000000000000000000"
-          }
-        ]
-      }
-    },
-    {
       "step": "checkState",
       "comment": "check GNG balance for user2 (already has 80)",
       "accounts": {
         "address:user2": {
-          "nonce": "11",
+          "nonce": "10",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "1,420",
+            "str:GNG-abcdef": "1,407",
             "str:VALIDATORS-abcdef": {
               "instances": [
                 {

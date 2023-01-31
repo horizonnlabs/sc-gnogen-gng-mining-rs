@@ -1,5 +1,5 @@
 {
-  "name": "battle one",
+  "name": "battle two",
   "steps": [
     {
       "step": "externalSteps",
@@ -185,25 +185,6 @@
       },
       "expect": {
         "out": ["4"]
-      }
-    },
-    {
-      "step": "scQuery",
-      "txId": "get stats for emidas 3",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getStatsForNft",
-        "arguments": ["str:EMIDAS-abcdef", "3"]
-      },
-      "expect": {
-        "out": [
-          "str:EMIDAS-abcdef", "3",
-          {
-            "0-win": "u64:0",
-            "1-loss": "u64:2",
-            "2-owner": "address:user4"
-          }
-        ]
       }
     },
     {

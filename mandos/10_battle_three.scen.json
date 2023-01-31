@@ -59,26 +59,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted", "4"],
-        "gas": "*",
-        "refund": "*"
-      }
-    },
-    {
-      "step": "scCall",
-      "txId": "battle 3 2nd tx (call user2)",
-      "tx": {
-        "from": "address:user2",
-        "to": "sc:gng-minting",
-        "function": "battle",
-        "arguments": [],
-        "gasLimit": "65,000,000",
-        "gasPrice": "0"
-      },
-      "expect": {
-        "status": "0",
-        "message": "",
-        "out": ["str:completed", "3"],
+        "out": ["str:completed", "7"],
         "gas": "*",
         "refund": "*"
       }
@@ -135,7 +116,7 @@
         ]
       },
       "expect": {
-        "out": ["8903"]
+        "out": ["8952"]
       }
     },
     {
@@ -149,7 +130,7 @@
         ]
       },
       "expect": {
-        "out": ["1360"]
+        "out": ["1377"]
       }
     },
     {
@@ -163,7 +144,7 @@
         ]
       },
       "expect": {
-        "out": ["2366"]
+        "out": ["2275"]
       }
     },
     {
@@ -177,7 +158,7 @@
         ]
       },
       "expect": {
-        "out": ["2130"]
+        "out": ["2155"]
       }
     },
     {
@@ -209,17 +190,17 @@
       "comment": "check GNG balance for user2 (already has 40) and user4 (already has 10)",
       "accounts": {
         "address:user2": {
-          "nonce": "10",
+          "nonce": "9",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "60"
+            "str:GNG-abcdef": "30"
           }
         },
         "address:user4": {
           "nonce": "4",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "50"
+            "str:GNG-abcdef": "80"
           }
         },
         "+": "*"

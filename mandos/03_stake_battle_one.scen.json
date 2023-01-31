@@ -115,8 +115,7 @@
       "expect": {
         "out": [
           {
-            "0-win": "u64:0",
-            "1-loss": "u64:0",
+            "0-power": "u64:300",
             "2-gng_claimed": "biguint:0"
           }
         ]
@@ -124,20 +123,15 @@
     },
     {
       "step": "scQuery",
-      "txId": "get stats for nft emidas 1",
+      "txId": "get owner for nft emidas 1",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getStatsForNft",
+        "function": "getNftOwner",
         "arguments": ["str:EMIDAS-abcdef", "1"]
       },
       "expect": {
         "out": [
-          "str:EMIDAS-abcdef", "1",
-          {
-            "0-win": "u64:0",
-            "1-loss": "u64:0",
-            "2-owner": "address:user1"
-          }
+          "address:user1"
         ]
       }
     },

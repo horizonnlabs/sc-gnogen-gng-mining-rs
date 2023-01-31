@@ -59,26 +59,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted", "4"],
-        "gas": "*",
-        "refund": "*"
-      }
-    },
-    {
-      "step": "scCall",
-      "txId": "battle 4 2nd tx (call user2)",
-      "tx": {
-        "from": "address:user2",
-        "to": "sc:gng-minting",
-        "function": "battle",
-        "arguments": [],
-        "gasLimit": "65,000,000",
-        "gasPrice": "0"
-      },
-      "expect": {
-        "status": "0",
-        "message": "",
-        "out": ["str:completed", "3"],
+        "out": ["str:completed", "7"],
         "gas": "*",
         "refund": "*"
       }
@@ -119,26 +100,7 @@
       "expect": {
         "status": "0",
         "message": "",
-        "out": ["str:interrupted", "4"],
-        "gas": "*",
-        "refund": "*"
-      }
-    },
-    {
-      "step": "scCall",
-      "txId": "battle 5 2nd tx (call user2)",
-      "tx": {
-        "from": "address:user2",
-        "to": "sc:gng-minting",
-        "function": "battle",
-        "arguments": [],
-        "gasLimit": "65,000,000",
-        "gasPrice": "0"
-      },
-      "expect": {
-        "status": "0",
-        "message": "",
-        "out": ["str:completed", "3"],
+        "out": ["str:completed", "7"],
         "gas": "*",
         "refund": "*"
       }
@@ -195,7 +157,7 @@
         ]
       },
       "expect": {
-        "out": ["18575"]
+        "out": ["18854"]
       }
     },
     {
@@ -209,7 +171,7 @@
         ]
       },
       "expect": {
-        "out": ["2788"]
+        "out": ["2839"]
       }
     },
     {
@@ -223,7 +185,7 @@
         ]
       },
       "expect": {
-        "out": ["6896"]
+        "out": ["5494"]
       }
     },
     {
@@ -237,7 +199,7 @@
         ]
       },
       "expect": {
-        "out": ["5134"]
+        "out": ["6191"]
       }
     },
     {
@@ -286,22 +248,22 @@
       },
       "expect": {
         "out": [
-          "address:user1", "450", "25026", "3",
-          "address:user3", "410", "15682", "5",
-          "address:user4", "380", "5134", "5",
-          "address:user2", "115", "4148", "1"
+          "address:user1", "25305", "450",
+          "address:user3", "14280", "410",
+          "address:user4", "6191", "380",
+          "address:user2", "4216", "115"
         ]
       }
     },
     {
       "step": "checkState",
-      "comment": "check GNG balance for user2 (already has 2052) and user4 (already has 30)",
+      "comment": "check GNG balance",
       "accounts": {
         "address:user2": {
-          "nonce": "14",
+          "nonce": "11",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "1,480",
+            "str:GNG-abcdef": "1,407",
             "str:VALIDATORS-abcdef": {
               "instances": [
                 {
@@ -316,7 +278,7 @@
           "nonce": "6",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "130"
+            "str:GNG-abcdef": "220"
           }
         },
         "+": "*"

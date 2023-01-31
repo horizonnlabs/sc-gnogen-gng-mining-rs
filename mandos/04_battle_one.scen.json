@@ -187,25 +187,6 @@
       }
     },
     {
-      "step": "scQuery",
-      "txId": "get stats for emidas 1 (alone at the end)",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getStatsForNft",
-        "arguments": ["str:EMIDAS-abcdef", "1"]
-      },
-      "expect": {
-        "out": [
-          "str:EMIDAS-abcdef", "1",
-          {
-            "0-win": "u64:1",
-            "1-loss": "u64:0",
-            "2-owner": "address:user1"
-          }
-        ]
-      }
-    },
-    {
       "step": "checkState",
       "comment": "GNG balance is 20 because the last battle tx didn't execute any single battle",
       "accounts": {

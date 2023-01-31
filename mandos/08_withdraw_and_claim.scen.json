@@ -1,5 +1,5 @@
 {
-  "name": "withdraw after battle 1",
+  "name": "withdraw and claim after battle 2",
   "steps": [
     {
       "step": "externalSteps",
@@ -47,8 +47,7 @@
       "expect": {
         "out": [
           {
-            "0-win": "u64:2",
-            "1-loss": "u64:2",
+            "0-power": "u64:110",
             "2-gng_claimed": "biguint:8786"
           }
         ]
@@ -80,20 +79,15 @@
     },
     {
       "step": "scQuery",
-      "txId": "get stats for gnogons 3",
+      "txId": "get owner for gnogons 3",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getStatsForNft",
+        "function": "getNftOwner",
         "arguments": ["str:GNOGONS-abcdef", "3"]
       },
       "expect": {
         "out": [
-          "str:GNOGONS-abcdef", "3",
-          {
-            "0-win": "u64:0",
-            "1-loss": "u64:2",
-            "2-owner": "0x0000000000000000000000000000000000000000000000000000000000000000"
-          }
+          "0x0000000000000000000000000000000000000000000000000000000000000000"
         ]
       }
     },
