@@ -41,6 +41,18 @@ pub trait ConfigModule {
     }
 
     #[only_owner]
+    #[endpoint(addExtraBattleToken)]
+    fn add_extra_battle_token(&self, token: TokenIdentifier) {
+        self.battle_tokens().insert(token);
+    }
+
+    #[only_owner]
+    #[endpoint(removeExtraBattleToken)]
+    fn remove_extra_battle_token(&self, token: TokenIdentifier) {
+        self.battle_tokens().swap_remove(&token);
+    }
+
+    #[only_owner]
     #[endpoint(setAttributes)]
     fn set_attributes(
         &self,

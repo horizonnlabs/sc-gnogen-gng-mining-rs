@@ -82,6 +82,14 @@
                   "balance": "1"
                 }
               ]
+            },
+            "str:NEWCOLLECTION-abcdef": {
+              "instances": [
+                {
+                  "nonce": "1",
+                  "balance": "1"
+                }
+              ]
             }
           },
           "storage": {}

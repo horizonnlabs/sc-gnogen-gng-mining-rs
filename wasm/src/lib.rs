@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           44
+// Endpoints:                           46
 // Async Callback (empty):               1
-// Total number of exported functions:  46
+// Total number of exported functions:  48
 
 #![no_std]
 
@@ -36,6 +36,8 @@ elrond_wasm_node::wasm_endpoints! {
         getRawPendingRewardsForAddress
         getAddresses
         setBattleToken
+        addExtraBattleToken
+        removeExtraBattleToken
         setAttributes
         pause
         resume
