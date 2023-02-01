@@ -77,6 +77,7 @@ pub trait GngMinting:
 
     #[endpoint]
     fn battle(&self) -> MultiValue2<OperationCompletionStatus, u64> {
+        require!(self.is_active(), "Not active");
         require!(
             self.get_battle_status() == BattleStatus::Battle,
             "Battle in preparation"
@@ -134,6 +135,7 @@ pub trait GngMinting:
 
     #[endpoint(claimRewards)]
     fn claim_rewards(&self) {
+        require!(self.is_active(), "Not active");
         require!(
             self.get_battle_status() == BattleStatus::Preparation,
             "Battle in progress"
@@ -158,6 +160,7 @@ pub trait GngMinting:
 
     #[endpoint]
     fn withdraw(&self, tokens: MultiValueEncoded<MultiValue2<TokenIdentifier, Nonce>>) {
+        require!(self.is_active(), "Not active");
         require!(
             self.get_battle_status() == BattleStatus::Preparation,
             "Battle in progress"
