@@ -92,7 +92,7 @@ pub trait GngMinting:
             self.start_battle_event(current_battle);
         }
 
-        let mut amount_of_battles_done: u64 = 0;
+        let mut amount_of_clashes_done: u64 = 0;
         let mut total_winner_power: u64 = 0;
 
         let result =
@@ -103,23 +103,23 @@ pub trait GngMinting:
                     LoopOp::Break
                 }
                 _ => {
-                    let single_battle_power = self.single_battle();
-                    total_winner_power += single_battle_power;
-                    amount_of_battles_done += 1;
+                    let clash_winner_power = self.clash();
+                    total_winner_power += clash_winner_power;
+                    amount_of_clashes_done += 1;
 
                     LoopOp::Continue
                 }
             });
 
-        if amount_of_battles_done > 0 {
+        if amount_of_clashes_done > 0 {
             self.send().direct_esdt(
                 &self.blockchain().get_caller(),
                 &self.gng_token_id().get(),
                 0,
-                &(self.base_battle_reward_amount().get() * amount_of_battles_done),
+                &self.calculate_clash_operator_rewards(amount_of_clashes_done),
             );
             self.reward_capacity().update(|prev| {
-                *prev -= self.base_battle_reward_amount().get() * amount_of_battles_done
+                *prev -= self.base_battle_reward_amount().get() * amount_of_clashes_done
             });
             self.total_battle_winner_power(current_battle)
                 .update(|prev| *prev += total_winner_power);
@@ -130,7 +130,7 @@ pub trait GngMinting:
             self.current_battle().update(|current| *current += 1);
         }
 
-        MultiValue2::from((result, amount_of_battles_done))
+        MultiValue2::from((result, amount_of_clashes_done))
     }
 
     #[endpoint(claimRewards)]
@@ -215,7 +215,7 @@ pub trait GngMinting:
     }
 
     /// We assume there is at least 2 tokens in the stack
-    fn single_battle(&self) -> u64 {
+    fn clash(&self) -> u64 {
         let current_battle = self.current_battle().get();
         let battle_stack_mapper = self.battle_stack();
         let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
@@ -319,7 +319,7 @@ pub trait GngMinting:
                 prev.awaiting_power = winner_power;
             });
         } else if winner_rewards.awaiting_battle_id < current_battle {
-            let rewards_to_add = self.calculate_single_battle_rewards(
+            let rewards_to_add = self.calculate_clash_rewards(
                 winner_rewards.awaiting_battle_id,
                 winner_rewards.awaiting_power,
             );
@@ -384,16 +384,28 @@ pub trait GngMinting:
         rand.next_usize_in_range(min, max)
     }
 
-    fn calculate_single_battle_rewards(&self, battle_id: u64, power: u64) -> BigUint {
+    fn calculate_clash_rewards(&self, battle_id: u64, power: u64) -> BigUint {
         let daily_reward_amount = self.get_daily_reward_amount_with_halving();
         let total_winner_power = self.total_battle_winner_power(battle_id).get();
 
         let big_power = BigUint::from(power).mul(DIVISION_PRECISION);
-        let big_total_winner_power = BigUint::from(total_winner_power);
 
         big_power
-            .div(big_total_winner_power)
+            .div(total_winner_power)
             .mul(&daily_reward_amount)
+            .div(DIVISION_PRECISION)
+    }
+
+    fn calculate_clash_operator_rewards(&self, amount_of_clashes_performed: u64) -> BigUint {
+        let total_rewards_for_one_battle = self.base_battle_reward_amount().get();
+        let total_clashes_amount = (self.battle_stack().len() / 2) as u64;
+
+        let big_amount_of_clashes_performed =
+            BigUint::from(amount_of_clashes_performed).mul(DIVISION_PRECISION);
+
+        big_amount_of_clashes_performed
+            .div(total_clashes_amount)
+            .mul(&total_rewards_for_one_battle)
             .div(DIVISION_PRECISION)
     }
 
@@ -451,7 +463,7 @@ pub trait GngMinting:
         {
             pending_rewards.calculated_rewards
         } else {
-            let rewards_to_add = self.calculate_single_battle_rewards(
+            let rewards_to_add = self.calculate_clash_rewards(
                 pending_rewards.awaiting_battle_id,
                 pending_rewards.awaiting_power,
             );

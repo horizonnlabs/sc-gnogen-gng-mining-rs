@@ -189,7 +189,7 @@
           "nonce": "7",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "30",
+            "str:GNG-abcdef": "150",
             "str:VALIDATORS-abcdef": {
               "instances": [
                 {
@@ -208,7 +208,7 @@
           "nonce": "2",
           "balance": "1000000",
           "esdt": {
-            "str:GNG-abcdef": "10",
+            "str:GNG-abcdef": "50",
             "str:VALIDATORS-abcdef": {
               "instances": [
                 {
