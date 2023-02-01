@@ -72,7 +72,170 @@
         "message": "",
         "out": ["str:completed", "7"],
         "gas": "*",
-        "refund": "*"
+        "refund": "*",
+        "logs": [
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": ["str:startBattle", "6"]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:1"
+              },
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:2"
+              },
+              "",
+              "address:user1",
+              "address:user3"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:6"
+              },
+              {
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:2"
+              },
+              "",
+              "address:user3",
+              "address:user4"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
+              {
+                "0-tokenId": "nested:str:NEWCOLLECTION-abcdef",
+                "1-nonce": "u64:1"
+              },
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:3"
+              },
+              "",
+              "address:user3",
+              "address:user3"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
+              {
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:4"
+              },
+              {
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:3"
+              },
+              "",
+              "address:user4",
+              "address:user4"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
+              {
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
+                "1-nonce": "u64:2"
+              },
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:4"
+              },
+              "",
+              "address:user1",
+              "address:user3"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
+              {
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:1"
+              },
+              {
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
+                "1-nonce": "u64:3"
+              },
+              "",
+              "address:user2",
+              "address:user4"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
+              {
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
+                "1-nonce": "u64:1"
+              },
+              {
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
+                "1-nonce": "u64:4"
+              },
+              "",
+              "address:user1",
+              "address:user4"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:singleTokenClash",
+              "6",
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:5"
+              },
+              "address:user3"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:ESDTTransfer",
+            "topics": ["str:GNG-abcdef", "", "100", "address:user4"]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": ["str:endBattle", "6"]
+          }
+        ]
       }
     },
     {
