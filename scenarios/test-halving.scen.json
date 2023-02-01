@@ -7,6 +7,25 @@
     },
     {
       "step": "setState",
+      "comment": "before FirstbattleTimestamp",
+      "currentBlockInfo": {
+        "blockTimestamp": "2000"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "getDailyRewardAmountWithHalving year 1 battle 1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getDailyRewardAmountWithHalving",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["10000"]
+      }
+    },
+    {
+      "step": "setState",
       "comment": "Thursday 1 January 1970 01:23:20 GMT 1st battle 1st year",
       "currentBlockInfo": {
         "blockTimestamp": "5000"

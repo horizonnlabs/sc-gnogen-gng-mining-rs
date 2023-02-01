@@ -131,6 +131,10 @@ pub trait ConfigModule {
         let first_battle_timestamp = self.first_battle_timestamp().get();
 
         let current_timestamp = self.blockchain().get_block_timestamp();
+        if current_timestamp < first_battle_timestamp {
+            return base_daily_reward_amount;
+        }
+
         let days_since_first_battle = (current_timestamp - first_battle_timestamp) / 86400;
 
         let halving_count = days_since_first_battle / 365;
