@@ -94,6 +94,7 @@ pub trait GngMinting:
 
         let mut amount_of_clashes_done: u64 = 0;
         let mut total_winner_power: u64 = 0;
+        let mut rand_source = RandomnessSource::new();
 
         let result =
             self.run_while_it_has_gas(|| match self.unique_id_battle_stack(current_battle).len() {
@@ -103,7 +104,7 @@ pub trait GngMinting:
                     LoopOp::Break
                 }
                 _ => {
-                    let clash_winner_power = self.clash();
+                    let clash_winner_power = self.clash(&mut rand_source);
                     total_winner_power += clash_winner_power;
                     amount_of_clashes_done += 1;
 
@@ -112,15 +113,19 @@ pub trait GngMinting:
             });
 
         if amount_of_clashes_done > 0 {
+            let rewards_amount = self.calculate_clash_operator_rewards(amount_of_clashes_done);
+            require!(
+                self.reward_capacity().get() >= rewards_amount,
+                "Not enough rewards"
+            );
             self.send().direct_esdt(
                 &self.blockchain().get_caller(),
                 &self.gng_token_id().get(),
                 0,
-                &self.calculate_clash_operator_rewards(amount_of_clashes_done),
+                &rewards_amount,
             );
-            self.reward_capacity().update(|prev| {
-                *prev -= self.base_battle_reward_amount().get() * amount_of_clashes_done
-            });
+            self.reward_capacity()
+                .update(|prev| *prev -= rewards_amount);
             self.total_battle_winner_power(current_battle)
                 .update(|prev| *prev += total_winner_power);
         }
@@ -146,6 +151,10 @@ pub trait GngMinting:
         let total_rewards = self.get_pending_rewards_for_address(&caller);
 
         if total_rewards > 0 {
+            require!(
+                self.reward_capacity().get() >= total_rewards,
+                "Not enough rewards"
+            );
             self.send()
                 .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
 
@@ -215,17 +224,19 @@ pub trait GngMinting:
     }
 
     /// We assume there is at least 2 tokens in the stack
-    fn clash(&self) -> u64 {
+    fn clash(&self, rand_source: &mut RandomnessSource) -> u64 {
         let current_battle = self.current_battle().get();
         let battle_stack_mapper = self.battle_stack();
         let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
 
-        let first_random_index = self.get_random_index(1, unique_id_battle_stack_mapper.len() + 1);
+        let first_random_index =
+            rand_source.next_usize_in_range(1, unique_id_battle_stack_mapper.len() + 1);
         let first_token_idx = unique_id_battle_stack_mapper.get(first_random_index);
         let first_token = battle_stack_mapper.get_by_index(first_token_idx);
         unique_id_battle_stack_mapper.swap_remove(first_random_index);
 
-        let second_random_index = self.get_random_index(1, unique_id_battle_stack_mapper.len() + 1);
+        let second_random_index =
+            rand_source.next_usize_in_range(1, unique_id_battle_stack_mapper.len() + 1);
         let second_token_idx = unique_id_battle_stack_mapper.get(second_random_index);
         let second_token = battle_stack_mapper.get_by_index(second_token_idx);
         unique_id_battle_stack_mapper.swap_remove(second_random_index);
@@ -377,11 +388,6 @@ pub trait GngMinting:
         );
 
         unique_id_stack_mapper.swap_remove(1);
-    }
-
-    fn get_random_index(&self, min: usize, max: usize) -> usize {
-        let mut rand = RandomnessSource::new();
-        rand.next_usize_in_range(min, max)
     }
 
     fn calculate_clash_rewards(&self, battle_id: u64, power: u64) -> BigUint {
