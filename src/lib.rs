@@ -113,15 +113,19 @@ pub trait GngMinting:
             });
 
         if amount_of_clashes_done > 0 {
+            let rewards_amount = self.calculate_clash_operator_rewards(amount_of_clashes_done);
+            require!(
+                self.reward_capacity().get() >= rewards_amount,
+                "Not enough rewards"
+            );
             self.send().direct_esdt(
                 &self.blockchain().get_caller(),
                 &self.gng_token_id().get(),
                 0,
-                &self.calculate_clash_operator_rewards(amount_of_clashes_done),
+                &rewards_amount,
             );
-            self.reward_capacity().update(|prev| {
-                *prev -= self.base_battle_reward_amount().get() * amount_of_clashes_done
-            });
+            self.reward_capacity()
+                .update(|prev| *prev -= rewards_amount);
             self.total_battle_winner_power(current_battle)
                 .update(|prev| *prev += total_winner_power);
         }
@@ -147,6 +151,10 @@ pub trait GngMinting:
         let total_rewards = self.get_pending_rewards_for_address(&caller);
 
         if total_rewards > 0 {
+            require!(
+                self.reward_capacity().get() >= total_rewards,
+                "Not enough rewards"
+            );
             self.send()
                 .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
 
