@@ -89,7 +89,6 @@ pub trait GngMinting:
             self.unique_id_battle_stack(current_battle)
                 .set_initial_len(self.battle_stack().len());
             self.has_battle_started(current_battle).set(true);
-            self.start_battle_event(current_battle);
         }
 
         let mut amount_of_clashes_done: u64 = 0;
@@ -131,7 +130,6 @@ pub trait GngMinting:
         }
 
         if result.is_completed() {
-            self.end_battle_event(current_battle);
             self.current_battle().update(|current| *current += 1);
         }
 
@@ -225,21 +223,8 @@ pub trait GngMinting:
 
     /// We assume there is at least 2 tokens in the stack
     fn clash(&self, rand_source: &mut RandomnessSource) -> u64 {
-        let current_battle = self.current_battle().get();
-        let battle_stack_mapper = self.battle_stack();
-        let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
-
-        let first_random_index =
-            rand_source.next_usize_in_range(1, unique_id_battle_stack_mapper.len() + 1);
-        let first_token_idx = unique_id_battle_stack_mapper.get(first_random_index);
-        let first_token = battle_stack_mapper.get_by_index(first_token_idx);
-        unique_id_battle_stack_mapper.swap_remove(first_random_index);
-
-        let second_random_index =
-            rand_source.next_usize_in_range(1, unique_id_battle_stack_mapper.len() + 1);
-        let second_token_idx = unique_id_battle_stack_mapper.get(second_random_index);
-        let second_token = battle_stack_mapper.get_by_index(second_token_idx);
-        unique_id_battle_stack_mapper.swap_remove(second_random_index);
+        let first_token = self.get_and_remove_token_from_stack(rand_source);
+        let second_token = self.get_and_remove_token_from_stack(rand_source);
 
         let first_token_attributes =
             self.get_token_attributes(&first_token.token_id, first_token.nonce);
@@ -250,8 +235,8 @@ pub trait GngMinting:
             .power
             .cmp(&second_token_attributes.power)
         {
-            Ordering::Greater => self.update_stats(&first_token, &second_token),
-            Ordering::Less => self.update_stats(&second_token, &first_token),
+            Ordering::Greater => self.update_rewards_and_emit_event(&first_token, &second_token),
+            Ordering::Less => self.update_rewards_and_emit_event(&second_token, &first_token),
             Ordering::Equal => self.handle_tiebreak(
                 &first_token,
                 &first_token_attributes,
@@ -259,6 +244,24 @@ pub trait GngMinting:
                 &second_token_attributes,
             ),
         }
+    }
+
+    /// Get a random token from the battle stack and remove its index from the unique id battle stack
+    fn get_and_remove_token_from_stack(
+        &self,
+        rand_source: &mut RandomnessSource,
+    ) -> Token<Self::Api> {
+        let current_battle = self.current_battle().get();
+        let battle_stack_mapper = self.battle_stack();
+        let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
+
+        let random_index =
+            rand_source.next_usize_in_range(1, unique_id_battle_stack_mapper.len() + 1);
+        let token_idx = unique_id_battle_stack_mapper.get(random_index);
+        let token = battle_stack_mapper.get_by_index(token_idx);
+        unique_id_battle_stack_mapper.swap_remove(random_index);
+
+        token
     }
 
     fn handle_tiebreak(
@@ -273,41 +276,41 @@ pub trait GngMinting:
         let validator_token_id = self.validator_v2_token_id().get();
 
         if first_token.token_id == emidas_token_id && second_token.token_id != emidas_token_id {
-            self.update_stats(first_token, second_token)
+            self.update_rewards_and_emit_event(first_token, second_token)
         } else if first_token.token_id != emidas_token_id
             && second_token.token_id == emidas_token_id
         {
-            self.update_stats(second_token, first_token)
+            self.update_rewards_and_emit_event(second_token, first_token)
         } else if first_token.token_id == gnogon_token_id
             && second_token.token_id == validator_token_id
         {
-            self.update_stats(first_token, second_token)
+            self.update_rewards_and_emit_event(first_token, second_token)
         } else if first_token.token_id == validator_token_id
             && second_token.token_id == gnogon_token_id
         {
-            self.update_stats(second_token, first_token)
+            self.update_rewards_and_emit_event(second_token, first_token)
         } else if first_token.token_id == gnogon_token_id
             && second_token.token_id == gnogon_token_id
         {
             match first_token_attr.heart.cmp(&second_token_attr.heart) {
-                Ordering::Greater => self.update_stats(first_token, second_token),
-                Ordering::Less => self.update_stats(second_token, first_token),
-                Ordering::Equal => self.update_stats_both_losers(first_token, second_token),
+                Ordering::Greater => self.update_rewards_and_emit_event(first_token, second_token),
+                Ordering::Less => self.update_rewards_and_emit_event(second_token, first_token),
+                Ordering::Equal => self.emit_draw_event(first_token, second_token),
             }
         } else if first_token.token_id == validator_token_id
             && second_token.token_id == validator_token_id
         {
             match first_token_attr.ram.cmp(&second_token_attr.ram) {
-                Ordering::Greater => self.update_stats(first_token, second_token),
-                Ordering::Less => self.update_stats(second_token, first_token),
-                Ordering::Equal => self.update_stats_both_losers(first_token, second_token),
+                Ordering::Greater => self.update_rewards_and_emit_event(first_token, second_token),
+                Ordering::Less => self.update_rewards_and_emit_event(second_token, first_token),
+                Ordering::Equal => self.emit_draw_event(first_token, second_token),
             }
         } else {
-            self.update_stats_both_losers(first_token, second_token)
+            self.emit_draw_event(first_token, second_token)
         }
     }
 
-    fn update_stats<'a>(
+    fn update_rewards_and_emit_event<'a>(
         &self,
         mut winner: &'a Token<Self::Api>,
         mut loser: &'a Token<Self::Api>,
@@ -323,7 +326,7 @@ pub trait GngMinting:
         let current_battle = self.current_battle().get();
 
         let winner_rewards_mapper = self.raw_pending_rewards_for_address(&winner_address);
-        let winner_rewards = self.raw_pending_rewards_for_address(&winner_address).get();
+        let winner_rewards = winner_rewards_mapper.get();
         if winner_rewards.awaiting_battle_id == 0 {
             winner_rewards_mapper.update(|prev| {
                 prev.awaiting_battle_id = current_battle;
@@ -357,11 +360,7 @@ pub trait GngMinting:
         winner_power
     }
 
-    fn update_stats_both_losers(
-        &self,
-        loser1: &Token<Self::Api>,
-        loser2: &Token<Self::Api>,
-    ) -> u64 {
+    fn emit_draw_event(&self, loser1: &Token<Self::Api>, loser2: &Token<Self::Api>) -> u64 {
         self.clash_event(
             self.current_battle().get(),
             loser1,
@@ -403,7 +402,7 @@ pub trait GngMinting:
     }
 
     fn calculate_clash_operator_rewards(&self, amount_of_clashes_performed: u64) -> BigUint {
-        let total_rewards_for_one_battle = self.base_battle_reward_amount().get();
+        let total_rewards_for_one_battle = self.daily_battle_operator_reward_amount().get();
         let total_clashes_amount = (self.battle_stack().len() / 2) as u64;
 
         let big_amount_of_clashes_performed =
@@ -428,6 +427,7 @@ pub trait GngMinting:
         BattleStatus::Preparation
     }
 
+    /// Returns if whether the current day is Sunday
     #[view(isTodaySpecial)]
     fn is_today_special(&self) -> bool {
         let current_timestamp = self.blockchain().get_block_timestamp();
@@ -456,6 +456,7 @@ pub trait GngMinting:
         result
     }
 
+    /// Does not include the rewards of the current battle
     #[view(getPendingRewardsForAddress)]
     fn get_pending_rewards_for_address(&self, address: &ManagedAddress) -> BigUint {
         if self.raw_pending_rewards_for_address(address).is_empty() {
@@ -514,7 +515,7 @@ pub trait GngMinting:
         let power = stats_for_address.power;
         let mut total_gng = BigUint::zero();
 
-        total_gng += self.stats_for_address(address).get().gng_claimed;
+        total_gng += stats_for_address.gng_claimed;
         total_gng += self.get_pending_rewards_for_address(address);
 
         MultiValue3::from((address.clone(), power, total_gng))

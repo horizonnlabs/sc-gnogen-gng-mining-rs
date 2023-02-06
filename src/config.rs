@@ -120,9 +120,9 @@ pub trait ConfigModule {
     }
 
     #[only_owner]
-    #[endpoint(setBaseBattleRewardAmount)]
-    fn set_base_battle_reward_amount(&self, amount: BigUint) {
-        self.base_battle_reward_amount().set(amount);
+    #[endpoint(setDailyBattleOperatorRewardAmount)]
+    fn set_daily_battle_operator_reward_amount(&self, amount: BigUint) {
+        self.daily_battle_operator_reward_amount().set(amount);
     }
 
     #[view(getDailyRewardAmountWithHalving)]
@@ -203,9 +203,9 @@ pub trait ConfigModule {
     #[storage_mapper("dailyRewardAmount")]
     fn daily_reward_amount(&self) -> SingleValueMapper<BigUint>;
 
-    #[view(getBaseBattleRewardAmount)]
-    #[storage_mapper("baseBattleRewardAmount")]
-    fn base_battle_reward_amount(&self) -> SingleValueMapper<BigUint>;
+    #[view(getDailyBattleOperatorRewardAmount)]
+    #[storage_mapper("dailyBattleOperatorRewardAmount")]
+    fn daily_battle_operator_reward_amount(&self) -> SingleValueMapper<BigUint>;
 
     #[view(getFirstBattleTimestamp)]
     #[storage_mapper("firstBattleTimestamp")]

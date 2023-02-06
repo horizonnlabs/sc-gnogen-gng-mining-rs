@@ -22,10 +22,4 @@ trait EventsModule {
         #[indexed] token: &Token<Self::Api>,
         #[indexed] owner: ManagedAddress,
     );
-
-    #[event("startBattle")]
-    fn start_battle_event(&self, #[indexed] battle_id: u64);
-
-    #[event("endBattle")]
-    fn end_battle_event(&self, #[indexed] battle_id: u64);
 }

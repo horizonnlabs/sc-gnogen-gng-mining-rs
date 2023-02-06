@@ -77,11 +77,6 @@
           {
             "address": "sc:gng-minting",
             "endpoint": "str:battle",
-            "topics": ["str:startBattle", "6"]
-          },
-          {
-            "address": "sc:gng-minting",
-            "endpoint": "str:battle",
             "topics": [
               "str:clash",
               "6",
@@ -229,11 +224,6 @@
             "address": "sc:gng-minting",
             "endpoint": "str:ESDTTransfer",
             "topics": ["str:GNG-abcdef", "", "100", "address:user4"]
-          },
-          {
-            "address": "sc:gng-minting",
-            "endpoint": "str:battle",
-            "topics": ["str:endBattle", "6"]
           }
         ]
       }

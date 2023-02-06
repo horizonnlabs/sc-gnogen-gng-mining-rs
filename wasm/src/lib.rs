@@ -45,7 +45,7 @@ elrond_wasm_node::wasm_endpoints! {
         addAdmin
         removeAdmin
         setDailyRewardAmount
-        setBaseBattleRewardAmount
+        setDailyBattleOperatorRewardAmount
         getDailyRewardAmountWithHalving
         getTokenAttributes
         getBattleTokens
@@ -58,7 +58,7 @@ elrond_wasm_node::wasm_endpoints! {
         getDogaTokenId
         getRewardCapacity
         getDailyRewardAmount
-        getBaseBattleRewardAmount
+        getDailyBattleOperatorRewardAmount
         getFirstBattleTimestamp
     )
 }
