@@ -24,6 +24,8 @@ If both NFTs have the same `power` attribute and there is no rule to decide the 
 
 ## Rewards
 
+### Passive rewards
+
 When a clash is performed, the winner of the clash receives rewards. The rewards are paid in GNG tokens. The rewards are calculated as follows:
 
 $$rewards = (NFTPower / totalWinnerPowerOfTheBattle) * totalRewardsForTheBattle$$
@@ -37,6 +39,18 @@ Where:
 A user can obviously obtain rewards from multiple clashes in the same battle. The rewards are cumulated at the user level and can be claimed with the `claimRewards` endpoint.
 
 ❗️ A user can see two of his NFTs fighting against each other.
+
+### Battle operator rewards
+
+When a user runs a battle transaction, he receives rewards. The rewards are paid in GNG tokens. The rewards are calculated as follows:
+
+$$rewards = (amountOfClashes / totalAmountOfClashes) * totalRewardsForTheBattle$$
+
+Where:
+
+- `amountOfClashes` is the amount of clashes performed by the user in the transaction.
+- `totalAmountOfClashes` is the total amount of clashes that will be performed in the battle.
+- `totalRewardsForTheBattle` is the total amount of rewards that will be distributed in the battle.
 
 ## How to interact with the contract as an admin
 
