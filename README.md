@@ -26,7 +26,8 @@ If both NFTs have the same `power` attribute and there is no rule to decide the 
 
 When a clash is performed, the winner of the clash receives rewards. The rewards are paid in GNG tokens. The rewards are calculated as follows:
 
-$ rewards = (NFTPower / totalWinnerPowerOfTheBattle) totalRewardsForTheBattle $
+$$rewards = (NFTPower / totalWinnerPowerOfTheBattle) * totalRewardsForTheBattle$$
+
 Where:
 
 - `NFTPower` is the `power` attribute of the NFT that won the clash.
