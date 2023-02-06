@@ -1,22 +1,34 @@
 PROXY="https://devnet-gateway.elrond.com"
 CHAIN="D"
-OWNER="wallet.pem"
+OWNER="gnogen_collections.pem"
 CONTRACT="output/gng-minting.wasm"
 
-SC_ADDRESS="erd1qqqqqqqqqqqqqpgqqt3yvus3er8jd2knhfxcnhfhzpjx7m8w46lqd4cncw"
+SC_ADDRESS="erd1qqqqqqqqqqqqqpgqunfdvkfvux3025m9kzsx6e7n5peg07lmm8qsj6sshf"
 
-FIRST_BATTLE_TIMESTAMP=1674147600
-GNG_TOKEN_ID="str:GNG-b90f5e"
+FIRST_BATTLE_TIMESTAMP=1675368000
+GNG_TOKEN_ID="str:XGNG-04bd9e"
 
 # deploy
 # setBattleTokens
-# setDailyRewardAmount
-# setBaseBattleRewardAmount
+# setDailyRewardAmount (GNG amount to distribute for one battle)
+# setDailyBattleOperatorRewardAmount (GNG amount to distribute for one battle for operators)
 # depositGng (add admin)
 # script addAttributes
 
+# For reward operators
+#    2M GNG during 10 years
+#    547.945205479 GNG to distribute for 1 day (amount to set in setDailyBattleOperatorRewardAmount and to not forget decimals)
+#    -> 547945205479000000000
+
+# For reward stakers
+#     388,500,000 GNG the first year
+#     1064383.56164 GNG to distribute for 1 day (amount to set in setDailyRewardAmount and to not forget decimals)
+#     -> 1064383561640000000000000
+
+
+
 deploy() {
-    erdpy --verbose contract deploy --bytecode="$CONTRACT" --recall-nonce \
+    mxpy --verbose contract deploy --bytecode="$CONTRACT" --recall-nonce \
         --pem=$OWNER \
         --gas-limit=599000000 \
         --arguments $FIRST_BATTLE_TIMESTAMP $GNG_TOKEN_ID \
@@ -33,7 +45,7 @@ deploy() {
 }
 
 upgrade() {
-    erdpy --verbose contract upgrade ${SC_ADDRESS} --bytecode="$CONTRACT" --recall-nonce \
+    mxpy --verbose contract upgrade ${SC_ADDRESS} --bytecode="$CONTRACT" --recall-nonce \
     --pem=${OWNER} \
     --gas-limit=599000000 \
     --proxy=${PROXY} --chain=${CHAIN} \
@@ -44,9 +56,9 @@ upgrade() {
 }
 
 addAdmin() {
-    admin="erd17p8u2hhqn88nhytuy0qm2yd9e2s009tvdd7r06q09wye3azhgz0qndlxr7"
+    admin="erd1hfz5y8k3htdl56f7wpeu5xpzax02p77av8s84yu0khtela03m8qs8gp5zd"
 
-    erdpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
+    mxpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
           --pem=${OWNER} \
           --proxy=${PROXY} --chain=${CHAIN} \
           --gas-limit=10000000 \
@@ -56,9 +68,9 @@ addAdmin() {
 }
 
 removeAdmin() {
-    admin="erd17yva92k3twysqdf4xfw3w0q8fun2z3ltpnkqldj59297mqp9nqjs9qvkwn"
+    admin="erd17p8u2hhqn88nhytuy0qm2yd9e2s009tvdd7r06q09wye3azhgz0qndlxr7"
 
-    erdpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
+    mxpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
           --pem=${OWNER} \
           --proxy=${PROXY} --chain=${CHAIN} \
           --gas-limit=10000000 \
@@ -68,41 +80,41 @@ removeAdmin() {
 }
 
 setBattleToken() {
-    erdpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
+    mxpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
           --pem=${OWNER} \
           --proxy=${PROXY} --chain=${CHAIN} \
           --gas-limit=20000000 \
           --function="setBattleToken" \
-          --arguments "str:GNOGENDUP-814470" "str:SUPREMDUP-7d5943" "str:GNOGONDUP-b3f401" "str:VTWODUP-314d2c" "str:GNOGENDUP-a1e28a" \
+          --arguments "str:XEMIDAS-7966ea" "str:XSUPREMES-40d4d0" "str:XGNOGONS-0a6d4c" "str:XVTWO-fcc831" "str:XDOGA-9b8ee8" \
           --send || return
 }
 
 setDailyRewardAmount() {
-    erdpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
+    mxpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
           --pem=${OWNER} \
           --proxy=${PROXY} --chain=${CHAIN} \
           --gas-limit=20000000 \
           --function="setDailyRewardAmount" \
-          --arguments 100000000000000000000 \
+          --arguments 1064383561640000000000000 \
           --send || return
 }
 
-setBaseBattleRewardAmount() {
-    erdpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
+setDailyBattleOperatorRewardAmount() {
+    mxpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
           --pem=${OWNER} \
           --proxy=${PROXY} --chain=${CHAIN} \
           --gas-limit=20000000 \
-          --function="setBaseBattleRewardAmount" \
-          --arguments 500000000000000000 \
+          --function="setDailyBattleOperatorRewardAmount" \
+          --arguments 547945205479000000000 \
           --send || return
 }
 
 setFirstBattleTimestamp() {
-    erdpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
+    mxpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
           --pem=${OWNER} \
           --proxy=${PROXY} --chain=${CHAIN} \
           --gas-limit=20000000 \
           --function="setTimestamp" \
-          --arguments 1672174200 \
+          --arguments 1673512034 \
           --send || return
 }

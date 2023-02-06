@@ -1,9 +1,9 @@
 from erdpy.accounts import Account, Address
 from erdpy.transactions import Transaction, BunchOfTransactions
 from erdpy.proxy.core import ElrondProxy
+from erdpy.contracts import SmartContract
 
-AMOUNT_OF_TX = 30
-SC_ADDRESS = 'erd1qqqqqqqqqqqqqpgqfmrqd9cw95a7reeaxkuwp9ue6hq2xzkv46lqudcwrx'
+SC_ADDRESS = 'erd1qqqqqqqqqqqqqpgqqt3yvus3er8jd2knhfxcnhfhzpjx7m8w46lqd4cncw'
 proxy = ElrondProxy('https://devnet-gateway.elrond.com')
 network = proxy.get_network_config()
 user = Account(pem_file='user.pem')
@@ -26,9 +26,20 @@ def prepare_tx(args, gas_limit = 20_000_000):
 
   return tx
 
+nonces = range(250, 3250)
+data_txs = []
+
+while len(nonces) > 0:
+  noncesToTransfer = nonces[:150]
+  nonces = nonces[150:]
+  args = list(map(lambda nonce: ['str:GNOGONDUP-b3f401', nonce], noncesToTransfer))
+  flattenedArgs = [item for sublist in args for item in sublist]
+  preparedArgs = SmartContract().prepare_execute_transaction_data('withdraw', flattenedArgs)
+  data_txs.append(preparedArgs)
+
 txs = BunchOfTransactions()
-for i in range(AMOUNT_OF_TX):
-  tx = prepare_tx("battle", 600_000_000)
+for data_tx in data_txs:
+  tx = prepare_tx(data_tx, 600_000_000)
   txs.add_prepared(tx)
   userNonce += 1
 

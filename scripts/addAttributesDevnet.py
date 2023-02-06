@@ -6,10 +6,10 @@ from erdpy.proxy.core import ElrondProxy
 from erdpy.transactions import Transaction
 
 AMOUNT_IN_ONE_TX = 300
-SC_ADDRESS="erd1qqqqqqqqqqqqqpgqptrdfneuhckxp4qmww3re4g56pptfhzj46lqlxhwl9"
+SC_ADDRESS="erd1qqqqqqqqqqqqqpgqunfdvkfvux3025m9kzsx6e7n5peg07lmm8qsj6sshf"
 proxy = ElrondProxy('https://devnet-gateway.elrond.com')
 network = proxy.get_network_config()
-user = Account(pem_file='wallet.pem')
+user = Account(pem_file='gnogen_collections.pem')
 user.sync_nonce(proxy)
 userNonce = user.nonce
 
