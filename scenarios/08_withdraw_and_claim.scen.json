@@ -86,9 +86,11 @@
         "arguments": ["str:GNOGONS-abcdef", "3"]
       },
       "expect": {
-        "out": [
-          "0x0000000000000000000000000000000000000000000000000000000000000000"
-        ]
+        "status": "4",
+        "message": "str:storage decode error: bad array length",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
       }
     },
     {

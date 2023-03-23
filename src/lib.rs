@@ -58,10 +58,7 @@ pub trait GngMinting:
             require!(amount == NFT_AMOUNT, "Invalid token amount");
 
             let owner_mapper = self.nft_owner(&token_id, nonce);
-            require!(
-                owner_mapper.is_empty() || owner_mapper.get() == ManagedAddress::zero(),
-                "Cannot stake SFT"
-            );
+            require!(owner_mapper.is_empty(), "Cannot stake SFT");
             owner_mapper.set(caller.clone());
 
             self.staked_for_address(&caller, &token_id).insert(nonce);
@@ -201,7 +198,7 @@ pub trait GngMinting:
                 "Wrong token"
             );
 
-            self.nft_owner(&token_id, nonce).set(ManagedAddress::zero());
+            self.nft_owner(&token_id, nonce).clear();
 
             self.staked_for_address(&caller, &token_id)
                 .swap_remove(&nonce);
