@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           46
+// Endpoints:                           48
 // Async Callback (empty):               1
-// Total number of exported functions:  48
+// Total number of exported functions:  50
 
 #![no_std]
 
@@ -35,6 +35,8 @@ elrond_wasm_node::wasm_endpoints! {
         getTotalBattleWinnerPower
         getRawPendingRewardsForAddress
         getAddresses
+        getTotalRewardsForStakers
+        getTotalRewardsForOperators
         setBattleToken
         addExtraBattleToken
         removeExtraBattleToken

@@ -88,6 +88,21 @@ pub trait GngMinting:
         let current_battle = self.current_battle().get();
 
         if !self.has_battle_started(current_battle).get() {
+            let daily_reward_amount = self.get_daily_reward_amount_with_halving();
+            let daily_operators_reward_amount = self.daily_battle_operator_reward_amount().get();
+
+            require!(
+                self.reward_capacity().get()
+                    >= &daily_reward_amount + &daily_operators_reward_amount,
+                "Not enough rewards to start battle"
+            );
+            self.total_rewards_for_stakers(current_battle)
+                .set(&daily_reward_amount);
+            self.total_rewards_for_operators(current_battle)
+                .set(&daily_operators_reward_amount);
+            self.reward_capacity()
+                .update(|prev| *prev -= &daily_reward_amount + &daily_operators_reward_amount);
+
             self.unique_id_battle_stack(current_battle)
                 .set_initial_len(self.battle_stack().len());
             self.has_battle_started(current_battle).set(true);
@@ -114,20 +129,15 @@ pub trait GngMinting:
             });
 
         if amount_of_clashes_done > 0 {
-            let rewards_amount = self.calculate_clash_operator_rewards(amount_of_clashes_done);
+            let rewards_amount =
+                self.calculate_clash_operator_rewards(amount_of_clashes_done, current_battle);
             if rewards_amount > 0 {
-                require!(
-                    self.reward_capacity().get() >= rewards_amount,
-                    "Not enough rewards"
-                );
                 self.send().direct_esdt(
                     &self.blockchain().get_caller(),
                     &self.gng_token_id().get(),
                     0,
                     &rewards_amount,
                 );
-                self.reward_capacity()
-                    .update(|prev| *prev -= rewards_amount);
             }
             self.total_battle_winner_power(current_battle)
                 .update(|prev| *prev += total_winner_power);
@@ -153,17 +163,11 @@ pub trait GngMinting:
         let total_rewards = self.get_pending_rewards_for_address(&caller);
 
         if total_rewards > 0 {
-            require!(
-                self.reward_capacity().get() >= total_rewards,
-                "Not enough rewards"
-            );
             self.send()
                 .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
 
             self.raw_pending_rewards_for_address(&caller)
                 .set(PendingRewards::default());
-            self.reward_capacity()
-                .update(|prev| *prev -= total_rewards.clone());
             self.stats_for_address(&caller)
                 .update(|prev| prev.gng_claimed += total_rewards);
         }
@@ -394,7 +398,7 @@ pub trait GngMinting:
     }
 
     fn calculate_clash_rewards(&self, battle_id: u64, power: u64) -> BigUint {
-        let daily_reward_amount = self.get_daily_reward_amount_with_halving();
+        let total_rewards_for_battle = self.total_rewards_for_stakers(battle_id).get();
         let total_winner_power = self.total_battle_winner_power(battle_id).get();
 
         if total_winner_power == 0 {
@@ -402,12 +406,16 @@ pub trait GngMinting:
         }
 
         BigUint::from(power)
-            .mul(&daily_reward_amount)
+            .mul(&total_rewards_for_battle)
             .div(total_winner_power)
     }
 
-    fn calculate_clash_operator_rewards(&self, amount_of_clashes_performed: u64) -> BigUint {
-        let total_rewards_for_one_battle = self.daily_battle_operator_reward_amount().get();
+    fn calculate_clash_operator_rewards(
+        &self,
+        amount_of_clashes_performed: u64,
+        battle_id: u64,
+    ) -> BigUint {
+        let total_rewards_for_one_battle = self.total_rewards_for_operators(battle_id).get();
         let total_clashes_amount = (self.battle_stack().len() / 2) as u64;
 
         BigUint::from(amount_of_clashes_performed)
@@ -578,4 +586,12 @@ pub trait GngMinting:
     #[view(getAddresses)]
     #[storage_mapper("addresses")]
     fn addresses(&self) -> UnorderedSetMapper<ManagedAddress>;
+
+    #[view(getTotalRewardsForStakers)]
+    #[storage_mapper("totalRewardsForStakers")]
+    fn total_rewards_for_stakers(&self, battle_id: u64) -> SingleValueMapper<BigUint>;
+
+    #[view(getTotalRewardsForOperators)]
+    #[storage_mapper("totalRewardsForOperators")]
+    fn total_rewards_for_operators(&self, battle_id: u64) -> SingleValueMapper<BigUint>;
 }
