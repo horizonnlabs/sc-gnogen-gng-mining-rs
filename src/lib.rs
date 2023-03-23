@@ -15,7 +15,6 @@ use operations::{LoopOp, OperationCompletionStatus};
 
 const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
-const DIVISION_PRECISION: u64 = 1000000;
 
 #[elrond_wasm::contract]
 pub trait GngMinting:
@@ -405,25 +404,18 @@ pub trait GngMinting:
             return BigUint::zero();
         }
 
-        let big_power = BigUint::from(power).mul(DIVISION_PRECISION);
-
-        big_power
-            .div(total_winner_power)
+        BigUint::from(power)
             .mul(&daily_reward_amount)
-            .div(DIVISION_PRECISION)
+            .div(total_winner_power)
     }
 
     fn calculate_clash_operator_rewards(&self, amount_of_clashes_performed: u64) -> BigUint {
         let total_rewards_for_one_battle = self.daily_battle_operator_reward_amount().get();
         let total_clashes_amount = (self.battle_stack().len() / 2) as u64;
 
-        let big_amount_of_clashes_performed =
-            BigUint::from(amount_of_clashes_performed).mul(DIVISION_PRECISION);
-
-        big_amount_of_clashes_performed
-            .div(total_clashes_amount)
+        BigUint::from(amount_of_clashes_performed)
             .mul(&total_rewards_for_one_battle)
-            .div(DIVISION_PRECISION)
+            .div(total_clashes_amount)
     }
 
     #[view(getBattleStatus)]
