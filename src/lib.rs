@@ -395,6 +395,10 @@ pub trait GngMinting:
         let daily_reward_amount = self.get_daily_reward_amount_with_halving();
         let total_winner_power = self.total_battle_winner_power(battle_id).get();
 
+        if total_winner_power == 0 {
+            return BigUint::zero();
+        }
+
         let big_power = BigUint::from(power).mul(DIVISION_PRECISION);
 
         big_power
