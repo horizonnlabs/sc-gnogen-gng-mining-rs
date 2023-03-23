@@ -58,11 +58,16 @@ pub trait GngMinting:
             require!(self.battle_tokens().contains(&token_id), "Wrong token");
             require!(amount == NFT_AMOUNT, "Invalid token amount");
 
+            let owner_mapper = self.nft_owner(&token_id, nonce);
+            require!(
+                owner_mapper.is_empty() || owner_mapper.get() == ManagedAddress::zero(),
+                "Cannot stake SFT"
+            );
+            owner_mapper.set(caller.clone());
+
             self.staked_for_address(&caller, &token_id).insert(nonce);
             let attributes = self.token_attributes(&token_id, nonce).get();
             total_power += attributes.power;
-
-            self.nft_owner(&token_id, nonce).set(caller.clone());
 
             self.battle_stack().insert(Token { token_id, nonce });
         }
