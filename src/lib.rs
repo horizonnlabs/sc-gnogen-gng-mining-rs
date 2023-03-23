@@ -63,13 +63,13 @@ pub trait GngMinting:
 
             self.staked_for_address(&caller, &token_id).insert(nonce);
             let attributes = self.token_attributes(&token_id, nonce).get();
-            total_power += attributes.power;
+            total_power += attributes.power as u64;
 
             self.battle_stack().insert(Token { token_id, nonce });
         }
 
         self.stats_for_address(&caller).update(|prev| {
-            prev.power += total_power as u64;
+            prev.power += total_power;
         });
 
         self.addresses().insert(caller);
@@ -194,7 +194,7 @@ pub trait GngMinting:
             let token_owner = self.nft_owner(&token_id, nonce).get();
 
             let attributes = self.token_attributes(&token_id, nonce).get();
-            total_power += attributes.power;
+            total_power += attributes.power as u64;
 
             require!(
                 token_owner == caller
@@ -220,7 +220,7 @@ pub trait GngMinting:
         }
 
         self.stats_for_address(&caller).update(|prev| {
-            prev.power -= total_power as u64;
+            prev.power -= total_power;
         });
 
         self.total_nft_engaged()
