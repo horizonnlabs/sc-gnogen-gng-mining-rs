@@ -10,7 +10,6 @@ mod operations;
 
 use core::cmp::Ordering;
 
-use config::State;
 use model::{Attributes, BattleStatus, Nonce, PendingRewards, Token, UserStats};
 use operations::{LoopOp, OperationCompletionStatus};
 
@@ -28,8 +27,6 @@ pub trait GngMinting:
         self.first_battle_timestamp()
             .set_if_empty(first_battle_timestamp);
         self.gng_token_id().set_if_empty(gng_token_id);
-
-        self.state().set(State::Active);
     }
 
     #[payable("*")]
