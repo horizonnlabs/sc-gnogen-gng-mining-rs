@@ -415,6 +415,7 @@ pub trait GngMinting:
             .div(total_winner_power)
     }
 
+    /// We assume there is at least one clash (stack length of 2 or more)
     fn calculate_clash_operator_rewards(
         &self,
         amount_of_clashes_performed: u64,
