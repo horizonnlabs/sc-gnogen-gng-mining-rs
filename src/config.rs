@@ -123,32 +123,32 @@ pub trait ConfigModule {
     }
 
     #[only_owner]
-    #[endpoint(setDailyRewardAmount)]
-    fn set_daily_reward_amount(&self, amount: BigUint) {
-        self.daily_reward_amount().set(amount);
+    #[endpoint(setBattleRewardAmount)]
+    fn set_battle_reward_amount(&self, amount: BigUint) {
+        self.battle_reward_amount().set(amount);
     }
 
     #[only_owner]
-    #[endpoint(setDailyBattleOperatorRewardAmount)]
-    fn set_daily_battle_operator_reward_amount(&self, amount: BigUint) {
-        self.daily_battle_operator_reward_amount().set(amount);
+    #[endpoint(setBattleOperatorRewardAmount)]
+    fn set_battle_operator_reward_amount(&self, amount: BigUint) {
+        self.battle_operator_reward_amount().set(amount);
     }
 
-    #[view(getDailyRewardAmountWithHalving)]
-    fn get_daily_reward_amount_with_halving(&self) -> BigUint {
-        let base_daily_reward_amount = self.daily_reward_amount().get();
+    #[view(getBattleRewardAmountWithHalving)]
+    fn get_battle_reward_amount_with_halving(&self) -> BigUint {
+        let base_battle_reward_amount = self.battle_reward_amount().get();
         let first_battle_timestamp = self.first_battle_timestamp().get();
 
         let current_timestamp = self.blockchain().get_block_timestamp();
         if current_timestamp < first_battle_timestamp {
-            return base_daily_reward_amount;
+            return base_battle_reward_amount;
         }
 
         let days_since_first_battle = (current_timestamp - first_battle_timestamp) / 86400;
 
         let halving_count = days_since_first_battle / 365;
 
-        base_daily_reward_amount / 2u64.pow(u32::try_from(halving_count).unwrap())
+        base_battle_reward_amount / 2u64.pow(u32::try_from(halving_count).unwrap())
     }
 
     #[view(getTokenAttributes)]
@@ -222,13 +222,13 @@ pub trait ConfigModule {
     #[storage_mapper("rewardCapacity")]
     fn reward_capacity(&self) -> SingleValueMapper<BigUint>;
 
-    #[view(getDailyRewardAmount)]
-    #[storage_mapper("dailyRewardAmount")]
-    fn daily_reward_amount(&self) -> SingleValueMapper<BigUint>;
+    #[view(getBattleRewardAmount)]
+    #[storage_mapper("battleRewardAmount")]
+    fn battle_reward_amount(&self) -> SingleValueMapper<BigUint>;
 
-    #[view(getDailyBattleOperatorRewardAmount)]
-    #[storage_mapper("dailyBattleOperatorRewardAmount")]
-    fn daily_battle_operator_reward_amount(&self) -> SingleValueMapper<BigUint>;
+    #[view(getBattleOperatorRewardAmount)]
+    #[storage_mapper("battleOperatorRewardAmount")]
+    fn battle_operator_reward_amount(&self) -> SingleValueMapper<BigUint>;
 
     #[view(getFirstBattleTimestamp)]
     #[storage_mapper("firstBattleTimestamp")]

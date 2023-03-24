@@ -10,19 +10,20 @@ GNG_TOKEN_ID="str:XGNG-04bd9e"
 
 # deploy
 # setBattleTokens
-# setDailyRewardAmount (GNG amount to distribute for one battle)
-# setDailyBattleOperatorRewardAmount (GNG amount to distribute for one battle for operators)
+# setBattleRewardAmount (GNG amount to distribute for one battle)
+# setBattleOperatorRewardAmount (GNG amount to distribute for one battle for operators)
 # depositGng (add admin)
 # script addAttributes
+# resume
 
 # For reward operators
 #    2M GNG during 10 years
-#    547.945205479 GNG to distribute for 1 day (amount to set in setDailyBattleOperatorRewardAmount and to not forget decimals)
+#    547.945205479 GNG to distribute for 1 day (amount to set in setBattleOperatorRewardAmount and to not forget decimals)
 #    -> 547945205479000000000
 
 # For reward stakers
 #     388,500,000 GNG the first year
-#     1064383.56164 GNG to distribute for 1 day (amount to set in setDailyRewardAmount and to not forget decimals)
+#     1064383.56164 GNG to distribute for 1 day (amount to set in setBattleRewardAmount and to not forget decimals)
 #     -> 1064383561640000000000000
 
 
@@ -89,22 +90,22 @@ setBattleToken() {
           --send || return
 }
 
-setDailyRewardAmount() {
+setBattleRewardAmount() {
     mxpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
           --pem=${OWNER} \
           --proxy=${PROXY} --chain=${CHAIN} \
           --gas-limit=20000000 \
-          --function="setDailyRewardAmount" \
+          --function="setBattleRewardAmount" \
           --arguments 1064383561640000000000000 \
           --send || return
 }
 
-setDailyBattleOperatorRewardAmount() {
+setBattleOperatorRewardAmount() {
     mxpy --verbose contract call ${SC_ADDRESS} --recall-nonce \
           --pem=${OWNER} \
           --proxy=${PROXY} --chain=${CHAIN} \
           --gas-limit=20000000 \
-          --function="setDailyBattleOperatorRewardAmount" \
+          --function="setBattleOperatorRewardAmount" \
           --arguments 547945205479000000000 \
           --send || return
 }

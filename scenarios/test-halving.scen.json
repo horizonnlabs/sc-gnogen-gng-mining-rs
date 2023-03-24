@@ -14,10 +14,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 1 battle 1",
+      "txId": "getBattleRewardAmountWithHalving year 1 battle 1",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -33,10 +33,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 1 battle 1",
+      "txId": "getBattleRewardAmountWithHalving year 1 battle 1",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -52,10 +52,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 1 last battle",
+      "txId": "getBattleRewardAmountWithHalving year 1 last battle",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -71,10 +71,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 2 battle 1",
+      "txId": "getBattleRewardAmountWithHalving year 2 battle 1",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -90,10 +90,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 2 last battle",
+      "txId": "getBattleRewardAmountWithHalving year 2 last battle",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -109,10 +109,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 3 battle 1",
+      "txId": "getBattleRewardAmountWithHalving year 3 battle 1",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -128,10 +128,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 3 last battle",
+      "txId": "getBattleRewardAmountWithHalving year 3 last battle",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -147,10 +147,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 4 battle 1",
+      "txId": "getBattleRewardAmountWithHalving year 4 battle 1",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -166,10 +166,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 4 last battle",
+      "txId": "getBattleRewardAmountWithHalving year 4 last battle",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {
@@ -185,10 +185,10 @@
     },
     {
       "step": "scQuery",
-      "txId": "getDailyRewardAmountWithHalving year 5",
+      "txId": "getBattleRewardAmountWithHalving year 5",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getDailyRewardAmountWithHalving",
+        "function": "getBattleRewardAmountWithHalving",
         "arguments": []
       },
       "expect": {

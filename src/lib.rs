@@ -93,20 +93,19 @@ pub trait GngMinting:
         let current_battle = self.current_battle().get();
 
         if !self.has_battle_started(current_battle).get() {
-            let daily_reward_amount = self.get_daily_reward_amount_with_halving();
-            let daily_operators_reward_amount = self.daily_battle_operator_reward_amount().get();
+            let battle_reward_amount = self.get_battle_reward_amount_with_halving();
+            let operators_reward_amount = self.battle_operator_reward_amount().get();
 
             require!(
-                self.reward_capacity().get()
-                    >= &daily_reward_amount + &daily_operators_reward_amount,
+                self.reward_capacity().get() >= &battle_reward_amount + &operators_reward_amount,
                 "Not enough rewards to start battle"
             );
             self.total_rewards_for_stakers(current_battle)
-                .set(&daily_reward_amount);
+                .set(&battle_reward_amount);
             self.total_rewards_for_operators(current_battle)
-                .set(&daily_operators_reward_amount);
+                .set(&operators_reward_amount);
             self.reward_capacity()
-                .update(|prev| *prev -= &daily_reward_amount + &daily_operators_reward_amount);
+                .update(|prev| *prev -= &battle_reward_amount + &operators_reward_amount);
 
             self.unique_id_battle_stack(current_battle)
                 .set_initial_len(self.battle_stack().len());

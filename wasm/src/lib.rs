@@ -45,9 +45,9 @@ elrond_wasm_node::wasm_endpoints! {
         depositGng
         addAdmin
         removeAdmin
-        setDailyRewardAmount
-        setDailyBattleOperatorRewardAmount
-        getDailyRewardAmountWithHalving
+        setBattleRewardAmount
+        setBattleOperatorRewardAmount
+        getBattleRewardAmountWithHalving
         getTokenAttributes
         getBattleTokens
         getState
@@ -59,8 +59,8 @@ elrond_wasm_node::wasm_endpoints! {
         getValidatorV2TokenId
         getDogaTokenId
         getRewardCapacity
-        getDailyRewardAmount
-        getDailyBattleOperatorRewardAmount
+        getBattleRewardAmount
+        getBattleOperatorRewardAmount
         getFirstBattleTimestamp
     )
 }
