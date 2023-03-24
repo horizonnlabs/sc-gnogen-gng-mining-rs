@@ -25,7 +25,6 @@ elrond_wasm_node::wasm_endpoints! {
         getStatsForAddress
         getGlobalStats
         getGlobalStatsByAddress
-        getNftOwner
         getCurrentBattle
         getStakedForAddress
         getBattleStack
@@ -52,6 +51,7 @@ elrond_wasm_node::wasm_endpoints! {
         getTokenAttributes
         getBattleTokens
         getState
+        getNftOwner
         getGngTokenId
         getEmidasTokenId
         getSupremeTokenId

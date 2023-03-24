@@ -9,7 +9,7 @@ pub enum State {
     Active,
 }
 
-use super::model::{Attributes, Nonce};
+use super::model::{Attributes, Nonce, UserStats};
 
 #[elrond_wasm::module]
 pub trait ConfigModule {
@@ -61,6 +61,15 @@ pub trait ConfigModule {
         for arg in args.into_iter() {
             let (token, nonce, power, heart, ram) = arg.into_tuple();
 
+            if !self.token_attributes(&token, nonce).is_empty()
+                && !self.nft_owner(&token, nonce).is_empty()
+            {
+                let old_power = self.token_attributes(&token, nonce).get().power;
+                let owner_address = self.nft_owner(&token, nonce).get();
+                self.stats_for_address(&owner_address).update(|prev| {
+                    prev.power = prev.power - (old_power as u64) + (power as u64);
+                });
+            }
             self.token_attributes(&token, nonce)
                 .set(Attributes { power, heart, ram });
         }
@@ -170,6 +179,20 @@ pub trait ConfigModule {
         token_id: &TokenIdentifier,
         nonce: u64,
     ) -> SingleValueMapper<Attributes>;
+
+    #[view(getNftOwner)]
+    #[storage_mapper("nft_owner")]
+    fn nft_owner(
+        &self,
+        token_id: &TokenIdentifier,
+        nonce: Nonce,
+    ) -> SingleValueMapper<ManagedAddress>;
+
+    #[storage_mapper("statsForAddress")]
+    fn stats_for_address(
+        &self,
+        address: &ManagedAddress,
+    ) -> SingleValueMapper<UserStats<Self::Api>>;
 
     #[view(getGngTokenId)]
     #[storage_mapper("gngTokenId")]

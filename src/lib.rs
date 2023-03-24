@@ -62,6 +62,11 @@ pub trait GngMinting:
             owner_mapper.set(caller.clone());
 
             self.staked_for_address(&caller, &token_id).insert(nonce);
+
+            require!(
+                !self.token_attributes(&token_id, nonce).is_empty(),
+                "Cant stake NFT without attributes"
+            );
             let attributes = self.token_attributes(&token_id, nonce).get();
             total_power += attributes.power as u64;
 
@@ -529,20 +534,6 @@ pub trait GngMinting:
 
         MultiValue3::from((address.clone(), power, total_gng))
     }
-
-    #[storage_mapper("statsForAddress")]
-    fn stats_for_address(
-        &self,
-        address: &ManagedAddress,
-    ) -> SingleValueMapper<UserStats<Self::Api>>;
-
-    #[view(getNftOwner)]
-    #[storage_mapper("nft_owner")]
-    fn nft_owner(
-        &self,
-        token_id: &TokenIdentifier,
-        nonce: Nonce,
-    ) -> SingleValueMapper<ManagedAddress>;
 
     #[view(getCurrentBattle)]
     #[storage_mapper("currentBattle")]
