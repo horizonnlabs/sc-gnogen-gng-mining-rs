@@ -66,5 +66,5 @@ Where:
 - `resume` endpoint. Call this endpoint to resume the contract. All the users level endpoints will be enabled again.
 - `addAdmin` endpoint. Call this endpoint to add an admin to the contract. The specified address wil be able to call the admin level endpoints.
 - `removeAdmin` endpoint. Call this endpoint to remove an admin from the contract. The specified address won't be able to call the admin level endpoints anymore.
-- `setDailyRewardAmount` endpoint. Call this endpoint to set the amount of rewards that will be distributed in a battle before the first halving. The amount is in GNG tokens.
-- `setDailyBattleOperatorRewardAmount` endpoint. Call this endpoint to set the amount of rewards that will be distributed to the battle operators. The amount is in GNG tokens.
+- `setBattleRewardAmount` endpoint. Call this endpoint to set the amount of rewards that will be distributed in a battle before the first halving. The amount is in GNG tokens.
+- `setBattleOperatorRewardAmount` endpoint. Call this endpoint to set the amount of rewards that will be distributed to the battle operators. The amount is in GNG tokens.
