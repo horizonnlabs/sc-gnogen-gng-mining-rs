@@ -1,5 +1,5 @@
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 use core::convert::TryFrom;
 
@@ -11,7 +11,7 @@ pub enum State {
 
 use super::model::{Attributes, Nonce, UserStats};
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait ConfigModule {
     // token that can participate in the battle
     #[only_owner]

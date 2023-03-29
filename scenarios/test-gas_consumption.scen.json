@@ -1,5 +1,5 @@
 {
-  "name": "stake battle 3",
+  "name": "gas consumption test",
   "steps": [
     {
       "step": "externalSteps",
@@ -261,7 +261,7 @@
     },
     {
       "step": "scCall",
-      "txId": "battle 4 1st tx (call user4)",
+      "txId": "battle",
       "tx": {
         "from": "address:user4",
         "to": "sc:gng-minting",
@@ -274,7 +274,7 @@
         "status": "0",
         "message": "",
         "out": ["str:completed", "7"],
-        "gas": "47,481,432",
+        "gas": "47,313,142",
         "refund": "*"
       }
     }

@@ -1,7 +1,7 @@
 #![no_std]
 
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 pub mod config;
 mod events;
@@ -16,7 +16,7 @@ use operations::{LoopOp, OperationCompletionStatus};
 const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
 
-#[elrond_wasm::contract]
+#[multiversx_sc::contract]
 pub trait GngMinting:
     config::ConfigModule + operations::OngoingOperationModule + events::EventsModule
 {
