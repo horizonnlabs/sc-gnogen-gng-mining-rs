@@ -126,9 +126,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user1"
-        ]
+        "arguments": ["address:user1"]
       },
       "expect": {
         "out": ["6451"]
@@ -140,9 +138,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user3"
-        ]
+        "arguments": ["address:user3"]
       },
       "expect": {
         "out": ["3548"]
@@ -154,9 +150,7 @@
       "tx": {
         "to": "sc:gng-minting",
         "function": "getPendingRewardsForAddress",
-        "arguments": [
-          "address:user4"
-        ]
+        "arguments": ["address:user4"]
       },
       "expect": {
         "out": ["0"]
@@ -164,14 +158,14 @@
     },
     {
       "step": "scQuery",
-      "txId": "get temp battle stack",
+      "txId": "get remaining nfts amount",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getUniqueIdBattleStack",
+        "function": "getRemainingNftsInBattle",
         "arguments": ["1"]
       },
       "expect": {
-        "out": []
+        "out": ["0"]
       }
     },
     {

@@ -107,30 +107,38 @@ pub trait GngMinting:
             self.reward_capacity()
                 .update(|prev| *prev -= &battle_reward_amount + &operators_reward_amount);
 
-            self.unique_id_battle_stack(current_battle)
-                .set_initial_len(self.battle_stack().len());
+            let battle_stack_len = self.battle_stack().len();
+            self.remaining_nfts_in_battle(current_battle)
+                .set(battle_stack_len);
+            self.total_number_clashes_current_battle()
+                .set(battle_stack_len / 2);
             self.has_battle_started(current_battle).set(true);
         }
 
         let mut amount_of_clashes_done: u64 = 0;
         let mut total_winner_power: u64 = 0;
         let mut rand_source = RandomnessSource::new();
+        let mut remaining_nfts = self.remaining_nfts_in_battle(current_battle).get();
 
-        let result =
-            self.run_while_it_has_gas(|| match self.unique_id_battle_stack(current_battle).len() {
-                0 => LoopOp::Break,
-                1 => {
-                    self.drain_stack();
-                    LoopOp::Break
-                }
-                _ => {
-                    let clash_winner_power = self.clash(&mut rand_source);
-                    total_winner_power += clash_winner_power;
-                    amount_of_clashes_done += 1;
+        let result = self.run_while_it_has_gas(|| match remaining_nfts {
+            0 => LoopOp::Break,
+            1 => {
+                self.drain_stack();
+                remaining_nfts -= 1;
+                LoopOp::Break
+            }
+            _ => {
+                let clash_winner_power = self.clash(&mut rand_source, remaining_nfts);
+                total_winner_power += clash_winner_power;
+                amount_of_clashes_done += 1;
+                remaining_nfts -= 2;
 
-                    LoopOp::Continue
-                }
-            });
+                LoopOp::Continue
+            }
+        });
+
+        self.remaining_nfts_in_battle(current_battle)
+            .set(remaining_nfts);
 
         if amount_of_clashes_done > 0 {
             let rewards_amount =
@@ -157,10 +165,6 @@ pub trait GngMinting:
     #[endpoint(claimRewards)]
     fn claim_rewards(&self) {
         require!(self.is_active(), "Not active");
-        require!(
-            self.get_battle_status() == BattleStatus::Preparation,
-            "Battle in progress"
-        );
 
         let caller = self.blockchain().get_caller();
 
@@ -180,10 +184,6 @@ pub trait GngMinting:
     #[endpoint]
     fn withdraw(&self, tokens: MultiValueEncoded<MultiValue2<TokenIdentifier, Nonce>>) {
         require!(self.is_active(), "Not active");
-        require!(
-            self.get_battle_status() == BattleStatus::Preparation,
-            "Battle in progress"
-        );
 
         self.claim_rewards();
 
@@ -192,6 +192,10 @@ pub trait GngMinting:
 
         let mut output_payments: ManagedVec<EsdtTokenPayment> = ManagedVec::new();
         let mut total_power = 0;
+
+        let current_battle = self.current_battle().get();
+        let battle_status = self.get_battle_status();
+        let remaining_nfts_mapper = self.remaining_nfts_in_battle(current_battle);
 
         for token in tokens.into_iter() {
             let (token_id, nonce) = token.into_tuple();
@@ -210,6 +214,14 @@ pub trait GngMinting:
 
             self.staked_for_address(&caller, &token_id)
                 .swap_remove(&nonce);
+
+            let token_idx = self.battle_stack().get_index(&Token {
+                token_id: token_id.clone(),
+                nonce,
+            });
+            if battle_status == BattleStatus::Battle && token_idx <= remaining_nfts_mapper.get() {
+                remaining_nfts_mapper.update(|prev| *prev -= 1);
+            }
 
             self.battle_stack().swap_remove(&Token {
                 token_id: token_id.clone(),
@@ -234,9 +246,9 @@ pub trait GngMinting:
     }
 
     /// We assume there is at least 2 tokens in the stack
-    fn clash(&self, rand_source: &mut RandomnessSource) -> u64 {
-        let first_token = self.get_and_remove_token_from_stack(rand_source);
-        let second_token = self.get_and_remove_token_from_stack(rand_source);
+    fn clash(&self, rand_source: &mut RandomnessSource, remaining_nfts: usize) -> u64 {
+        let first_token = self.get_and_swap_token(rand_source, remaining_nfts);
+        let second_token = self.get_and_swap_token(rand_source, remaining_nfts - 1);
 
         let first_token_attributes =
             self.get_token_attributes(&first_token.token_id, first_token.nonce);
@@ -258,20 +270,20 @@ pub trait GngMinting:
         }
     }
 
-    /// Get a random token from the battle stack and remove its index from the unique id battle stack
-    fn get_and_remove_token_from_stack(
+    /// Get a random token from the battle stack between 1 and remaining_nfts
+    /// And swap it with the item at the remaining_nfts position
+    fn get_and_swap_token(
         &self,
         rand_source: &mut RandomnessSource,
+        remaining_nfts: usize,
     ) -> Token<Self::Api> {
-        let current_battle = self.current_battle().get();
         let battle_stack_mapper = self.battle_stack();
-        let mut unique_id_battle_stack_mapper = self.unique_id_battle_stack(current_battle);
 
-        let random_index =
-            rand_source.next_usize_in_range(1, unique_id_battle_stack_mapper.len() + 1);
-        let token_idx = unique_id_battle_stack_mapper.get(random_index);
-        let token = battle_stack_mapper.get_by_index(token_idx);
-        unique_id_battle_stack_mapper.swap_remove(random_index);
+        let random_index = rand_source.next_usize_in_range(1, remaining_nfts + 1);
+        let token = battle_stack_mapper.get_by_index(random_index);
+
+        self.battle_stack()
+            .swap_indexes(random_index, remaining_nfts);
 
         token
     }
@@ -387,9 +399,7 @@ pub trait GngMinting:
     /// We assume there is exactly one token in the stack
     fn drain_stack(&self) {
         let current_battle = self.current_battle().get();
-        let mut unique_id_stack_mapper = self.unique_id_battle_stack(current_battle);
-        let token_idx = unique_id_stack_mapper.get(1);
-        let token = self.battle_stack().get_by_index(token_idx);
+        let token = self.battle_stack().get_by_index(1);
 
         //emit event
         self.single_token_clash_event(
@@ -398,7 +408,10 @@ pub trait GngMinting:
             self.nft_owner(&token.token_id, token.nonce).get(),
         );
 
-        unique_id_stack_mapper.swap_remove(1);
+        self.remaining_nfts_in_battle(current_battle)
+            .update(|prev| {
+                *prev -= 1;
+            });
     }
 
     fn calculate_clash_rewards(&self, battle_id: u64, power: u64) -> BigUint {
@@ -421,7 +434,7 @@ pub trait GngMinting:
         battle_id: u64,
     ) -> BigUint {
         let total_rewards_for_one_battle = self.total_rewards_for_operators(battle_id).get();
-        let total_clashes_amount = (self.battle_stack().len() / 2) as u64;
+        let total_clashes_amount = (self.total_number_clashes_current_battle().get()) as u64;
 
         BigUint::from(amount_of_clashes_performed)
             .mul(&total_rewards_for_one_battle)
@@ -551,9 +564,9 @@ pub trait GngMinting:
     #[storage_mapper("battleStack")]
     fn battle_stack(&self) -> UnorderedSetMapper<Token<Self::Api>>;
 
-    #[view(getUniqueIdBattleStack)]
-    #[storage_mapper("uniqueIdBattleStack")]
-    fn unique_id_battle_stack(&self, battle: u64) -> UniqueIdMapper<Self::Api>;
+    #[view(getRemainingNftsInBattle)]
+    #[storage_mapper("remainingNftsInBattle")]
+    fn remaining_nfts_in_battle(&self, battle: u64) -> SingleValueMapper<usize>;
 
     #[view(hasBattleStarted)]
     #[storage_mapper("hasBattleStarted")]
@@ -585,4 +598,8 @@ pub trait GngMinting:
     #[view(getTotalRewardsForOperators)]
     #[storage_mapper("totalRewardsForOperators")]
     fn total_rewards_for_operators(&self, battle_id: u64) -> SingleValueMapper<BigUint>;
+
+    #[view(getTotalNumberClashesCurrentBattle)]
+    #[storage_mapper("totalNumberClashesCurrentBattle")]
+    fn total_number_clashes_current_battle(&self) -> SingleValueMapper<usize>;
 }
