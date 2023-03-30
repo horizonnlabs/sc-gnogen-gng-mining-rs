@@ -306,7 +306,7 @@
         "arguments": ["address:user4"]
       },
       "expect": {
-        "out": ["1269"]
+        "out": ["2380"]
       }
     },
     {

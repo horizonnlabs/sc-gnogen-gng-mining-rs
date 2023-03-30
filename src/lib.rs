@@ -174,8 +174,7 @@ pub trait GngMinting:
             self.send()
                 .direct_esdt(&caller, &self.gng_token_id().get(), 0, &total_rewards);
 
-            self.raw_pending_rewards_for_address(&caller)
-                .set(PendingRewards::default());
+            self.clear_pending_rewards_for_address(&caller);
             self.stats_for_address(&caller)
                 .update(|prev| prev.gng_claimed += total_rewards);
         }
@@ -488,8 +487,7 @@ pub trait GngMinting:
         }
         let pending_rewards = self.raw_pending_rewards_for_address(address).get();
 
-        if (pending_rewards.awaiting_battle_id == self.current_battle().get()
-            && self.get_battle_status() == BattleStatus::Battle)
+        if pending_rewards.awaiting_battle_id == self.current_battle().get()
             || pending_rewards.awaiting_battle_id == 0
         {
             pending_rewards.calculated_rewards
@@ -500,6 +498,24 @@ pub trait GngMinting:
             );
             pending_rewards.calculated_rewards + rewards_to_add
         }
+    }
+
+    /// Does not clear the rewards of the current battle
+    fn clear_pending_rewards_for_address(&self, address: &ManagedAddress) {
+        if self.raw_pending_rewards_for_address(address).is_empty() {
+            return;
+        }
+
+        let mut pending_rewards = self.raw_pending_rewards_for_address(address).get();
+
+        if pending_rewards.awaiting_battle_id == self.current_battle().get() {
+            pending_rewards.calculated_rewards = BigUint::zero();
+        } else {
+            pending_rewards = PendingRewards::default();
+        }
+
+        self.raw_pending_rewards_for_address(address)
+            .set(&pending_rewards);
     }
 
     #[view(getStatsForAddress)]
