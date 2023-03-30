@@ -177,18 +177,6 @@
     },
     {
       "step": "scQuery",
-      "txId": "get pending rewards for user4 after clash after withdraw",
-      "tx": {
-        "to": "sc:gng-minting",
-        "function": "getPendingRewardsForAddress",
-        "arguments": ["address:user4"]
-      },
-      "expect": {
-        "out": ["0"]
-      }
-    },
-    {
-      "step": "scQuery",
       "txId": "get remaining nfts after withdraw",
       "tx": {
         "to": "sc:gng-minting",
@@ -197,6 +185,86 @@
       },
       "expect": {
         "out": ["10"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle stack (10 remaining then 11,12,13,14 should be -> GNOGONS-1 VALIDATORS-4 VALIDATORS-2 EMIDAS-4",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStack"
+      },
+      "expect": {
+        "out": [
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:2"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+            "1-nonce": "u64:1"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:6"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+            "1-nonce": "u64:3"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:3"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:4"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:1"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:2"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:5"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:NEWCOLLECTION-abcdef",
+            "1-nonce": "u64:1"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+            "1-nonce": "u64:4"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+            "1-nonce": "u64:2"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:4"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:1"
+          }
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user4 after clash after withdraw",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": ["address:user4"]
+      },
+      "expect": {
+        "out": ["0"]
       }
     },
     {

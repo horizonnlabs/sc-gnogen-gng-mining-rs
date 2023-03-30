@@ -274,7 +274,7 @@
         "status": "0",
         "message": "",
         "out": ["str:completed", "7"],
-        "gas": "46,030,527",
+        "gas": "46,110,544",
         "refund": "*"
       }
     }

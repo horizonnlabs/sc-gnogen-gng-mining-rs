@@ -220,6 +220,8 @@ pub trait GngMinting:
                 nonce,
             });
             if battle_status == BattleStatus::Battle && token_idx <= remaining_nfts_mapper.get() {
+                self.battle_stack()
+                    .swap_indexes(token_idx, remaining_nfts_mapper.get());
                 remaining_nfts_mapper.update(|prev| *prev -= 1);
             }
 
@@ -407,11 +409,6 @@ pub trait GngMinting:
             &token,
             self.nft_owner(&token.token_id, token.nonce).get(),
         );
-
-        self.remaining_nfts_in_battle(current_battle)
-            .update(|prev| {
-                *prev -= 1;
-            });
     }
 
     fn calculate_clash_rewards(&self, battle_id: u64, power: u64) -> BigUint {
