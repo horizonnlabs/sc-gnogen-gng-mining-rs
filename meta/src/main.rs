@@ -1,3 +1,3 @@
 fn main() {
-    elrond_wasm_debug::meta::perform::<gng_minting::AbiProvider>();
+    multiversx_sc_meta::cli_main::<gng_minting::AbiProvider>();
 }

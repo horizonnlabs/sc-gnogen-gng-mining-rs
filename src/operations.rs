@@ -1,7 +1,7 @@
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
-use elrond_wasm::elrond_codec::{EncodeErrorHandler, TopEncodeMulti, TopEncodeMultiOutput};
+use multiversx_sc::codec::{EncodeErrorHandler, TopEncodeMulti, TopEncodeMultiOutput};
 
 use super::config;
 
@@ -41,7 +41,7 @@ impl TopEncodeMulti for OperationCompletionStatus {
     }
 }
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait OngoingOperationModule: config::ConfigModule {
     fn run_while_it_has_gas<Process>(&self, mut process: Process) -> OperationCompletionStatus
     where

@@ -114,7 +114,7 @@
         "arguments": ["address:user1"]
       },
       "expect": {
-        "out": ["8952"]
+        "out": ["10150"]
       }
     },
     {
@@ -150,19 +150,19 @@
         "arguments": ["address:user4"]
       },
       "expect": {
-        "out": ["2155"]
+        "out": ["958"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get temp battle stack",
+      "txId": "get remaining nfts amount",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getUniqueIdBattleStack",
+        "function": "getRemainingNftsInBattle",
         "arguments": ["3"]
       },
       "expect": {
-        "out": []
+        "out": [""]
       }
     },
     {

@@ -3,7 +3,7 @@
   "steps": [
     {
       "step": "externalSteps",
-      "path": "01_setup.scen.json"
+      "path": "02_deposit_gng.scen.json"
     },
     {
       "step": "setState",

@@ -187,8 +187,7 @@
           "storage": {
             "str:currentBattle": "1",
             "str:firstBattleTimestamp": "5000",
-            "str:gngTokenId": "str:GNG-abcdef",
-            "str:state": "1"
+            "str:gngTokenId": "str:GNG-abcdef"
           },
           "code": "file:../output/gng-minting.wasm"
         },

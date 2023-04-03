@@ -155,7 +155,7 @@
         "arguments": ["address:user1"]
       },
       "expect": {
-        "out": ["18854"]
+        "out": ["19965"]
       }
     },
     {
@@ -167,7 +167,7 @@
         "arguments": ["address:user2"]
       },
       "expect": {
-        "out": ["2839"]
+        "out": ["2822"]
       }
     },
     {
@@ -179,7 +179,7 @@
         "arguments": ["address:user3"]
       },
       "expect": {
-        "out": ["5494"]
+        "out": ["8654"]
       }
     },
     {
@@ -191,31 +191,31 @@
         "arguments": ["address:user4"]
       },
       "expect": {
-        "out": ["6191"]
+        "out": ["1939"]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get temp battle stack 4",
+      "txId": "get remaining nfts amount",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getUniqueIdBattleStack",
+        "function": "getRemainingNftsInBattle",
         "arguments": ["4"]
       },
       "expect": {
-        "out": []
+        "out": [""]
       }
     },
     {
       "step": "scQuery",
-      "txId": "get temp battle stack 5",
+      "txId": "get remaining nfts amount",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getUniqueIdBattleStack",
+        "function": "getRemainingNftsInBattle",
         "arguments": ["5"]
       },
       "expect": {
-        "out": []
+        "out": [""]
       }
     },
     {
@@ -241,16 +241,16 @@
       "expect": {
         "out": [
           "address:user1",
-          "25305",
+          "26416",
           "450",
           "address:user3",
-          "14280",
+          "17440",
           "410",
           "address:user4",
-          "6191",
+          "1939",
           "380",
           "address:user2",
-          "4216",
+          "4199",
           "115"
         ]
       }

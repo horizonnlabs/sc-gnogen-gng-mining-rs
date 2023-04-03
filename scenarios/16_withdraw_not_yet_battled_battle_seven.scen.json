@@ -1,0 +1,347 @@
+{
+  "name": "battle seven",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "15_change_attributes.scen.json"
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 7",
+      "currentBlockInfo": {
+        "blockTimestamp": "538400"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["7"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total nfts engaged",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTotalNftEngaged"
+      },
+      "expect": {
+        "out": ["15"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user4 before battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": ["address:user4"]
+      },
+      "expect": {
+        "out": ["2897"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 6 1st tx",
+      "tx": {
+        "from": "address:user4",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "25,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:interrupted", "2"],
+        "gas": "*",
+        "refund": "*",
+        "logs": [
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "7",
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:1"
+              },
+              {
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:4"
+              },
+              "",
+              "address:user1",
+              "address:user4"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "7",
+              {
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:2"
+              },
+              {
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
+                "1-nonce": "u64:4"
+              },
+              "",
+              "address:user4",
+              "address:user4"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:ESDTTransfer",
+            "topics": ["str:GNG-abcdef", "", "28", "address:user4"]
+          }
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get remaining nfts before withdraw",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getRemainingNftsInBattle",
+        "arguments": ["7"]
+      },
+      "expect": {
+        "out": ["11"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user4 after clash before withdraw",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": ["address:user4"]
+      },
+      "expect": {
+        "out": ["2897"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "user4 withdraw EMIDAS 3 (not battled)",
+      "tx": {
+        "from": "address:user4",
+        "to": "sc:gng-minting",
+        "function": "withdraw",
+        "arguments": ["str:EMIDAS-abcdef", "3"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get remaining nfts after withdraw",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getRemainingNftsInBattle",
+        "arguments": ["7"]
+      },
+      "expect": {
+        "out": ["10"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle stack (10 remaining then 11,12,13,14 should be -> GNOGONS-1 VALIDATORS-4 VALIDATORS-2 EMIDAS-4",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStack"
+      },
+      "expect": {
+        "out": [
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:2"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+            "1-nonce": "u64:1"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:6"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+            "1-nonce": "u64:3"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:3"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:4"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:1"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:2"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:5"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:NEWCOLLECTION-abcdef",
+            "1-nonce": "u64:1"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+            "1-nonce": "u64:4"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:VALIDATORS-abcdef",
+            "1-nonce": "u64:2"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:EMIDAS-abcdef",
+            "1-nonce": "u64:4"
+          },
+          {
+            "0-tokenIdentifier": "nested:str:GNOGONS-abcdef",
+            "1-nonce": "u64:1"
+          }
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user4 after clash after withdraw",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": ["address:user4"]
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get nft engaged",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getTotalNftEngaged"
+      },
+      "expect": {
+        "out": ["14"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "finish battle",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "5"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user4 after battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": ["address:user4"]
+      },
+      "expect": {
+        "out": ["2380"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["8"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get remaining nfts amount",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getRemainingNftsInBattle",
+        "arguments": ["7"]
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    }
+  ]
+}

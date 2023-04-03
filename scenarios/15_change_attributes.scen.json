@@ -1,0 +1,62 @@
+{
+  "name": "Change attributes of a token (should not happen on mainnet as a NFT cant have its attributes changed)",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "14_battle_six.scen.json"
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total power of user1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getStatsForAddress",
+        "arguments": ["address:user1"]
+      },
+      "expect": {
+        "out": [
+          {
+            "0-power": "u64:450",
+            "2-gng_claimed": "biguint:6451"
+          }
+        ]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "update token attributes (emidas 1 power 200 to 150)",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "setAttributes",
+        "arguments": ["str:EMIDAS-abcdef", "1", "150", "100", "0"],
+        "gasLimit": "5,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get total power of user1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getStatsForAddress",
+        "arguments": ["address:user1"]
+      },
+      "expect": {
+        "out": [
+          {
+            "0-power": "u64:400",
+            "2-gng_claimed": "biguint:6451"
+          }
+        ]
+      }
+    }
+  ]
+}

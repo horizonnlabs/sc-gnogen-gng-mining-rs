@@ -159,14 +159,14 @@
     },
     {
       "step": "scQuery",
-      "txId": "get temp battle stack",
+      "txId": "get remaining nfts amount",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getUniqueIdBattleStack",
+        "function": "getRemainingNftsInBattle",
         "arguments": ["2"]
       },
       "expect": {
-        "out": []
+        "out": ["0"]
       }
     },
     {

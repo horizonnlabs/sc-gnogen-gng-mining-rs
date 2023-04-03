@@ -7,6 +7,7 @@ third battle => 91400 + 86400 = 182800
 fourth battle => 182800 + 86400 = 274200 (sunday)
 fifth battle => 274200 + 86400 = 365600
 sixth battle => 365600 + 86400 = 452000
+seventh battle => 452000 + 86400 = 538400
 and so on...
 
 test-status.scen.json

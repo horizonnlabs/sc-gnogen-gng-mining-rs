@@ -85,30 +85,11 @@
                 "1-nonce": "u64:1"
               },
               {
-                "0-tokenId": "nested:str:GNOGONS-abcdef",
-                "1-nonce": "u64:2"
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
+                "1-nonce": "u64:4"
               },
               "",
               "address:user1",
-              "address:user3"
-            ]
-          },
-          {
-            "address": "sc:gng-minting",
-            "endpoint": "str:battle",
-            "topics": [
-              "str:clash",
-              "6",
-              {
-                "0-tokenId": "nested:str:GNOGONS-abcdef",
-                "1-nonce": "u64:6"
-              },
-              {
-                "0-tokenId": "nested:str:VALIDATORS-abcdef",
-                "1-nonce": "u64:2"
-              },
-              "",
-              "address:user3",
               "address:user4"
             ]
           },
@@ -118,13 +99,51 @@
             "topics": [
               "str:clash",
               "6",
+              {
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
+                "1-nonce": "u64:2"
+              },
+              {
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:2"
+              },
+              "",
+              "address:user1",
+              "address:user4"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:4"
+              },
               {
                 "0-tokenId": "nested:str:NEWCOLLECTION-abcdef",
                 "1-nonce": "u64:1"
               },
+              "",
+              "address:user3",
+              "address:user3"
+            ]
+          },
+          {
+            "address": "sc:gng-minting",
+            "endpoint": "str:battle",
+            "topics": [
+              "str:clash",
+              "6",
               {
                 "0-tokenId": "nested:str:GNOGONS-abcdef",
-                "1-nonce": "u64:3"
+                "1-nonce": "u64:2"
+              },
+              {
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:5"
               },
               "",
               "address:user3",
@@ -138,15 +157,15 @@
               "str:clash",
               "6",
               {
-                "0-tokenId": "nested:str:VALIDATORS-abcdef",
-                "1-nonce": "u64:4"
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
+                "1-nonce": "u64:1"
               },
               {
-                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "0-tokenId": "nested:str:EMIDAS-abcdef",
                 "1-nonce": "u64:3"
               },
               "",
-              "address:user4",
+              "address:user1",
               "address:user4"
             ]
           },
@@ -157,15 +176,15 @@
               "str:clash",
               "6",
               {
-                "0-tokenId": "nested:str:EMIDAS-abcdef",
-                "1-nonce": "u64:2"
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:3"
               },
               {
                 "0-tokenId": "nested:str:GNOGONS-abcdef",
-                "1-nonce": "u64:4"
+                "1-nonce": "u64:3"
               },
               "",
-              "address:user1",
+              "address:user4",
               "address:user3"
             ]
           },
@@ -180,31 +199,12 @@
                 "1-nonce": "u64:1"
               },
               {
-                "0-tokenId": "nested:str:EMIDAS-abcdef",
-                "1-nonce": "u64:3"
+                "0-tokenId": "nested:str:GNOGONS-abcdef",
+                "1-nonce": "u64:6"
               },
               "",
               "address:user2",
-              "address:user4"
-            ]
-          },
-          {
-            "address": "sc:gng-minting",
-            "endpoint": "str:battle",
-            "topics": [
-              "str:clash",
-              "6",
-              {
-                "0-tokenId": "nested:str:EMIDAS-abcdef",
-                "1-nonce": "u64:1"
-              },
-              {
-                "0-tokenId": "nested:str:EMIDAS-abcdef",
-                "1-nonce": "u64:4"
-              },
-              "",
-              "address:user1",
-              "address:user4"
+              "address:user3"
             ]
           },
           {
@@ -214,10 +214,10 @@
               "str:singleTokenClash",
               "6",
               {
-                "0-tokenId": "nested:str:GNOGONS-abcdef",
-                "1-nonce": "u64:5"
+                "0-tokenId": "nested:str:VALIDATORS-abcdef",
+                "1-nonce": "u64:4"
               },
-              "address:user3"
+              "address:user4"
             ]
           },
           {
@@ -271,14 +271,14 @@
     },
     {
       "step": "scQuery",
-      "txId": "get temp battle stack",
+      "txId": "get remaining nfts amount",
       "tx": {
         "to": "sc:gng-minting",
-        "function": "getUniqueIdBattleStack",
+        "function": "getRemainingNftsInBattle",
         "arguments": ["6"]
       },
       "expect": {
-        "out": []
+        "out": [""]
       }
     },
     {

@@ -1,8 +1,8 @@
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 use crate::model::Token;
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 trait EventsModule {
     #[event("clash")]
     fn clash_event(
