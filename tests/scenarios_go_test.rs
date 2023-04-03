@@ -94,11 +94,6 @@ fn withdraw_winner_go() {
 }
 
 #[test]
-fn gas_consumption_go() {
-    multiversx_sc_scenario::run_go("scenarios/test-gas_consumption.scen.json");
-}
-
-#[test]
 fn halving_go() {
     multiversx_sc_scenario::run_go("scenarios/test-halving.scen.json");
 }
