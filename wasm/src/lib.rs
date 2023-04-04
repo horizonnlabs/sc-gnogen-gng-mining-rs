@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           49
+// Endpoints:                           50
 // Async Callback (empty):               1
-// Total number of exported functions:  51
+// Total number of exported functions:  52
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -29,6 +29,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getStatsForAddress
         getGlobalStats
         getGlobalStatsByAddress
+        getAmountOfUsers
         getCurrentBattle
         getStakedForAddress
         getBattleStack

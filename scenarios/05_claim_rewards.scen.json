@@ -57,16 +57,40 @@
     },
     {
       "step": "scQuery",
-      "txId": "get global stats",
+      "txId": "get number of addresses",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAmountOfUsers"
+      },
+      "expect": {
+        "out": ["3"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get global stats (from 0 size 2)",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getGlobalStats",
-        "arguments": []
+        "arguments": ["0", "2"]
       },
       "expect": {
         "out": [
           "address:user1", "6451", "300",
-          "address:user3", "3548", "180",
+          "address:user3", "3548", "180"
+        ]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get global stats (from 2 size 2)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getGlobalStats",
+        "arguments": ["2", "2"]
+      },
+      "expect": {
+        "out": [
           "address:user4", "0", "100"
         ]
       }

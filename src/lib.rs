@@ -530,10 +530,14 @@ pub trait GngMinting:
     }
 
     #[view(getGlobalStats)]
-    fn get_global_stats(&self) -> MultiValueEncoded<MultiValue3<ManagedAddress, BigUint, u64>> {
+    fn get_global_stats(
+        &self,
+        from: usize,
+        size: usize,
+    ) -> MultiValueEncoded<MultiValue3<ManagedAddress, BigUint, u64>> {
         let mut result = MultiValueEncoded::new();
 
-        for address in self.addresses().iter() {
+        for address in self.addresses().iter().skip(from).take(size) {
             let stats_for_address = self.stats_for_address(&address).get();
             let power = stats_for_address.power;
             let mut total_gng = BigUint::zero();
@@ -559,6 +563,11 @@ pub trait GngMinting:
         total_gng += self.get_pending_rewards_for_address(address);
 
         MultiValue3::from((address.clone(), power, total_gng))
+    }
+
+    #[view(getAmountOfUsers)]
+    fn get_amount_of_users(&self) -> usize {
+        self.addresses().len()
     }
 
     #[view(getCurrentBattle)]

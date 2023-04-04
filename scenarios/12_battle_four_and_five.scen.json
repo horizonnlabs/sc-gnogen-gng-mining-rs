@@ -232,26 +232,29 @@
     },
     {
       "step": "scQuery",
-      "txId": "get global stats",
+      "txId": "get number of addresses",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getAmountOfUsers"
+      },
+      "expect": {
+        "out": ["4"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get global stats (from 0 size 100)",
       "tx": {
         "to": "sc:gng-minting",
         "function": "getGlobalStats",
-        "arguments": []
+        "arguments": ["0", "100"]
       },
       "expect": {
         "out": [
-          "address:user1",
-          "26416",
-          "450",
-          "address:user3",
-          "17440",
-          "410",
-          "address:user4",
-          "1939",
-          "380",
-          "address:user2",
-          "4199",
-          "115"
+          "address:user1", "26416", "450",
+          "address:user3", "17440", "410",
+          "address:user4", "1939", "380",
+          "address:user2", "4199", "115"
         ]
       }
     },
