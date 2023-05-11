@@ -9,7 +9,7 @@
 
 ## Smart Contract State
 
-The contract can be under two different states: `Preparation` and `Battle`. In the `Preparation` state, users can stake their NFTs, withdraw them and claim rewards. In the `Battle` state, users can perform clashes. Each 24 hours the contract will switch from `Preparation` to `Battle` until all clashes have been performed. Then the contract will switch back to `Preparation` state.
+The contract can be under two different states: `Preparation` and `Battle`. In the `Preparation` state, users can stake their NFTs, withdraw them and claim rewards. In the `Battle` state, users can withdraw NFTs, claim rewards and perform clashes. Each 24 hours the contract will switch from `Preparation` to `Battle` until all clashes have been performed. Then the contract will switch back to `Preparation` state.
 
 ## Clash mechanics
 
