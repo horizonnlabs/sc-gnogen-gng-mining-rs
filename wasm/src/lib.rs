@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           50
+// Endpoints:                           51
 // Async Callback (empty):               1
-// Total number of exported functions:  52
+// Total number of exported functions:  53
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -24,6 +24,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         withdraw
         getBattleStatus
         isTodaySpecial
+        isCurrentBattleSpecial
         getAllStakedForAddress
         getPendingRewardsForAddress
         getStatsForAddress

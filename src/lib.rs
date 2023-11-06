@@ -340,7 +340,7 @@ pub trait GngMinting:
         mut winner: &'a Token<Self::Api>,
         mut loser: &'a Token<Self::Api>,
     ) -> u64 {
-        if self.is_today_special() {
+        if self.is_current_battle_special() {
             (winner, loser) = (loser, winner);
         }
 
@@ -455,7 +455,22 @@ pub trait GngMinting:
     fn is_today_special(&self) -> bool {
         let current_timestamp = self.blockchain().get_block_timestamp();
 
-        let days = current_timestamp / 60 / 60 / 24;
+        self.is_sunday(current_timestamp)
+    }
+
+    /// Returns if whether the current battle corresponds to Sunday
+    #[view(isCurrentBattleSpecial)]
+    fn is_current_battle_special(&self) -> bool {
+        let first_battle_timestamp = self.first_battle_timestamp().get();
+        let current_battle = self.current_battle().get();
+        let current_battle_timestamp =
+            first_battle_timestamp + (ONE_DAY_TIMESTAMP * (current_battle - 1));
+
+        self.is_sunday(current_battle_timestamp)
+    }
+
+    fn is_sunday(&self, timestamp: u64) -> bool {
+        let days = timestamp / 60 / 60 / 24;
         let weekday = (days + 4) % 7;
 
         // Sunday is index 0 [sun, mon, tue, wed, thu, fri, sat]

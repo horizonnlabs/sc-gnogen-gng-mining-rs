@@ -155,7 +155,7 @@
         "arguments": ["address:user1"]
       },
       "expect": {
-        "out": ["19965"]
+        "out": ["17522"]
       }
     },
     {
@@ -167,7 +167,7 @@
         "arguments": ["address:user2"]
       },
       "expect": {
-        "out": ["2822"]
+        "out": ["1411"]
       }
     },
     {
@@ -179,7 +179,7 @@
         "arguments": ["address:user3"]
       },
       "expect": {
-        "out": ["8654"]
+        "out": ["7934"]
       }
     },
     {
@@ -191,7 +191,7 @@
         "arguments": ["address:user4"]
       },
       "expect": {
-        "out": ["1939"]
+        "out": ["6513"]
       }
     },
     {
@@ -251,10 +251,10 @@
       },
       "expect": {
         "out": [
-          "address:user1", "26416", "450",
-          "address:user3", "17440", "410",
-          "address:user4", "1939", "380",
-          "address:user2", "4199", "115"
+          "address:user1", "23973", "450",
+          "address:user3", "16720", "410",
+          "address:user4", "6513", "380",
+          "address:user2", "2788", "115"
         ]
       }
     },
