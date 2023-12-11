@@ -46,6 +46,18 @@
       }
     },
     {
+      "step": "scQuery",
+      "txId": "get isCurrentBattleSpecial (saturday)",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "isCurrentBattleSpecial",
+        "arguments": []
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
       "step": "scCall",
       "txId": "battle 3 1st tx (call user4)",
       "tx": {
