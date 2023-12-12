@@ -22,14 +22,22 @@ pub trait GngMinting:
 {
     #[init]
     fn init(&self, first_battle_timestamp: u64, gng_token_id: TokenIdentifier) {
-        require!(
-            first_battle_timestamp > self.blockchain().get_block_timestamp(),
-            "Cannot backdate first battle"
-        );
+        if self.first_battle_timestamp().is_empty() {
+            require!(
+                first_battle_timestamp > self.blockchain().get_block_timestamp(),
+                "Cannot backdate first battle"
+            );
+            self.first_battle_timestamp()
+                .set_if_empty(first_battle_timestamp);
+        }
+
         self.current_battle().set_if_empty(1);
-        self.first_battle_timestamp()
-            .set_if_empty(first_battle_timestamp);
         self.gng_token_id().set_if_empty(gng_token_id);
+
+        require!(
+            self.get_battle_status() == BattleStatus::Preparation,
+            "Battle in progress"
+        );
     }
 
     #[payable("*")]
