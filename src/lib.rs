@@ -22,14 +22,22 @@ pub trait GngMinting:
 {
     #[init]
     fn init(&self, first_battle_timestamp: u64, gng_token_id: TokenIdentifier) {
-        require!(
-            first_battle_timestamp > self.blockchain().get_block_timestamp(),
-            "Cannot backdate first battle"
-        );
+        if self.first_battle_timestamp().is_empty() {
+            require!(
+                first_battle_timestamp > self.blockchain().get_block_timestamp(),
+                "Cannot backdate first battle"
+            );
+            self.first_battle_timestamp()
+                .set_if_empty(first_battle_timestamp);
+        }
+
         self.current_battle().set_if_empty(1);
-        self.first_battle_timestamp()
-            .set_if_empty(first_battle_timestamp);
         self.gng_token_id().set_if_empty(gng_token_id);
+
+        require!(
+            self.get_battle_status() == BattleStatus::Preparation,
+            "Battle in progress"
+        );
     }
 
     #[payable("*")]
@@ -340,7 +348,7 @@ pub trait GngMinting:
         mut winner: &'a Token<Self::Api>,
         mut loser: &'a Token<Self::Api>,
     ) -> u64 {
-        if self.is_today_special() {
+        if self.is_current_battle_special() {
             (winner, loser) = (loser, winner);
         }
 
@@ -455,7 +463,22 @@ pub trait GngMinting:
     fn is_today_special(&self) -> bool {
         let current_timestamp = self.blockchain().get_block_timestamp();
 
-        let days = current_timestamp / 60 / 60 / 24;
+        self.is_sunday(current_timestamp)
+    }
+
+    /// Returns if whether the current battle corresponds to Sunday
+    #[view(isCurrentBattleSpecial)]
+    fn is_current_battle_special(&self) -> bool {
+        let first_battle_timestamp = self.first_battle_timestamp().get();
+        let current_battle = self.current_battle().get();
+        let current_battle_timestamp =
+            first_battle_timestamp + (ONE_DAY_TIMESTAMP * (current_battle - 1));
+
+        self.is_sunday(current_battle_timestamp)
+    }
+
+    fn is_sunday(&self, timestamp: u64) -> bool {
+        let days = timestamp / 60 / 60 / 24;
         let weekday = (days + 4) % 7;
 
         // Sunday is index 0 [sun, mon, tue, wed, thu, fri, sat]
