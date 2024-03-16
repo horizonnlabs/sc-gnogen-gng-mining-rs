@@ -103,7 +103,8 @@
               "",
               "address:user1",
               "address:user4"
-            ]
+            ],
+            "data": [""]
           },
           {
             "address": "sc:gng-minting",
@@ -122,12 +123,14 @@
               "",
               "address:user4",
               "address:user4"
-            ]
+            ],
+            "data": [""]
           },
           {
             "address": "sc:gng-minting",
             "endpoint": "str:ESDTTransfer",
-            "topics": ["str:GNG-abcdef", "", "28", "address:user4"]
+            "topics": ["str:GNG-abcdef", "", "28", "address:user4"],
+            "data": ["str:DirectCall", "str:ESDTTransfer", "str:GNG-abcdef", "28"]
           }
         ]
       }
