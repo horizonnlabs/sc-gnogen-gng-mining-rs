@@ -1,0 +1,185 @@
+{
+  "name": "battle eight as weekly battle",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "16_claim_rewards_during_battle_seven.scen.json"
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["8"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "switch to weekly",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "switchMode",
+        "arguments": ["1", "1,000,000"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["8"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp too early",
+      "currentBlockInfo": {
+        "blockTimestamp": "950,000"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp battle 8",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,050,000"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 8",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get current battle",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getCurrentBattle"
+      },
+      "expect": {
+        "out": ["9"]
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp just before battle 9",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,604,500"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp just before battle 9",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,604,900"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    }
+  ]
+}
