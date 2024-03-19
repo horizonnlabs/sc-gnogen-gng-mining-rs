@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           51
+// Endpoints:                           56
 // Async Callback (empty):               1
-// Total number of exported functions:  53
+// Total number of exported functions:  58
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -18,6 +18,7 @@ multiversx_sc_wasm_adapter::panic_handler!();
 multiversx_sc_wasm_adapter::endpoints! {
     gng_minting
     (
+        switchMode
         stake
         battle
         claimRewards
@@ -43,6 +44,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getTotalRewardsForStakers
         getTotalRewardsForOperators
         getTotalNumberClashesCurrentBattle
+        getPastBattleAmount
         setBattleToken
         addExtraBattleToken
         removeExtraBattleToken
@@ -55,6 +57,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         setBattleRewardAmount
         setBattleOperatorRewardAmount
         getBattleRewardAmountWithHalving
+        getBattleOperatorRewards
         getTokenAttributes
         getBattleTokens
         getState
@@ -69,6 +72,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         getBattleRewardAmount
         getBattleOperatorRewardAmount
         getFirstBattleTimestamp
+        getFirstBattleTimestampCurrentPeriod
+        battleMode
     )
 }
 

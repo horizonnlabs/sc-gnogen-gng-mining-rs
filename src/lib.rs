@@ -10,11 +10,13 @@ mod operations;
 
 use core::cmp::Ordering;
 
-use model::{Attributes, BattleStatus, Nonce, PendingRewards, Token, UserStats};
+use model::{Attributes, BattleMode, BattleStatus, Nonce, PendingRewards, Token, UserStats};
 use operations::{LoopOp, OperationCompletionStatus};
 
 const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
+const ONE_WEEK_TIMESTAMP: u64 = ONE_DAY_TIMESTAMP * 7;
+const SPECIAL_WEEK_RECCURENCE: u64 = 7;
 
 #[multiversx_sc::contract]
 pub trait GngMinting:
@@ -34,10 +36,33 @@ pub trait GngMinting:
         self.current_battle().set_if_empty(1);
         self.gng_token_id().set_if_empty(gng_token_id);
 
+        self.first_battle_timestamp_current_period()
+            .set_if_empty(self.first_battle_timestamp().get());
+
         require!(
             self.get_battle_status() == BattleStatus::Preparation,
             "Battle in progress"
         );
+    }
+
+    #[only_owner]
+    #[endpoint(switchMode)]
+    fn switch_mode(&self, mode: &BattleMode, first_battle_timestamp: u64) {
+        require!(
+            self.get_battle_status() == BattleStatus::Preparation,
+            "Battle in progress"
+        );
+        require!(&self.battle_mode().get() != mode, "Already in this mode");
+        require!(
+            first_battle_timestamp > self.blockchain().get_block_timestamp(),
+            "Cannot backdate first battle"
+        );
+
+        self.past_battle_amount()
+            .set(self.current_battle().get() - 1);
+        self.first_battle_timestamp_current_period()
+            .set(first_battle_timestamp);
+        self.battle_mode().set(mode);
     }
 
     #[payable("*")]
@@ -102,7 +127,7 @@ pub trait GngMinting:
 
         if !self.has_battle_started(current_battle).get() {
             let battle_reward_amount = self.get_battle_reward_amount_with_halving();
-            let operators_reward_amount = self.battle_operator_reward_amount().get();
+            let operators_reward_amount = self.get_battle_operator_rewards();
 
             require!(
                 self.reward_capacity().get() >= &battle_reward_amount + &operators_reward_amount,
@@ -448,14 +473,23 @@ pub trait GngMinting:
     #[view(getBattleStatus)]
     fn get_battle_status(&self) -> BattleStatus {
         let current_timestamp = self.blockchain().get_block_timestamp();
-        let first_battle_timestamp = self.first_battle_timestamp().get();
+        let first_battle_timestamp = self.first_battle_timestamp_current_period().get();
         let current_battle = self.current_battle().get();
+        let past_battle_amount = self.past_battle_amount().get();
 
-        if current_timestamp >= first_battle_timestamp + (ONE_DAY_TIMESTAMP * (current_battle - 1))
+        let battle_duration = match self.battle_mode().get() {
+            BattleMode::Daily => ONE_DAY_TIMESTAMP,
+            BattleMode::Weekly => ONE_WEEK_TIMESTAMP,
+        };
+
+        if current_timestamp
+            >= first_battle_timestamp
+                + (battle_duration * (current_battle - past_battle_amount - 1))
         {
-            return BattleStatus::Battle;
+            BattleStatus::Battle
+        } else {
+            BattleStatus::Preparation
         }
-        BattleStatus::Preparation
     }
 
     /// Returns if whether the current day is Sunday
@@ -469,12 +503,20 @@ pub trait GngMinting:
     /// Returns if whether the current battle corresponds to Sunday
     #[view(isCurrentBattleSpecial)]
     fn is_current_battle_special(&self) -> bool {
-        let first_battle_timestamp = self.first_battle_timestamp().get();
-        let current_battle = self.current_battle().get();
-        let current_battle_timestamp =
-            first_battle_timestamp + (ONE_DAY_TIMESTAMP * (current_battle - 1));
+        match self.battle_mode().get() {
+            BattleMode::Daily => {
+                let first_battle_timestamp = self.first_battle_timestamp_current_period().get();
+                let current_battle = self.current_battle().get();
+                let past_battle_amount = self.past_battle_amount().get();
+                let current_battle_timestamp = first_battle_timestamp
+                    + (ONE_DAY_TIMESTAMP * (current_battle - past_battle_amount - 1));
 
-        self.is_sunday(current_battle_timestamp)
+                self.is_sunday(current_battle_timestamp)
+            }
+            BattleMode::Weekly => {
+                self.is_special_week(self.current_battle().get() - self.past_battle_amount().get())
+            }
+        }
     }
 
     fn is_sunday(&self, timestamp: u64) -> bool {
@@ -483,6 +525,10 @@ pub trait GngMinting:
 
         // Sunday is index 0 [sun, mon, tue, wed, thu, fri, sat]
         weekday == 0
+    }
+
+    fn is_special_week(&self, current_battle: u64) -> bool {
+        current_battle % SPECIAL_WEEK_RECCURENCE == 0
     }
 
     #[view(getAllStakedForAddress)]
@@ -647,4 +693,8 @@ pub trait GngMinting:
     #[view(getTotalNumberClashesCurrentBattle)]
     #[storage_mapper("totalNumberClashesCurrentBattle")]
     fn total_number_clashes_current_battle(&self) -> SingleValueMapper<usize>;
+
+    #[view(getPastBattleAmount)]
+    #[storage_mapper("pastBattleAmount")]
+    fn past_battle_amount(&self) -> SingleValueMapper<u64>;
 }

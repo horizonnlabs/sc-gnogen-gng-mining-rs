@@ -9,6 +9,8 @@ pub enum State {
     Active,
 }
 
+use crate::model::BattleMode;
+
 use super::model::{Attributes, Nonce, UserStats};
 
 #[multiversx_sc::module]
@@ -148,7 +150,21 @@ pub trait ConfigModule {
 
         let halving_count = days_since_first_battle / 365;
 
-        base_battle_reward_amount / 2u64.pow(u32::try_from(halving_count).unwrap())
+        let daily_rewards =
+            base_battle_reward_amount / 2u64.pow(u32::try_from(halving_count).unwrap());
+
+        match self.battle_mode().get() {
+            BattleMode::Daily => daily_rewards,
+            BattleMode::Weekly => daily_rewards * 7u64,
+        }
+    }
+
+    #[view(getBattleOperatorRewards)]
+    fn get_battle_operator_rewards(&self) -> BigUint {
+        match self.battle_mode().get() {
+            BattleMode::Daily => self.battle_operator_reward_amount().get(),
+            BattleMode::Weekly => self.battle_operator_reward_amount().get() * 7u64,
+        }
     }
 
     #[view(getTokenAttributes)]
@@ -233,4 +249,12 @@ pub trait ConfigModule {
     #[view(getFirstBattleTimestamp)]
     #[storage_mapper("firstBattleTimestamp")]
     fn first_battle_timestamp(&self) -> SingleValueMapper<u64>;
+
+    #[view(getFirstBattleTimestampCurrentPeriod)]
+    #[storage_mapper("firstBattleTimestampCurrentPeriod")]
+    fn first_battle_timestamp_current_period(&self) -> SingleValueMapper<u64>;
+
+    #[view(battleMode)]
+    #[storage_mapper("battleMode")]
+    fn battle_mode(&self) -> SingleValueMapper<BattleMode>;
 }
