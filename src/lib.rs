@@ -45,6 +45,11 @@ pub trait GngMinting:
         );
     }
 
+    #[upgrade]
+    fn upgrade(&self, first_battle_timestamp: u64, gng_token_id: TokenIdentifier) {
+        self.init(first_battle_timestamp, gng_token_id);
+    }
+
     #[only_owner]
     #[endpoint(switchMode)]
     fn switch_mode(&self, mode: &BattleMode, first_battle_timestamp: u64) {
