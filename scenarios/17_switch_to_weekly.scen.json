@@ -34,7 +34,7 @@
         "from": "address:owner",
         "to": "sc:gng-minting",
         "function": "switchMode",
-        "arguments": ["1", "1,000,000"],
+        "arguments": ["1"],
         "gasLimit": "20,000,000",
         "gasPrice": "0"
       },
@@ -72,7 +72,7 @@
       "step": "setState",
       "comment": "set timestamp too early",
       "currentBlockInfo": {
-        "blockTimestamp": "950,000"
+        "blockTimestamp": "550,000"
       }
     },
     {
@@ -90,7 +90,7 @@
       "step": "setState",
       "comment": "set timestamp battle 8",
       "currentBlockInfo": {
-        "blockTimestamp": "1,050,000"
+        "blockTimestamp": "610,000"
       }
     },
     {
@@ -149,7 +149,7 @@
       "step": "setState",
       "comment": "set timestamp just before battle 9",
       "currentBlockInfo": {
-        "blockTimestamp": "1,604,500"
+        "blockTimestamp": "1,214,599"
       }
     },
     {
@@ -165,9 +165,9 @@
     },
     {
       "step": "setState",
-      "comment": "set timestamp just before battle 9",
+      "comment": "set timestamp just after battle 9",
       "currentBlockInfo": {
-        "blockTimestamp": "1,604,900"
+        "blockTimestamp": "1,214,600"
       }
     },
     {
