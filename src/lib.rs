@@ -16,7 +16,7 @@ use operations::{LoopOp, OperationCompletionStatus};
 const NFT_AMOUNT: u64 = 1;
 const ONE_DAY_TIMESTAMP: u64 = 86400;
 const ONE_WEEK_TIMESTAMP: u64 = ONE_DAY_TIMESTAMP * 7;
-const SPECIAL_WEEK_RECCURENCE: u64 = 7;
+const SPECIAL_WEEK_RECURRENCE: u64 = 7;
 
 #[multiversx_sc::contract]
 pub trait GngMinting:
@@ -46,27 +46,51 @@ pub trait GngMinting:
     }
 
     #[upgrade]
-    fn upgrade(&self, first_battle_timestamp: u64, gng_token_id: TokenIdentifier) {
-        self.init(first_battle_timestamp, gng_token_id);
+    fn upgrade(&self) {
+        self.init(
+            self.first_battle_timestamp().get(),
+            self.gng_token_id().get(),
+        );
     }
 
     #[only_owner]
     #[endpoint(switchMode)]
-    fn switch_mode(&self, mode: &BattleMode, first_battle_timestamp: u64) {
+    fn switch_mode(&self, mode: &BattleMode) {
         require!(
             self.get_battle_status() == BattleStatus::Preparation,
             "Battle in progress"
         );
         require!(&self.battle_mode().get() != mode, "Already in this mode");
-        require!(
-            first_battle_timestamp > self.blockchain().get_block_timestamp(),
-            "Cannot backdate first battle"
-        );
+
+        let current_battle = self.current_battle().get();
+        let past_battle_amount = self.past_battle_amount().get();
+        let first_battle_timestamp_current_period =
+            self.first_battle_timestamp_current_period().get();
+        let first_battle_timestamp_new_period = match self.battle_mode().get() {
+            BattleMode::Daily => {
+                first_battle_timestamp_current_period
+                    + (ONE_DAY_TIMESTAMP * (current_battle - past_battle_amount - 1))
+            }
+            BattleMode::Weekly => {
+                if current_battle == 1 {
+                    first_battle_timestamp_current_period
+                } else {
+                    let last_battle_timestamp = first_battle_timestamp_current_period
+                        + (ONE_WEEK_TIMESTAMP * ((current_battle - 1) - past_battle_amount - 1));
+                    require!(
+                        last_battle_timestamp + ONE_DAY_TIMESTAMP
+                            > self.blockchain().get_block_timestamp(),
+                        "Cannot switch to daily mode too late"
+                    );
+                    last_battle_timestamp + ONE_DAY_TIMESTAMP
+                }
+            }
+        };
 
         self.past_battle_amount()
             .set(self.current_battle().get() - 1);
         self.first_battle_timestamp_current_period()
-            .set(first_battle_timestamp);
+            .set(first_battle_timestamp_new_period);
         self.battle_mode().set(mode);
     }
 
@@ -533,7 +557,7 @@ pub trait GngMinting:
     }
 
     fn is_special_week(&self, current_battle: u64) -> bool {
-        current_battle % SPECIAL_WEEK_RECCURENCE == 0
+        current_battle % SPECIAL_WEEK_RECURRENCE == 0
     }
 
     #[view(getAllStakedForAddress)]
