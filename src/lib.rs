@@ -72,7 +72,7 @@ pub trait GngMinting:
                     + (ONE_DAY_TIMESTAMP * (current_battle - past_battle_amount - 1))
             }
             BattleMode::Weekly => {
-                if current_battle == 1 {
+                if current_battle == past_battle_amount + 1 {
                     first_battle_timestamp_current_period
                 } else {
                     let last_battle_timestamp = first_battle_timestamp_current_period
