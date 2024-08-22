@@ -1,0 +1,147 @@
+{
+  "name": "switch daily -> weekly -> daily",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "17_switch_to_weekly.scen.json"
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 9",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp just after battle 10",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,819,400"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 10",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp to switch to daily",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,905,799"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "switch to daily",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "switchMode",
+        "arguments": ["0"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "switch to weekly",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "switchMode",
+        "arguments": ["1"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "switch to daily",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "switchMode",
+        "arguments": ["0"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 11",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,905,800"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    }
+  ]
+}

@@ -53,3 +53,9 @@ impl<M: ManagedTypeApi> Default for PendingRewards<M> {
         }
     }
 }
+
+#[derive(TopDecode, TopEncode, TypeAbi, PartialEq)]
+pub enum BattleMode {
+    Daily,
+    Weekly,
+}

@@ -1,0 +1,13 @@
+{
+  "name": "sc-gnogen-gng-minting-rs",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "xsuite build",
+    "test": "xsuite test-scen"
+  },
+  "author": "Nicolas Vergez",
+  "license": "ISC",
+  "devDependencies": {
+    "xsuite": "^0.0.82"
+  }
+}

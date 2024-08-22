@@ -1,0 +1,364 @@
+{
+  "name": "switch daily -> weekly -> daily",
+  "steps": [
+    {
+      "step": "externalSteps",
+      "path": "17_switch_to_weekly.scen.json"
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 9",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp just after battle 10",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,819,400"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 10",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp too late to switch to daily",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,905,801"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "try switch to daily",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "switchMode",
+        "arguments": ["0"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "4",
+        "message": "str:Cannot switch to daily mode too late",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp in correct range to switch to daily",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,905,799"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "switch to daily",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "switchMode",
+        "arguments": ["0"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 11",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,905,801"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get battle status",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getBattleStatus"
+      },
+      "expect": {
+        "out": ["1"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 11",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 12",
+      "currentBlockInfo": {
+        "blockTimestamp": "1,992,200"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 12",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "switch to weekly",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "switchMode",
+        "arguments": ["1"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 13",
+      "currentBlockInfo": {
+        "blockTimestamp": "2,078,600"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 12",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 13",
+      "currentBlockInfo": {
+        "blockTimestamp": "2,683,400"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 13",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "switch to daily",
+      "tx": {
+        "from": "address:owner",
+        "to": "sc:gng-minting",
+        "function": "switchMode",
+        "arguments": ["0"],
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 13",
+      "currentBlockInfo": {
+        "blockTimestamp": "2,769,800"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 14",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "setState",
+      "comment": "set timestamp for battle 13",
+      "currentBlockInfo": {
+        "blockTimestamp": "2,856,200"
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "battle 15",
+      "tx": {
+        "from": "address:user2",
+        "to": "sc:gng-minting",
+        "function": "battle",
+        "arguments": [],
+        "gasLimit": "50,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": ["str:completed", "7"],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": ["address:user1"]
+      },
+      "expect": {
+        "out": ["172224"]
+      }
+    },
+    {
+      "step": "scCall",
+      "txId": "user1 claim rewards",
+      "tx": {
+        "from": "address:user1",
+        "to": "sc:gng-minting",
+        "function": "claimRewards",
+        "gasLimit": "20,000,000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "message": "",
+        "out": [],
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "scQuery",
+      "txId": "get pending rewards for user1",
+      "tx": {
+        "to": "sc:gng-minting",
+        "function": "getPendingRewardsForAddress",
+        "arguments": ["address:user1"]
+      },
+      "expect": {
+        "out": ["0"]
+      }
+    }
+  ]
+}
